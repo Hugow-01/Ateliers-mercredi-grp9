@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription Parents - Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-nav {
+            background: white;
+            padding: 15px 20px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+        }
+        .admin-nav a { color: #333; text-decoration: none; font-weight: 600; }
+        .admin-nav a:hover, .admin-nav a.active { text-decoration: underline; color: black; }
+        
+        .checkbox-custom { width: 18px; height: 18px; accent-color: #27ae60; cursor: pointer; }
+    </style>
+</head>
+<script>
+    // 1. Gestion du menu "Sélectionner ligne" (Cocher/Décocher)
+    // On suppose que les checkboxes dans le menu contrôlent celles du tableau
+    const menuCheckboxes = document.querySelectorAll('.table-wrapper div input[type="checkbox"]');
+    
+    menuCheckboxes.forEach((menuBox, index) => {
+        menuBox.addEventListener('change', function() {
+            // Trouve la ligne correspondante dans le tableau (index + 1 car il y a le header)
+            const tableRows = document.querySelectorAll('tbody tr');
+            if(tableRows[index]) {
+                const rowCheckbox = tableRows[index].querySelector('input[type="checkbox"]');
+                rowCheckbox.checked = this.checked;
+            }
+        });
+    });
+
+    // 2. Bouton "Choisir une activité" (Validation)
+    const validateBtn = document.querySelector('.btn-primary');
+    validateBtn.addEventListener('click', function() {
+        const checkedCount = document.querySelectorAll('tbody input[type="checkbox"]:checked').length;
+        if(checkedCount > 0) {
+            alert(checkedCount + " enfants sélectionnés. Redirection vers le choix d'activité...");
+            // window.location.href = "activites.html"; // Décommentez pour activer la redirection
+        } else {
+            alert("Veuillez sélectionner au moins un enfant.");
+        }
+    });
+
+    // 3. Recherche dynamique
+    const btnSearch = document.querySelector('button.btn');
+    btnSearch.addEventListener('click', function() {
+        const inputs = document.querySelectorAll('input[type="text"]');
+        const filterName = inputs[0].value.toLowerCase(); // Champ Nom
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const nameCell = row.cells[0].textContent.toLowerCase(); // 1ère colonne = Nom
+            if(nameCell.includes(filterName)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+</script>
+<body>
+
+<div style="padding: 10px 20px;">
+    <h1 style="font-family: 'Baloo 2'; margin:0;">Espace administrateur</h1>
+</div>
+
+<div class="admin-nav">
+    <a href="admin-dashboard.html">Accueil</a>
+    <a href="admin-dashboard.html">tableau de bord</a>
+    <a href="admin-liste-enfants.html">liste des enfants</a>
+    <a href="admin-inscription-parents.html" class="active">inscription par les parents</a>
+    <a href="index.html" style="color: #c0392b;">se déconnecter</a>
+</div>
+
+<div class="container" style="background: white; padding: 30px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+    
+    <h2 style="text-align: center; margin-bottom: 30px;">Inscription par les parents</h2>
+
+    <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap;">
+        <div style="flex: 1;">
+            <label>Nom de famille</label>
+            <input type="text" placeholder="ex: Durin" style="background: white; border: 1px solid #333; width: 100%; padding: 8px; border-radius: 5px;">
+        </div>
+        <div style="flex: 1;">
+            <label>téléphone</label>
+            <input type="text" placeholder="ex: 07 06 54 87 56" style="background: white; border: 1px solid #333; width: 100%; padding: 8px; border-radius: 5px;">
+        </div>
+        <div style="flex: 1;">
+            <label>email</label>
+            <input type="text" placeholder="ex: durin.d@gmail.com" style="background: white; border: 1px solid #333; width: 100%; padding: 8px; border-radius: 5px;">
+        </div>
+        <button class="btn" style="background: white; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px;">🔍 Rechercher</button>
+    </div>
+
+    <div class="table-wrapper" style="position: relative;">
+        <div style="position: absolute; right: 0; top: -10px; background: white; border: 1px solid #ddd; padding: 15px; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.15); z-index: 10; min-width: 200px;">
+            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 10px;">
+                <span>Sélectionner ligne</span> <span>⌵</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div><input type="checkbox" checked> Dubois Léo</div>
+                <div><input type="checkbox" checked> Debon Carl</div>
+                <div><input type="checkbox" checked> Cassie Fanyah</div>
+                <div><input type="checkbox" checked> Marcelo Pepe</div>
+            </div>
+        </div>
+
+        <table style="width: 100%; margin-top: 20px; border-collapse: collapse;">
+            <thead>
+                <tr style="background: #f9f9f9; text-align: left; height: 50px;">
+                    <th style="padding: 10px;"><input type="checkbox" class="checkbox-custom" checked> Nom</th>
+                    <th style="padding: 10px;">Prénom</th>
+                    <th style="padding: 10px;">Âge</th>
+                    <th style="padding: 10px;">Classe</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px 10px;"><input type="checkbox" class="checkbox-custom" checked> Dubois</td>
+                    <td>Léo</td><td>12</td><td>5ème</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px 10px;"><input type="checkbox" class="checkbox-custom" checked> Debon</td>
+                    <td>Carl</td><td>11</td><td>6ème</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px 10px;"><input type="checkbox" class="checkbox-custom" checked> Cassie</td>
+                    <td>Fanyah</td><td>9</td><td>CM2</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 15px 10px;"><input type="checkbox" class="checkbox-custom" checked> Marcelo</td>
+                    <td>Pepe</td><td>13</td><td>4ème</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <button class="btn btn-primary" style="padding: 15px 40px; font-size: 1.2rem; background-color: var(--primary-pink);">choisir une activité</button>
+    </div>
+</div>
+
+</body>
+</html>

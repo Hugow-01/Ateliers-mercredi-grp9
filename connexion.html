@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Se connecter</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Styles spécifiques pour cette page */
+        .connexion-header {
+            background-color: #fdd835; /* Jaune moutarde */
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .connexion-header h1 { margin: 0; font-family: 'Baloo 2'; color: #3e2723; font-size: 2.5rem; }
+        .connexion-nav a { margin-left: 15px; text-decoration: underline; font-size: 0.9rem; font-weight: bold; color: #333; }
+
+        .illustration-banner {
+            width: 100%;
+            height: 350px; /* Hauteur ajustée pour bien voir l'image */
+            object-fit: cover;
+            object-position: center;
+        }
+
+        .login-card-container {
+            margin-top: -120px; /* Remonte la carte sur l'image */
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 50px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .auth-box {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: left;
+        }
+
+        .auth-box h2 {
+            font-family: 'Baloo 2';
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 1rem; }
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            background-color: #e1f5fe; /* Bleu pâle */
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Boutons de redirection (Rose) */
+        .role-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .btn-role {
+            background-color: #ff5e78; /* Rose */
+            color: white;
+            padding: 15px 20px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-family: 'Baloo 2';
+            text-align: center;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(255, 94, 120, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-role:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+<div class="connexion-header">
+    <h1>Se connecter</h1>
+    <nav class="connexion-nav">
+        <a href="index.html">Accueil</a>
+        <a href="activites.html">les activités</a>
+        <a href="inscription.html">s'inscrire</a>
+        <a href="index.html">se déconnecter</a>
+    </nav>
+</div>
+
+<img src="ChatGPT Image 25 janv. 2026, 22_33_21.png" alt="Enfants dessin atelier" class="illustration-banner">
+
+<div class="login-card-container">
+    
+    <div class="auth-box">
+        <h2>se connecter</h2>
+        
+        <form>
+            <div class="form-group">
+                <label>email</label>
+                <input type="email" class="input-field" placeholder="ex: marie.alice@gmail.com">
+            </div>
+            <div class="form-group">
+                <label>mot de passe</label>
+                <input type="password" class="input-field" placeholder="********">
+            </div>
+        </form>
+    </div>
+
+    <div class="role-buttons">
+        
+        <a href="parent-enfants.html" class="btn-role">
+            Se connecter en tant que parent
+        </a>
+        
+        <a href="admin-dashboard.html" class="btn-role">
+            Se connecter en tant que responsable municipale
+        </a>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion Responsable</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <span class="logo" style="color: #c0392b;">🛠️ ADMINISTRATION</span>
+        <a href="index.html" class="btn btn-outline btn-small">Déconnexion</a>
+    </header>
+
+    <div class="container">
+        <h1>Gestion des Inscriptions</h1>
+
+        <div class="card" style="border-left: 4px solid #c0392b; margin-bottom: 30px;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Sélectionner l'activité à gérer :</label>
+                <select>
+                    <option>Football - Mercredi 10h</option>
+                    <option>Peinture - Mercredi 10h</option>
+                    <option>Basket - Mercredi 14h</option>
+                </select>
+            </div>
+        </div>
+
+        <h3 style="color: #e67e22;">⏳ File d'attente (2 enfants)</h3>
+        <div class="table-wrapper" style="margin-bottom: 30px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom Enfant</th>
+                        <th>Âge</th>
+                        <th>Contact Parent</th>
+                        <th>Date demande</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Dupont Jean</td>
+                        <td>7 ans</td>
+                        <td>06 11 22 33 44</td>
+                        <td>12/09/2023</td>
+                        <td>
+                            <button class="btn btn-secondary btn-small">✏️</button>
+                            <button class="btn btn-outline btn-small" style="color:red; border-color:red;">❌</button>
+                        </td>
+                    </tr>
+                     <tr>
+                        <td>Durand Alice</td>
+                        <td>6 ans</td>
+                        <td>06 99 88 77 66</td>
+                        <td>13/09/2023</td>
+                        <td>
+                            <button class="btn btn-secondary btn-small">✏️</button>
+                            <button class="btn btn-outline btn-small" style="color:red; border-color:red;">❌</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h3 style="color: var(--secondary);">✅ Inscrits confirmés (15/20)</h3>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nom Enfant</th>
+                        <th>Âge</th>
+                        <th>Contact Parent</th>
+                        <th>Statut Paiement</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Martin Sophie</td>
+                        <td>8 ans</td>
+                        <td>07 65 43 21 09</td>
+                        <td><span style="background:#e8f5e9; color:green; padding:2px 5px; border-radius:4px;">Payé</span></td>
+                        <td>
+                            <button class="btn btn-secondary btn-small">✏️</button>
+                            <button class="btn btn-outline btn-small" style="color:red; border-color:red;">❌</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Bernard Lucas</td>
+                        <td>8 ans</td>
+                        <td>06 00 00 00 00</td>
+                        <td><span style="background:#fff3e0; color:orange; padding:2px 5px; border-radius:4px;">En attente</span></td>
+                        <td>
+                            <button class="btn btn-secondary btn-small">✏️</button>
+                            <button class="btn btn-outline btn-small" style="color:red; border-color:red;">❌</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

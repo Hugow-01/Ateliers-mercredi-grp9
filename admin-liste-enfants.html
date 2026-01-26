@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des enfants - Admin</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-nav {
+            background: white;
+            padding: 15px 20px;
+            font-size: 0.95rem;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+        }
+        .admin-nav a { color: #333; text-decoration: none; font-weight: 600; }
+        .admin-nav a:hover, .admin-nav a.active { text-decoration: underline; color: black; }
+
+        .status-select { padding: 5px 10px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; }
+        .status-accepted { background-color: #d4edda; color: #155724; }
+        .status-waiting { background-color: #ffcdd2; color: #c62828; width: 100%; text-align: center; display: inline-block;}
+        
+        .search-row { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-input { border: 1px solid #333; border-radius: 5px; padding: 8px; background: white; width: 100%; }
+    </style>
+</head>
+<script>
+    // 1. Gestion des couleurs des Status
+    const selects = document.querySelectorAll('.status-select');
+
+    function updateColor(selectElement) {
+        if (selectElement.value.includes("accepté")) {
+            selectElement.style.backgroundColor = "#d4edda";
+            selectElement.style.color = "#155724";
+        } else {
+            selectElement.style.backgroundColor = "#ffcdd2"; // Rouge clair
+            selectElement.style.color = "#c62828"; // Rouge foncé
+        }
+    }
+
+    selects.forEach(select => {
+        // Appliquer la couleur au chargement
+        updateColor(select);
+        
+        // Appliquer la couleur au changement
+        select.addEventListener('change', function() {
+            updateColor(this);
+        });
+    });
+
+    // 2. Filtre de recherche dans le tableau
+    const btnSearch = document.querySelector('button.btn'); // Bouton rechercher
+    const inputs = document.querySelectorAll('.search-input');
+    
+    btnSearch.addEventListener('click', function() {
+        // Simulation simple : on regarde le premier champ (Titre/Nom)
+        const filter = inputs[0].value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            if(text.includes(filter)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+</script>
+<body>
+
+<div style="padding: 10px 20px;">
+    <h1 style="font-family: 'Baloo 2'; margin:0;">Espace administrateur</h1>
+</div>
+
+<div class="admin-nav">
+    <a href="admin-dashboard.html">Accueil</a>
+    <a href="admin-dashboard.html">tableau de bord</a>
+    <a href="admin-liste-enfants.html" class="active">liste des enfants</a>
+    <a href="admin-inscription-parents.html">inscription par les parents</a>
+    <a href="index.html" style="color: #c0392b;">se déconnecter</a>
+</div>
+
+<div class="container" style="background: white; padding: 30px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+    
+    <h2 style="text-align: center; margin-bottom: 30px;">Liste des enfants par activité</h2>
+
+    <div class="search-row">
+        <div style="flex: 2; min-width: 200px;">
+            <label>Titre</label>
+            <input type="text" value="Atelier Arts plastiques" class="search-input">
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label>date</label>
+            <div style="display: flex; align-items: center; border: 1px solid #333; border-radius: 5px; padding: 8px;">
+                <span style="flex: 1;">sélectionnez...</span> 📅
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label>Catégorie</label>
+            <input type="text" value="Arts" class="search-input">
+        </div>
+        <button class="btn" style="background: white; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; display: flex; align-items: center; gap: 5px;">
+            🔍 Rechercher
+        </button>
+    </div>
+
+    <div class="table-wrapper">
+        <table style="width: 100%; border-collapse: separate; border-spacing: 0 15px;">
+            <thead>
+                <tr style="text-align: left;">
+                    <th style="background: transparent; color: #333; padding: 10px;">Nom</th>
+                    <th style="background: transparent; color: #333; padding: 10px;">Prénom</th>
+                    <th style="background: transparent; color: #333; padding: 10px;">Âge</th>
+                    <th style="background: transparent; color: #333; padding: 10px;">Classe</th>
+                    <th style="background: transparent; color: #333; padding: 10px;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="background: #fdfdfd;">
+                    <td style="padding: 10px;">Dubois</td>
+                    <td style="padding: 10px;">Léo</td>
+                    <td style="padding: 10px;">12</td>
+                    <td style="padding: 10px;">5ème</td>
+                    <td style="padding: 10px;">
+                        <select class="status-select status-accepted">
+                            <option>✔ accepté</option>
+                            <option>en liste d'attente</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">Cassie</td>
+                    <td style="padding: 10px;">Fanyah</td>
+                    <td style="padding: 10px;">9</td>
+                    <td style="padding: 10px;">CM2</td>
+                    <td style="padding: 10px;">
+                        <span class="status-select status-waiting">en liste d'attente</span>
+                    </td>
+                </tr>
+                 <tr>
+                    <td style="padding: 10px;">Marcelo</td>
+                    <td style="padding: 10px;">Pepe</td>
+                    <td style="padding: 10px;">13</td>
+                    <td style="padding: 10px;">4ème</td>
+                    <td style="padding: 10px;">
+                        <span class="status-select status-waiting">en liste d'attente</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

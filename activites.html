@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Activités - Ateliers du Mercredi</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- STYLES SPÉCIFIQUES À CETTE PAGE --- */
+        
+        /* BANNIÈRE */
+        .activity-banner {
+            position: relative;
+            height: 250px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            background: #eee; /* Couleur de fond si image charge pas */
+        }
+        .activity-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            /* Filtre pour assombrir légèrement et faire ressortir le texte */
+            filter: brightness(0.9);
+        }
+        .banner-text-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            width: 100%;
+        }
+        .banner-title {
+            font-family: 'Baloo 2', cursive;
+            font-size: 3rem;
+            color: #2c3e50; /* Bleu foncé */
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+        }
+        .banner-subtitle {
+            font-family: 'Brush Script MT', cursive; /* Ou une Google Font manuscrite */
+            font-size: 2.5rem;
+            color: #fdd835; /* Jaune */
+            margin: 5px 0 0 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        /* BARRE DE FILTRES */
+        .filters-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .filter-pill {
+            background-color: #ff8a80; /* Rose saumon */
+            color: black;
+            padding: 8px 40px;
+            border-radius: 20px;
+            border: none;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .search-pill {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+            width: 300px;
+        }
+        .search-pill input {
+            border: none;
+            outline: none;
+            margin-left: 10px;
+            width: 100%;
+        }
+
+        /* ITEM ACCORDÉON (ACTIVITÉ) */
+        .activity-item {
+            margin-bottom: 20px;
+            background: transparent;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px 0;
+        }
+        .activity-header h2 {
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        .activity-header .arrow {
+            font-size: 1.5rem;
+            transition: transform 0.3s;
+        }
+        .activity-header.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        /* DÉTAIL DÉPLIÉ */
+        .activity-details {
+            display: none; /* Caché par défaut */
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-top: 10px;
+        }
+        
+        /* Layout Grid pour le détail (Image | Texte | Calendrier) */
+        .details-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .details-left img {
+            width: 280px;
+            border-radius: 15px;
+            object-fit: cover;
+        }
+        .details-center {
+            flex: 1;
+            min-width: 250px;
+        }
+        .btn-add-yellow {
+            background-color: #fdd835;
+            color: black;
+            font-weight: bold;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        /* CALENDRIER ET HORAIRES (Design Exact) */
+        .calendar-wrapper {
+            display: flex;
+            gap: 15px;
+            font-family: sans-serif;
+            font-size: 0.8rem;
+        }
+        .calendar-box {
+            width: 220px;
+        }
+        .cal-nav {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            gap: 5px;
+        }
+        .cal-day {
+            padding: 5px 0;
+            cursor: pointer;
+            border-radius: 50%; /* Rond ou carré arrondi */
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        .cal-day:hover { background-color: #eee; }
+        .cal-day.selected { background-color: black; color: white; }
+        .cal-day.disabled { color: #ccc; cursor: default; }
+
+        .times-box {
+            width: 100px;
+        }
+        .time-btn {
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 5px;
+            text-align: center;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+        .time-btn.selected {
+            background-color: black;
+            color: white;
+            border-color: black;
+        }
+
+        /* CONFIRMATION */
+        .confirm-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+        .btn-confirm-pink {
+            background-color: #ff5e78;
+            color: white;
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.8rem;
+            padding: 10px 40px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">🎨 LES ACTIVITÉS</a>
+        <div class="header-nav">
+            <a href="index.html">Accueil</a>
+            <a href="activites.html" style="text-decoration: underline;">les activités</a>
+            <a href="inscription.html">s'inscrire</a>
+            <a href="index.html">se déconnecter</a>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <div class="activity-banner">
+            <img src="Gemini_Generated_Image_eoj4mzeoj4mzeoj4.jpg" alt="Activités Banner"> 
+            <div class="banner-text-overlay">
+                <h1 class="banner-title">NOS ACTIVITÉS DU MERCREDI</h1>
+                <p class="banner-subtitle">Crée, explore, imagine chaque semaine !</p>
+            </div>
+        </div>
+
+        <div class="filters-container">
+            <button class="filter-pill">catégorie</button>
+            <button class="filter-pill">titre</button>
+            <div class="search-pill">
+                🔍 <input type="text" placeholder="rechercher">
+            </div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-header active" onclick="toggleAccordion(this)">
+                <div style="display:none;"></div> 
+                <span class="arrow" style="display:none;">^</span>
+            </div>
+            
+            <div class="activity-details" style="display: block;">
+                <div class="details-grid">
+                    
+                    <div class="details-left">
+                        <img src="c5955c91b5a2222d4e57997034e6db6e.jpg" alt="Enfant peinture">
+                    </div>
+
+                    <div class="details-center">
+                        <h2 style="font-family: 'Baloo 2'; font-size: 1.8rem; margin-top:0;">Atelier Arts plastiques</h2>
+                        <p><strong>Responsable : Mme Claire Martin</strong></p>
+                        <p style="font-size: 0.95rem; color: #333;">
+                            Cet atelier permet aux enfants d'exprimer leur créativité à travers le dessin, la peinture et le bricolage. Dans une ambiance conviviale, chacun crée à son rythme et repart fier de ses réalisations.
+                        </p>
+                        <button class="btn-add-yellow">+ ajouter</button>
+                    </div>
+
+                    <div class="details-right">
+                        <div class="calendar-wrapper">
+                            <div class="calendar-box">
+                                <div class="cal-nav">
+                                    <span>&lt;</span> January 2026 <span>&gt;</span>
+                                </div>
+                                <div class="cal-grid">
+                                    <small>Su</small><small>Mo</small><small>Tu</small><small>We</small><small>Th</small><small>Fr</small><small>Sa</small>
+                                    
+                                    <div class="cal-day disabled">28</div><div class="cal-day disabled">29</div><div class="cal-day disabled">30</div><div class="cal-day disabled">31</div>
+                                    <div class="cal-day">1</div><div class="cal-day">2</div><div class="cal-day">3</div>
+                                    <div class="cal-day">4</div><div class="cal-day">5</div><div class="cal-day">6</div><div class="cal-day">7</div><div class="cal-day">8</div><div class="cal-day">9</div><div class="cal-day">10</div>
+                                    <div class="cal-day">11</div><div class="cal-day">12</div><div class="cal-day">13</div><div class="cal-day">14</div><div class="cal-day">15</div><div class="cal-day">16</div><div class="cal-day">17</div>
+                                    <div class="cal-day">18</div><div class="cal-day">19</div><div class="cal-day">20</div><div class="cal-day selected">21</div><div class="cal-day">22</div><div class="cal-day">23</div><div class="cal-day">24</div>
+                                    <div class="cal-day">25</div><div class="cal-day">26</div><div class="cal-day">27</div><div class="cal-day">28</div><div class="cal-day">29</div><div class="cal-day">30</div><div class="cal-day">31</div>
+                                </div>
+                            </div>
+
+                            <div class="times-box">
+                                <div style="text-align: center; font-weight: bold; margin-bottom: 10px; font-size: 0.8rem;">Available Times</div>
+                                <div class="time-btn">09:00 AM</div>
+                                <div class="time-btn">09:30 AM</div>
+                                <div class="time-btn selected">10:00 AM</div>
+                                <div class="time-btn">10:30 AM</div>
+                                <div class="time-btn">11:00 AM</div>
+                                <div class="time-btn">11:30 AM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-header" onclick="toggleAccordion(this)">
+                <h2>Atelier Jeux & motricité</h2>
+                <span class="arrow">﹀</span>
+            </div>
+            <div style="padding-left: 0; margin-top: 5px;">
+                <p>À travers des jeux ludiques et des parcours adaptés, les enfants développent leur motricité, leur esprit d'équipe et leur confiance en eux tout en s'amusant.</p>
+            </div>
+            <div class="activity-details">
+                <p>Détails de l'activité Jeux & Motricité...</p>
+            </div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-header" onclick="toggleAccordion(this)">
+                <h2>Atelier Lecture & créativité</h2>
+                <span class="arrow">﹀</span>
+            </div>
+            <div style="padding-left: 0; margin-top: 5px;">
+                <p>Un moment calme et chaleureux autour des histoires et des contes. Les enfants écoutent, imaginent, échangent et développent leur goût pour la lecture et l'expression.</p>
+            </div>
+            <div class="activity-details">
+                <p>Détails Lecture...</p>
+            </div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-header" onclick="toggleAccordion(this)">
+                <h2>Atelier Musique & rythme</h2>
+                <span class="arrow">﹀</span>
+            </div>
+            <div style="padding-left: 0; margin-top: 5px;">
+                <p>Les enfants découvrent les sons, les rythmes et les instruments à travers des jeux musicaux. Un atelier joyeux pour s'exprimer et développer l'écoute.</p>
+            </div>
+            <div class="activity-details">
+                <p>Détails Musique...</p>
+            </div>
+        </div>
+
+        <div class="confirm-section">
+            <h3 style="text-align: left;">Les activités ajoutées:</h3>
+            <p style="text-align: left;">Atelier Arts plastiques</p>
+            
+            <br>
+            <a href="parent-enfants.html">
+                <button class="btn-confirm-pink">confirmer les choix</button>
+            </a>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. Gestion Accordéon
+        function toggleAccordion(element) {
+            // Bascule la classe active pour la flèche
+            element.classList.toggle('active');
+            
+            // Trouve le contenu (soit le paragraphe descriptif simple, soit le bloc détails complet)
+            // Dans cet exemple simplifié, on cible le div .activity-details s'il existe à la suite
+            // Note: Pour les items fermés (2,3,4), on pourrait vouloir cacher le paragraphe résumé et montrer le détail
+            
+            // Pour l'exemple visuel : on ne code que l'ouverture des détails cachés
+            let details = element.parentNode.querySelector('.activity-details');
+            if (details) {
+                if (details.style.display === "block") {
+                    details.style.display = "none";
+                } else {
+                    details.style.display = "block";
+                }
+            }
+        }
+
+        // 2. Gestion Calendrier (Sélection Simple)
+        const days = document.querySelectorAll('.cal-day:not(.disabled)');
+        days.forEach(day => {
+            day.addEventListener('click', function() {
+                // Enlève la sélection des autres
+                days.forEach(d => d.classList.remove('selected'));
+                // Ajoute sur celui cliqué
+                this.classList.add('selected');
+            });
+        });
+
+        // 3. Gestion Horaires (Sélection Simple)
+        const times = document.querySelectorAll('.time-btn');
+        times.forEach(time => {
+            time.addEventListener('click', function() {
+                times.forEach(t => t.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+</body>
+</html>

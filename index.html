@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les Ateliers du Mercredi</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Styles spécifiques pour la bannière d'accueil */
+        .hero {
+            /* Image de fond */
+            background: url('atel.jpg') center/cover no-repeat;
+            position: relative;
+            text-align: center;
+            padding: 100px 20px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Calque sombre pour rendre le texte lisible */
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        /* Contenu par-dessus le calque */
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-family: 'Baloo 2', cursive;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        /* Boutons spécifiques Accueil */
+        .btn-hero-connect {
+            background-color: #8c9eff; /* Violet/Bleu (Se connecter) */
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.2rem;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+        
+        .btn-hero-subscribe {
+            background-color: #ff5e78; /* Rose (S'inscrire) */
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.2rem;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+        }
+
+        .btn-hero-connect:hover, .btn-hero-subscribe:hover {
+            transform: scale(1.05);
+        }
+
+        /* Section Piliers (Chaleureux, Créatif...) */
+        .pillars-section {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 50px 0;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .pillar h3 {
+            font-family: 'Baloo 2';
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        .pillar hr {
+            width: 50px;
+            border: 2px solid #333;
+            margin: 10px auto;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo" style="font-family: 'Baloo 2'; font-size: 1.8rem; color:black;">Ateliers du Mercredi</a>
+    <nav class="header-nav">
+        <a href="index.html">Accueil</a>
+        <a href="activites.html">Nos activités</a>
+        <a href="#infos">À propos de nous</a>
+        <a href="#contact">Contact</a>
+    </nav>
+</header>
+
+<div class="container">
+    
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Découvrez Les ateliers du mercredi</h1>
+            
+            <div style="margin-top: 30px;">
+                <a href="connexion.html" class="btn-hero-connect">Se connecter</a>
+                <br class="mobile-break" style="display:none;">
+                <a href="inscription.html" class="btn-hero-subscribe">S'inscrire</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="pillars-section">
+        <div class="pillar">
+            <h3>chaleureux</h3>
+            <hr>
+            <p style="font-size: 0.9rem; color: #555;">Le mercredi devient un moment de plaisir, de découverte et d'apprentissage.</p>
+        </div>
+        <div class="pillar">
+            <h3>créatif</h3>
+            <hr>
+            <p style="font-size: 0.9rem; color: #555;">Créer, explorer, s'exprimer... chaque mercredi est une nouvelle aventure !</p>
+        </div>
+        <div class="pillar">
+            <h3>Confiance</h3>
+            <hr>
+            <p style="font-size: 0.9rem; color: #555;">Des ateliers encadrés par des professionnels, dans un environnement sécurisé.</p>
+        </div>
+    </div>
+
+    <div id="infos" style="display: flex; align-items: center; gap: 40px; margin: 60px 0; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+            <img src="Gemini_Generated_Image_96lr6196lr6196lr.jpg" alt="Atelier Poterie" style="width: 100%; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+        </div>
+        
+        <div style="flex: 1; min-width: 300px;">
+            <p style="line-height: 1.8; color: #333;">
+                Les Ateliers du Mercredi proposent aux enfants des activités variées, éducatives et ludiques, adaptées à leur âge, dans un cadre sécurisé et bienveillant.
+            </p>
+            <p style="line-height: 1.8; color: #333;">
+                Chaque mercredi, les enfants découvrent, apprennent et s'épanouissent tout en prenant plaisir à participer. Les parents disposent d'un espace dédié pour inscrire leurs enfants, choisir les ateliers et les créneaux disponibles en toute simplicité.
+            </p>
+        </div>
+    </div>
+</div>
+
+<footer id="contact" style="background-color: #54c7ec; color: #000; padding: 40px 20px; margin-top: 50px;">
+    <div class="container" style="margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 30px;">
+        
+        <div style="flex: 1; min-width: 250px;">
+            <h3 style="margin-top: 0;">Nous trouver:</h3>
+            <div style="border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2890.024790716508!2d1.380837957223259!3d43.58519995843656!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12aeba66a700f077%3A0xe93c8355af0f357c!2s5%20Rue%20Jean%20Cocteau%2C%2031100%20Toulouse!5e0!3m2!1sfr!2sfr!4v1769439204384!5m2!1sfr!2sfr" width="100%" height="250" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+
+        <div style="flex: 1; min-width: 250px;">
+            <h3 style="margin-top: 0;">Nous contacter:</h3>
+            <p><strong>tél:</strong> 05 32 14 67 90</p>
+            <p><strong>email:</strong> j.rostaing@ateliers-mercredi.com</p>
+            <p><strong>adresse:</strong> 5 avenue Jean-Cocteau, 31400 Toulouse</p>
+            <p><strong>réseaux sociaux (fb | insta):</strong> ateliers mercredi jrostaing</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

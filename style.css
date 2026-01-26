@@ -1,0 +1,240 @@
+/* --- CONFIGURATION GÉNÉRALE --- */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap');
+
+:root {
+    /* Palette inspirée des maquettes */
+    --primary-blue: #54c7ec;      /* Bleu ciel (Footer, accents) */
+    --primary-yellow: #f4d06f;    /* Jaune moutarde (Bandeaux, boutons) */
+    --primary-pink: #ff5e78;      /* Rose/Rouge (Boutons action, validation) */
+    --text-dark: #2c3e50;
+    --text-light: #555;
+    --bg-white: #ffffff;
+    --bg-light: #f9f9f9;
+    --border-radius: 15px;        /* Arrondis prononcés comme sur les maquettes */
+    --font-title: 'Baloo 2', cursive;
+    --font-body: 'Nunito', sans-serif;
+}
+
+body {
+    font-family: var(--font-body);
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+* { box-sizing: border-box; }
+
+a { text-decoration: none; color: inherit; }
+
+/* --- HEADER --- */
+header {
+    background: var(--bg-white);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-family: var(--font-title);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #000;
+}
+
+.header-nav a {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-left: 20px;
+    font-size: 1rem;
+}
+.header-nav a:hover { text-decoration: underline; }
+
+/* --- TYPOGRAPHIE & TITRES --- */
+h1, h2, h3 {
+    font-family: var(--font-title);
+    margin-bottom: 0.5em;
+    font-weight: 800;
+}
+h1 { font-size: 2.5rem; color: #000; }
+h2 { font-size: 1.8rem; }
+
+/* --- CONTENEUR --- */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* --- BANNIÈRES (Jaune) --- */
+.banner-yellow {
+    background-color: var(--primary-yellow);
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 30px;
+}
+.banner-yellow h1 {
+    margin: 0;
+    color: #3e2723; /* Marron foncé pour le contraste sur jaune */
+    font-size: 2.2rem;
+}
+
+/* --- BOUTONS --- */
+.btn {
+    display: inline-block;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 25px; /* Boutons très ronds */
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: white;
+}
+.btn:hover { transform: translateY(-2px); }
+
+.btn-primary { background-color: var(--primary-pink); } /* Rose (S'inscrire) */
+.btn-secondary { background-color: #8c9eff; } /* Bleu pervenche (Se connecter) */
+.btn-yellow { background-color: var(--primary-yellow); color: #333; }
+.btn-small { padding: 5px 15px; font-size: 0.9rem; }
+
+/* --- FORMULAIRES & INPUTS --- */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    align-items: center;
+    padding: 40px 0;
+}
+
+.auth-box {
+    background: var(--bg-white);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-group { margin-bottom: 15px; }
+label { display: block; margin-bottom: 5px; font-weight: 700; font-size: 1rem; }
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background-color: #e3f2fd; /* Fond bleu très pâle pour les inputs */
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: var(--font-body);
+}
+input::placeholder { color: #888; }
+
+/* --- ESPACE PARENT (Cartes Enfants) --- */
+.parent-dashboard {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.child-card {
+    background: var(--bg-white);
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    width: 300px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #eee;
+}
+
+.child-header {
+    text-align: center;
+    padding: 15px;
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    color: var(--primary-pink);
+}
+
+.child-body {
+    padding: 20px;
+}
+
+.info-row {
+    margin-bottom: 10px;
+}
+.info-label { font-weight: bold; font-size: 1.1rem; }
+.info-value {
+    background: #e1f5fe;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: block;
+    margin-top: 2px;
+}
+
+.activity-section {
+    background-color: #7986cb; /* Bleu violet */
+    color: white;
+    padding: 15px;
+    margin-top: 10px;
+}
+.activity-item {
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+.status-badge {
+    float: right;
+    background: var(--primary-yellow);
+    color: black;
+    font-size: 0.8rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+/* --- FOOTER (Bleu ciel) --- */
+footer {
+    background-color: var(--primary-blue);
+    color: #000;
+    padding: 40px 20px;
+    margin-top: 50px;
+}
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1000px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+.map-placeholder img {
+    border-radius: 15px;
+    max-width: 100%;
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 768px) {
+    /* Header simplifié */
+    header { flex-direction: column; text-align: center; }
+    .header-nav { margin-top: 10px; }
+    .header-nav a { margin: 0 10px; }
+
+    /* Inscription & Connexion : Stack vertical */
+    .auth-container { flex-direction: column; }
+    .auth-box { width: 100%; }
+    .illustration-image { display: none; /* Cache l'image sur mobile comme demandé */ }
+
+    /* Cartes enfants */
+    .parent-dashboard { flex-direction: column; align-items: center; }
+    .child-card { width: 100%; }
+
+    /* Footer */
+    .footer-content { flex-direction: column; text-align: left; gap: 20px; }
+    
+    /* Bannière */
+    .banner-yellow h1 { font-size: 1.8rem; text-align: center; }
+}
