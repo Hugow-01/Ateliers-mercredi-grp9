@@ -3,257 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Modification Atelier</title>
+    <title>Admin - Modification</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        /* --- STYLES SPÉCIFIQUES --- */
-        h2 { font-family: 'Baloo 2'; font-size: 2rem; text-align: center; margin-bottom: 40px; }
-        
-        .columns-container {
-            display: flex;
-            gap: 50px;
-            flex-wrap: wrap;
-        }
-        .col-left, .col-right {
-            flex: 1;
-            min-width: 350px;
-        }
-
-        /* COLONNE GAUCHE (CALENDRIER) */
-        .section-title {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            font-family: 'Nunito', sans-serif;
-        }
-        
-        .date-picker-box {
-            border: 1px solid #333;
-            border-radius: 5px;
-            padding: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-        }
-
-        .calendar-large {
-            width: 100%;
-            max-width: 350px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        .cal-nav { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; }
-        .cal-grid-lg {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-        }
-        .cal-day-lg {
-            padding: 8px 0;
-            cursor: pointer;
-            border-radius: 5px;
-            font-weight: bold;
-        }
+        .cal-day-lg { padding: 8px 0; cursor: pointer; border-radius: 5px; font-weight: bold; text-align: center; }
         .cal-day-lg:hover { background: #eee; }
         .cal-day-lg.active { background: #222; color: white; }
-        .cal-day-lg.disabled { color: #ccc; }
-
-        /* LISTE DES HEURES */
-        .time-slots-list {
-            margin-top: 30px;
-        }
-        .date-tabs {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
-        }
-        .date-tab {
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            border: 1px solid #ddd;
-        }
-        .date-tab.active { background: #2c3e50; color: white; border-color: #2c3e50; }
-
-        .time-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-        .time-label { width: 50px; font-weight: bold; }
-        .btn-mod { background: #fdd835; border: none; padding: 2px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
-        .btn-del { background: #ff7043; color: white; border: none; padding: 2px 10px; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
-        
-        .add-time-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .input-time { border: 1px solid #333; border-radius: 5px; padding: 5px; width: 80px; text-align: center; }
-        .btn-add-plus { background: #eee; border: none; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-weight: bold; }
-
-        /* COLONNE DROITE (FORMULAIRE) */
-        .form-label { font-weight: bold; display: block; margin-bottom: 5px; font-size: 1.1rem; }
-        .form-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #333;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-family: 'Nunito', sans-serif;
-            font-size: 1rem;
-        }
-        textarea.form-input {
-            height: 150px;
-            resize: none;
-        }
-
-        .btn-save-blue {
-            background: #42a5f5; /* Bleu ciel vif */
-            color: white;
-            border: none;
-            padding: 15px 0;
-            width: 100%;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(66, 165, 245, 0.3);
-            margin-top: 20px;
-        }
-
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo" style="font-family: 'Baloo 2'; font-size: 1.5rem;">Espace administrateur</div>
-        <div class="header-nav">
-            <a href="index.html">Accueil</a>
-            <a href="admin-dashboard.html">tableau de bord</a>
-            <a href="admin-liste-enfants.html">liste des enfants</a>
-            <a href="admin-inscription-parents.html">inscription par les parents</a>
-            <a href="index.html">se déconnecter</a>
-        </div>
-    </header>
+<div class="admin-nav" style="background-color: #fdd835; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <div class="logo" style="font-family: 'Baloo 2'; font-size: 1.8rem; color: #3e2723; margin:0;">Espace administrateur</div>
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <a href="index.html" style="color: #3e2723; text-decoration: none; font-weight: bold;">Accueil</a>
+        <a href="admin-dashboard.html" style="color: #3e2723; text-decoration: none; font-weight: bold;">Tableau de bord</a>
+        <a href="admin-liste-enfants.html" style="color: #3e2723; text-decoration: none; font-weight: bold;">Liste des enfants</a>
+        <a href="admin-inscription-parents.html" style="color: #3e2723; text-decoration: none; font-weight: bold;">Inscription parents</a>
+        <a href="index.html" style="color: #c0392b; text-decoration: none; font-weight: bold;">Se déconnecter</a>
+    </div>
+</div>
 
-    <div class="container" style="background: white; padding: 40px; border-radius: 10px; margin-top: 40px;">
-        
-        <h2>Modification de Atelier Arts plastiques</h2>
-
-        <div class="columns-container">
+<div class="container" style="background: white; padding: 40px; border-radius: 10px; margin-top: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+    <h2 style="font-family: 'Baloo 2'; text-align: center; font-size: 2rem; margin-bottom: 40px;">Modification de Atelier Arts plastiques</h2>
+    
+    <div style="display: flex; gap: 50px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px;">
+            <h3 style="font-family: 'Nunito';">Modification des créneaux</h3>
+            <p style="font-weight:bold;">ajouter/supprimer un date</p>
             
-            <div class="col-left">
-                <div class="section-title">Modification des créneaux</div>
+            <div style="border: 1px solid #333; padding: 10px; display: flex; justify-content: space-between; border-radius: 5px; margin-bottom: 10px;">
+                <span>sélectionnez/désélectionnez la date</span> 📅
+            </div>
+
+            <div style="text-align: center; margin-bottom: 10px; display:flex; justify-content:space-between; padding:0 20px;">
+                <span>&lt;</span> <strong>January 2026</strong> <span>&gt;</span>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px; text-align:center; font-size:0.9rem;">
+                <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                <div style="color:#ccc">28</div><div style="color:#ccc">29</div><div style="color:#ccc">30</div><div style="color:#ccc">31</div>
+                <div class="cal-day-lg">1</div><div class="cal-day-lg">2</div><div class="cal-day-lg">3</div>
+                <div class="cal-day-lg active">4</div><div class="cal-day-lg">5</div><div class="cal-day-lg">6</div><div class="cal-day-lg">7</div><div class="cal-day-lg">8</div><div class="cal-day-lg">9</div><div class="cal-day-lg">10</div>
+                <div class="cal-day-lg">11</div><div class="cal-day-lg">12</div><div class="cal-day-lg">13</div><div class="cal-day-lg">14</div><div class="cal-day-lg">15</div><div class="cal-day-lg">16</div><div class="cal-day-lg active">17</div>
+                <div class="cal-day-lg">18</div><div class="cal-day-lg">19</div><div class="cal-day-lg">20</div><div class="cal-day-lg active">21</div><div class="cal-day-lg">22</div><div class="cal-day-lg">23</div><div class="cal-day-lg">24</div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <p style="font-weight:bold;">ajouter/supprimer l'heure</p>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <button style="background:#2c3e50; color:white; border:none; padding:5px 15px; border-radius:15px;">4 Jan 26</button>
+                    <button style="background:#eee; border:none; padding:5px 15px; border-radius:15px;">17 Jan 26</button>
+                </div>
                 
-                <p><strong>ajouter/supprimer un date</strong></p>
-                <div class="date-picker-box">
-                    <span>sélectionnez/désélectionnez la date</span>
-                    <span style="font-size: 1.2rem;">📅</span>
+                <div style="margin-bottom:5px;">
+                    10:00 <button style="background:#fdd835; border:none; margin-left:10px; font-size:0.8rem;">modifier</button> <button style="background:#ff7043; color:white; border:none; font-size:0.8rem;">supprimer X</button>
                 </div>
-
-                <div class="calendar-large">
-                    <div class="cal-nav">
-                        <span>&lt;</span> January 2026 <span>&gt;</span>
-                    </div>
-                    <div class="cal-grid-lg">
-                        <small>Su</small><small>Mo</small><small>Tu</small><small>We</small><small>Th</small><small>Fr</small><small>Sa</small>
-                        
-                        <div class="cal-day-lg disabled">28</div><div class="cal-day-lg disabled">29</div><div class="cal-day-lg disabled">30</div><div class="cal-day-lg disabled">31</div>
-                        <div class="cal-day-lg">1</div><div class="cal-day-lg">2</div><div class="cal-day-lg">3</div>
-                        <div class="cal-day-lg active">4</div><div class="cal-day-lg">5</div><div class="cal-day-lg">6</div><div class="cal-day-lg active">7</div><div class="cal-day-lg">8</div><div class="cal-day-lg">9</div><div class="cal-day-lg">10</div>
-                        <div class="cal-day-lg">11</div><div class="cal-day-lg">12</div><div class="cal-day-lg">13</div><div class="cal-day-lg">14</div><div class="cal-day-lg">15</div><div class="cal-day-lg">16</div><div class="cal-day-lg active">17</div>
-                        <div class="cal-day-lg">18</div><div class="cal-day-lg">19</div><div class="cal-day-lg">20</div><div class="cal-day-lg active">21</div><div class="cal-day-lg">22</div><div class="cal-day-lg">23</div><div class="cal-day-lg">24</div>
-                        <div class="cal-day-lg">25</div><div class="cal-day-lg">26</div><div class="cal-day-lg">27</div><div class="cal-day-lg">28</div><div class="cal-day-lg">29</div><div class="cal-day-lg">30</div><div class="cal-day-lg">31</div>
-                    </div>
+                <div style="margin-bottom:5px;">
+                    14:00 <button style="background:#fdd835; border:none; margin-left:10px; font-size:0.8rem;">modifier</button> <button style="background:#ff7043; color:white; border:none; font-size:0.8rem;">supprimer X</button>
                 </div>
-
-                <div class="time-slots-list">
-                    <p><strong>ajouter/supprimer l'heure</strong></p>
-                    
-                    <div class="date-tabs">
-                        <div class="date-tab active">4 Jan 26</div>
-                        <div class="date-tab">17 Jan 26</div>
-                        <div class="date-tab">21 Jan 26</div>
-                    </div>
-
-                    <div id="slots-container">
-                        <div class="time-row">
-                            <span class="time-label">10:00</span>
-                            <button class="btn-mod">modifier</button>
-                            <button class="btn-del" onclick="this.parentElement.remove()">supprimer X</button>
-                        </div>
-                        <div class="time-row">
-                            <span class="time-label">14:00</span>
-                            <button class="btn-mod">modifier</button>
-                            <button class="btn-del" onclick="this.parentElement.remove()">supprimer X</button>
-                        </div>
-                        <div class="time-row">
-                            <span class="time-label">16:00</span>
-                            <button class="btn-mod">modifier</button>
-                            <button class="btn-del" onclick="this.parentElement.remove()">supprimer X</button>
-                        </div>
-                    </div>
-
-                    <div class="add-time-row">
-                        <input type="text" value="8:00" class="input-time" id="newTime">
-                        <button class="btn-add-plus" onclick="addTime()">ajouter +</button>
-                    </div>
+                
+                <div style="margin-top:10px; display:flex; gap:10px;">
+                    <input type="text" value="8:00" style="width:60px; text-align:center; border:1px solid #333; border-radius:5px;">
+                    <button style="border:1px solid #ddd; background:white; border-radius:10px; padding:2px 10px;">ajouter +</button>
                 </div>
             </div>
+        </div>
 
-            <div class="col-right">
-                <div class="section-title">Modification des informations</div>
+        <div style="flex: 1; min-width: 300px;">
+            <h3 style="font-family: 'Nunito';">Modification des informations</h3>
+            
+            <label style="display:block; font-weight:bold;">Titre</label>
+            <input type="text" value="Atelier Arts plastiques" style="width:100%; padding:10px; border:1px solid #333; border-radius:5px; margin-bottom:15px;">
+            
+            <label style="display:block; font-weight:bold;">Responsable</label>
+            <input type="text" value="Mme Claire Martin" style="width:100%; padding:10px; border:1px solid #333; border-radius:5px; margin-bottom:15px;">
 
-                <label class="form-label">Titre</label>
-                <input type="text" class="form-input" value="Atelier Arts plastiques">
-
-                <label class="form-label">Responsable</label>
-                <input type="text" class="form-input" value="Mme Claire Martin">
-
-                <label class="form-label">capacité</label>
-                <input type="number" class="form-input" value="20">
-
-                <label class="form-label">Dscription de l'atelier</label>
-                <textarea class="form-input">Cet atelier permet aux enfants d'exprimer leur créativité à travers le dessin, la peinture et le bricolage. Dans une ambiance conviviale, chacun crée à son rythme et repart fier de ses réalisations.</textarea>
-
-                <button class="btn-save-blue" onclick="alert('Modifications enregistrées !')">Confirmer la modification</button>
-            </div>
-
+            <label style="display:block; font-weight:bold;">capacité</label>
+            <input type="text" value="20" style="width:100%; padding:10px; border:1px solid #333; border-radius:5px; margin-bottom:15px;">
+            
+            <label style="display:block; font-weight:bold;">Dscription de l'atelier</label>
+            <textarea style="width:100%; height:120px; padding:10px; border:1px solid #333; border-radius:5px; margin-bottom:20px;">Cet atelier permet aux enfants d'exprimer leur créativité à travers le dessin, la peinture et le bricolage...</textarea>
+            
+            <button style="background: #42a5f5; color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(66, 165, 245, 0.3); font-weight:bold;">Confirmer la modification</button>
         </div>
     </div>
+</div>
 
-    <script>
-        // 1. Calendrier Interactif (Multi-sélection)
-        const days = document.querySelectorAll('.cal-day-lg:not(.disabled)');
-        days.forEach(day => {
-            day.addEventListener('click', function() {
-                this.classList.toggle('active');
-            });
-        });
+<script>
+    document.querySelectorAll('.cal-day-lg').forEach(day => {
+        day.addEventListener('click', function() { this.classList.toggle('active'); });
+    });
+</script>
 
-        // 2. Ajout d'heure dynamique
-        function addTime() {
-            const input = document.getElementById('newTime');
-            const container = document.getElementById('slots-container');
-            
-            if(input.value) {
-                const div = document.createElement('div');
-                div.className = 'time-row';
-                div.innerHTML = `
-                    <span class="time-label">${input.value}</span>
-                    <button class="btn-mod">modifier</button>
-                    <button class="btn-del" onclick="this.parentElement.remove()">supprimer X</button>
-                `;
-                container.appendChild(div);
-                input.value = ""; // Reset
-            }
-        }
-    </script>
 </body>
 </html>
