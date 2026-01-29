@@ -238,3 +238,65 @@ footer {
     /* Bannière */
     .banner-yellow h1 { font-size: 1.8rem; text-align: center; }
 }
+
+/* --- HEADER & BANDEAUX JAUNES (Global) --- */
+header, 
+.admin-nav, 
+.page-title-banner, 
+.connexion-header,
+.banner-yellow {
+    background-color: #fdd835 !important; /* Jaune moutarde */
+    color: #3e2723 !important; /* Marron foncé */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* Liens dans les headers */
+header a, 
+.admin-nav a, 
+.page-title-banner a,
+.connexion-header a,
+.banner-yellow a,
+.header-nav a {
+    color: #3e2723 !important;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+header a:hover, 
+.admin-nav a:hover, 
+.page-title-banner a:hover {
+    text-decoration: underline;
+}
+
+/* Logo */
+.logo {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.8rem;
+    color: #3e2723 !important;
+}
+
+/* HEADER GLOBAL JAUNE */
+header, .admin-nav, .page-title-banner {
+    background-color: #fdd835 !important;
+    color: #3e2723 !important;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Liens du menu en marron foncé */
+header a, .admin-nav a, .page-title-banner a, .header-nav a {
+    color: #3e2723 !important;
+    text-decoration: none;
+    font-weight: bold;
+    font-family: 'Nunito', sans-serif;
+}
+
+header a:hover, .admin-nav a:hover, .page-title-banner a:hover {
+    text-decoration: underline;
+}
+
+/* Logo */
+.logo {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.8rem;
+    color: #3e2723 !important;
+}
