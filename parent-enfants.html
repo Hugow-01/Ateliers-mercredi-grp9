@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Parent</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Styles spécifiques restaurés pour les cartes */
+        .child-card-custom {
+            background-color: #f1f8e9; /* Fond vert très pâle */
+            border-radius: 20px;
+            width: 320px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 2px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header-title {
+            text-align: center;
+            color: #ff5e78; /* Rose */
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.8rem;
+            margin: 15px 0 10px 0;
+            font-weight: 800;
+        }
+
+        .card-body {
+            padding: 0 20px 20px 20px;
+            flex: 1;
+        }
+
+        .info-line { margin-bottom: 12px; }
+        .info-label { font-weight: bold; font-size: 1.1rem; color: #333; margin-bottom: 2px; }
+        .info-value {
+            background-color: #e1f5fe; /* Bleu ciel pâle */
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+            color: #000;
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        /* Pied de page bleu restauré */
+        .activity-footer {
+            background-color: #7986cb; /* Bleu violet */
+            color: white;
+            padding: 15px 20px;
+            min-height: 120px;
+        }
+        .activity-footer h4 { margin: 0 0 10px 0; font-size: 1.1rem; font-weight: bold; }
+        
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding: 5px 0;
+            font-size: 1.1rem;
+        }
+        
+        /* Bouton Savoir + Jaune */
+        .btn-savoir {
+            background-color: #ffeb3b; /* Jaune vif */
+            color: black;
+            font-weight: bold;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-title-banner" style="background-color: #fdd835; padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;">
+        <h1 class="logo" style="margin: 0; font-size: 3rem; color: #3e2723;">Espace parent</h1>
+        <nav style="font-size: 0.9rem; font-weight: bold;">
+            <a href="index.html" style="margin-left:15px; color:#3e2723;">Accueil</a>
+            <a href="activites.html" style="margin-left:15px; color:#3e2723;">les activités</a>
+            <a href="inscription.html" style="margin-left:15px; color:#3e2723;">s'inscrire</a>
+            <a href="index.html" style="margin-left:15px; color:#3e2723;">se déconnecter</a>
+        </nav>
+    </div>
+
+    <div style="background: #fffdf5; min-height: 100vh;">
+        
+        <div style="text-align: center; paddingTop: 20px;">
+             </div>
+
+        <div class="cards-container" style="display:flex; justify-content:center; gap:40px; padding:40px 20px; flex-wrap:wrap;">
+            
+            <div class="child-card-custom">
+                <div class="card-header-title">1er enfant</div>
+                
+                <div class="card-body">
+                    <div class="info-line">
+                        <div class="info-label">Nom:</div>
+                        <div class="info-value">Dubois</div>
+                    </div>
+                    <div class="info-line">
+                        <div class="info-label">prénoms:</div>
+                        <div class="info-value">Nicolas</div>
+                    </div>
+                    <div class="info-line">
+                        <div class="info-label">age:</div>
+                        <div class="info-value">8</div>
+                    </div>
+                    <div class="info-line">
+                        <div class="info-label">classe:</div>
+                        <div class="info-value">CM2</div>
+                    </div>
+                </div>
+
+                <div class="activity-footer">
+                    <h4>activités choisies:</h4>
+                    
+                    <div class="activity-item">
+                        <span>ecriture</span>
+                    </div>
+                    <div class="activity-item" style="border-bottom: none;">
+                        <span style="font-size: 0.9rem;">liste attente</span>
+                        <a href="activites.html" class="btn-savoir">Savoir +</a>
+                    </div>
+                    
+                    <div class="activity-item" style="border-top: 1px solid rgba(255,255,255,0.3);">
+                        <span>Lecture & créativité</span>
+                    </div>
+                    <div class="activity-item" style="border-bottom: none;">
+                        <span style="font-size: 0.9rem;">liste attente</span>
+                        <a href="activites.html" class="btn-savoir">Savoir +</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="child-card-custom">
+                <div class="card-header-title">2ème enfant</div>
+
+                <div class="card-body">
+                    <div class="info-line">
+                        <div class="info-label">Nom:</div>
+                        <div class="info-value">Dubois</div>
+                    </div>
+                    <div class="info-line">
+                        <div class="info-label">prénoms:</div>
+                        <div class="info-value">Léo</div>
+                    </div>
+                    <div class="info-line">
+                        <div class="info-label">age:</div>
+                        <div class="info-value">12</div>
+                    </div>
+                    <div class="info-line">
+                        <div class="info-label">classe:</div>
+                        <div class="info-value">5ème</div>
+                    </div>
+                </div>
+
+                <div class="activity-footer">
+                    <h4>activités choisies:</h4>
+                    
+                    <div class="activity-item">
+                        <span>piano</span>
+                    </div>
+                    <div class="activity-item" style="border-bottom: none;">
+                        <span style="font-size: 0.9rem;">accepté</span>
+                        <a href="activites.html" class="btn-savoir">Savoir +</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="text-align:center; padding-bottom:50px; display: flex; flex-direction: column; align-items: center; gap: 20px;">
+            <a href="ajouter-enfant.html" style="text-decoration: none;">
+                <button style="background:#fdd835; color: black; font-family:'Baloo 2'; font-size:1.5rem; padding:10px 40px; border-radius:30px; border:none; cursor:pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.1);">
+                    + ajouter un enfant
+                </button>
+            </a>
+            
+            <a href="activites.html" style="text-decoration: none;">
+                <button style="background:#ff5e78; color:white; font-family:'Baloo 2'; font-size:1.5rem; padding:10px 40px; border-radius:30px; border:none; cursor:pointer; box-shadow: 0 4px 0 rgba(0,0,0,0.1);">
+                    choisir une activité
+                </button>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

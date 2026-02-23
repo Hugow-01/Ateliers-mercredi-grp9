@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Liste des enfants</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="admin-nav" style="background-color: #fdd835; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <div class="logo" style="font-family: 'Baloo 2'; font-size: 1.8rem; color: #3e2723; margin:0;">Espace administrateur</div>
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <a href="index.html" style="color: #3e2723; text-decoration: none; font-weight: bold;">Accueil</a>
+        <a href="admin-dashboard.html" style="color: #3e2723; text-decoration: none; font-weight: bold;">Tableau de bord</a>
+        <a href="admin-liste-enfants.html" style="color: #3e2723; text-decoration: underline; font-weight: bold;">Liste des enfants</a>
+        <a href="admin-inscription-parents.html" style="color: #3e2723; text-decoration: none; font-weight: bold;">Inscription parents</a>
+        <a href="index.html" style="color: #c0392b; text-decoration: none; font-weight: bold;">Se déconnecter</a>
+    </div>
+</div>
+
+<div class="container" style="background: white; padding: 30px; border-radius: 15px; margin-top: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+    
+    <h2 style="text-align: center; margin-bottom: 30px; font-family: 'Baloo 2'; font-size: 2rem;">Liste des enfants par activité</h2>
+
+    <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px;">
+        <div style="flex: 1;">
+            <label>Titre</label>
+            <input type="text" value="Atelier Arts plastiques" style="width:100%; padding:8px; border:1px solid #333; border-radius:5px;">
+        </div>
+        <div style="flex: 1;">
+            <label>date</label>
+            <div style="display: flex; align-items: center; border: 1px solid #333; border-radius: 5px; padding: 8px;">
+                <span style="flex: 1;">sélectionnez une date</span> 📅
+            </div>
+        </div>
+        <div style="flex: 1;">
+            <label>Catégorie</label>
+            <input type="text" value="Arts" style="width:100%; padding:8px; border:1px solid #333; border-radius:5px;">
+        </div>
+        <button style="background: white; color: #333; border: 1px solid #ddd; padding: 8px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor:pointer;">
+            🔍 Rechercher
+        </button>
+    </div>
+
+    <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
+        <thead>
+            <tr style="background: #f5f5f5;">
+                <th style="padding:10px; text-align:left;">Nom</th>
+                <th style="padding:10px; text-align:left;">Prénom</th>
+                <th style="padding:10px; text-align:left;">Âge</th>
+                <th style="padding:10px; text-align:left;">Classe</th>
+                <th style="padding:10px; text-align:left;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="padding:10px;">Dubois</td><td>Léo</td><td>12</td><td>5ème</td>
+                <td><span style="background:#d4edda; color:#155724; padding:5px 10px; border-radius:5px;">✔ accepté ⌵</span></td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">Debon</td><td>Carl</td><td>11</td><td>6ème</td>
+                <td>
+                    <div style="background:white; border:1px solid #ddd; border-radius:5px; position:absolute; box-shadow:0 5px 10px rgba(0,0,0,0.1); padding:10px; z-index:10;">
+                        <div style="background:#d4edda; color:#155724; padding:5px; border-radius:5px; margin-bottom:5px;">✔ accepté</div>
+                        <div style="padding:5px;">en liste d'attente</div>
+                    </div>
+                    <span style="background:#d4edda; color:#155724; padding:5px 10px; border-radius:5px;">✔ accepté</span>
+                </td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">Cassie</td><td>Fanyah</td><td>9</td><td>CM2</td>
+                <td><span style="background:#ef5350; color:white; padding:5px 10px; border-radius:5px;">en liste d'attente</span></td>
+            </tr>
+            <tr>
+                <td style="padding:10px;">Marcelo</td><td>Pepe</td><td>13</td><td>4ème</td>
+                <td><span style="background:#ef5350; color:white; padding:5px 10px; border-radius:5px;">en liste d'attente</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S'inscrire - Ateliers du Mercredi</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Styles spécifiques à la page d'inscription */
+        
+        /* Bandeau Jaune */
+        .banner-yellow {
+            background-color: #fdd835; /* Jaune moutarde */
+            padding: 20px 0;
+            margin-bottom: 40px;
+        }
+        .banner-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .banner-title {
+            font-family: 'Baloo 2', cursive;
+            font-size: 2.5rem;
+            color: #3e2723; /* Marron foncé */
+            margin: 0;
+        }
+        .breadcrumb {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .breadcrumb a { text-decoration: underline; margin-left: 10px; color: #333; }
+
+        /* Conteneur principal en deux colonnes */
+        .inscription-wrapper {
+            display: flex;
+            gap: 40px;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        /* Boite Blanche (Formulaire & Image) */
+        .white-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            flex: 1;
+            /* width: 100%; Assure que les cartes prennent la largeur dispo */
+        }
+
+        /* Formulaire */
+        .form-title {
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 1rem; }
+        .input-field {
+            width: 100%;
+            background-color: #e1f5fe; /* Bleu très pâle */
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1rem;
+        }
+        .input-field::placeholder { color: #777; }
+
+        /* Image Droite */
+        .image-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        /* Gros Bouton Rose Centré */
+        .btn-submit-pink {
+            background-color: #ff5e78;
+            color: white;
+            font-family: 'Baloo 2', cursive;
+            font-size: 2rem;
+            padding: 10px 60px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 94, 120, 0.4);
+            margin-top: 40px;
+            transition: transform 0.2s;
+        }
+        .btn-submit-pink:hover { transform: scale(1.05); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .inscription-wrapper { flex-direction: column; }
+            .white-card { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="banner-yellow">
+        <div class="container banner-content">
+            <h1 class="banner-title">S'inscrire</h1>
+            <div class="breadcrumb">
+                <a href="index.html">Accueil</a>
+                <a href="activites.html">les activités</a>
+                <a href="inscription.html" style="text-decoration: none; color: black;"><strong>S'inscrire</strong></a>
+                <a href="index.html">se déconnecter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <div class="inscription-wrapper">
+            
+            <div class="white-card" style="max-width: 500px;">
+                <h2 class="form-title">créer un compte</h2>
+                
+                <form id="signup-form">
+                    <div class="input-group">
+                        <label>Nom :</label>
+                        <input type="text" class="input-field" placeholder="ex: Gaulois">
+                    </div>
+                    <div class="input-group">
+                        <label>prénoms :</label>
+                        <input type="text" class="input-field" placeholder="ex: Marie Alice">
+                    </div>
+                    <div class="input-group">
+                        <label>email</label>
+                        <input type="email" class="input-field" placeholder="ex: marie.alice@gmail.com">
+                    </div>
+                    <div class="input-group">
+                        <label>Téléphone</label>
+                        <input type="tel" class="input-field" placeholder="ex: 07 21 45 69 87">
+                    </div>
+                    <div class="input-group">
+                        <label>adresse</label>
+                        <input type="text" class="input-field" placeholder="rue et N° maison">
+                        <div style="display: flex; gap: 10px; margin-top: 10px;">
+                            <input type="text" class="input-field" placeholder="code postal">
+                            <input type="text" class="input-field" placeholder="ville">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>mot de passe</label>
+                        <input type="password" class="input-field" placeholder="********">
+                    </div>
+                </form>
+
+                <div id="validation-step" style="display: none; text-align: center; margin-top: 20px;">
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 10px; margin-bottom: 20px; color: #2e7d32;">
+                        <p><strong>Vérification requise</strong></p>
+                        <p>Un code a été envoyé par SMS.</p>
+                    </div>
+                    <input type="text" id="sms-code" placeholder="Code (ex: 1234)" class="input-field" style="text-align: center; letter-spacing: 5px; font-size: 1.5rem; margin-bottom: 20px;">
+                    
+                    <button class="btn-submit-pink" style="font-size: 1.2rem; padding: 10px 30px;" onclick="finalizeInscription()">Valider le code</button>
+                </div>
+
+            </div>
+
+            <div class="white-card image-container" style="display: flex; align-items: center; justify-content: center; padding: 20px;">
+                <img src="Gemini_Generated_Image_eoj4mzeoj4mzeoj4.png" alt="Illustration Enfants">
+            </div>
+
+        </div>
+
+        <div style="text-align: center; margin-bottom: 50px;" id="main-submit-container">
+            <button class="btn-submit-pink" onclick="startValidation()">S'inscrire</button>
+        </div>
+
+    </div>
+
+    <script>
+        function startValidation() {
+            // Cache le bouton principal
+            document.getElementById('main-submit-container').style.display = 'none';
+            // Affiche la zone de validation dans la carte de gauche
+            document.getElementById('validation-step').style.display = 'block';
+            // Scroll vers le formulaire si besoin (sur mobile)
+            document.querySelector('.white-card').scrollIntoView({behavior: 'smooth'});
+        }
+
+        function finalizeInscription() {
+            const code = document.getElementById('sms-code').value;
+            if(code.length > 0) {
+                // Redirection vers l'espace parent
+                window.location.href = "parent-enfants.html";
+            } else {
+                alert("Veuillez saisir le code reçu.");
+            }
+        }
+    </script>
+
+</body>
+</html>
