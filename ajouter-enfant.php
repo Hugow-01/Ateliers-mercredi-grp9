@@ -33,14 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Ajouter un enfant</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        .add-child-container { display: flex; background: white; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); overflow: hidden; max-width: 860px; margin: 0 auto; }
-        .form-part { flex: 1; padding: 40px; }
-        .image-part { flex: 1; background: white; position: relative; display: flex; align-items: center; justify-content: center; }
-        .yellow-strip { position: absolute; right: 0; top: 0; bottom: 0; width: 58px; background-color: var(--primary-yellow); display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .yellow-strip span { writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 5px; font-family: 'Baloo 2'; font-size: 1.2rem; color: #3e2723; font-weight: 900; }
-        @media (max-width: 700px) { .image-part { display: none; } }
-    </style>
+
 </head>
 <body>
 

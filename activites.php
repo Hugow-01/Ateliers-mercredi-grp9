@@ -74,42 +74,16 @@ function getImg($nom,$map){foreach($map as $k=>$v){if(stripos($nom,$k)!==false)r
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Nos Activités</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-.act-grid{display:grid;grid-template-columns:240px 1fr 230px 210px;gap:20px;padding:20px;background:#fafafa;border-radius:20px;margin:10px 0 20px;}
-.activity-img{width:100%;height:180px;border-radius:15px;object-fit:cover;}
-.cal-box{border:1px solid #ddd;border-radius:12px;padding:10px;background:white;}
-.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
-.cal-nav button{background:none;border:1px solid #ddd;cursor:pointer;font-size:1rem;padding:2px 8px;border-radius:6px;}
-.cal-nav button:hover{background:#eee;}
-.cal-month-label{font-weight:800;font-size:.85rem;text-align:center;color:#1a5fb4;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:11px;}
-.dl{font-weight:700;color:#aaa;padding-bottom:3px;}
-.dj{padding:5px 0;border-radius:5px;}
-.dj.clickable{cursor:pointer;}
-.dj.clickable:hover{background:#d6f2ff;}
-.dj.active{background:#1a5fb4!important;color:#fff!important;font-weight:bold;}
-.dj.has-slot{background:#e8f5e9;font-weight:bold;}
-.dj.empty{color:#ddd;}
-.slot-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;}
-.slot-item{border:1px solid #eee;padding:8px;text-align:center;border-radius:8px;font-size:12px;cursor:pointer;background:white;transition:.2s;}
-.slot-item:hover:not(.full):not(.inscrit){border-color:#ff4d8d;background:#fff5f8;}
-.slot-item.selected{background:#222;color:#fff;border-color:#222;}
-.slot-item.full{background:#ffe0e0;color:#c00;cursor:not-allowed;}
-.slot-item.inscrit{background:#e8f5e9;color:#1e7e34;border-color:#a5d6a7;cursor:default;}
-.inscr-box{display:flex;flex-direction:column;gap:8px;}
-.inscr-box select{width:100%;padding:8px;border-radius:8px;border:1px solid #ccc;font-size:13px;}
-.btn-inscr{background:#eaff00;border:none;padding:10px;font-weight:bold;border-radius:10px;cursor:pointer;font-size:13px;width:100%;}
-.btn-inscr:hover{background:#d4e800;}
-.btn-desins{background:#ff7043;color:white;border:none;padding:8px;font-weight:bold;border-radius:10px;cursor:pointer;font-size:12px;width:100%;display:none;}
-summary h2{display:inline;font-size:1.4rem;font-weight:800;}
-.short-desc{color:#666;font-size:.85rem;margin-left:28px;margin-top:3px;}
-@media(max-width:900px){.act-grid{grid-template-columns:1fr;}}
-</style>
+<script src="script.js" defer></script>
+
 </head>
+
 <body>
 <header style="background:#fdf6d8;padding:12px 50px;display:flex;justify-content:space-between;align-items:center;">
     <h1 style="font-size:2rem;font-weight:900;margin:0;">Les activités</h1>
@@ -192,6 +166,10 @@ summary h2{display:inline;font-size:1.4rem;font-weight:800;}
         </div>
     </div>
 </details>
+
+
+
+
 
 <?php if($firstDate):?>
 <script>
