@@ -73,6 +73,15 @@
         elseif ($hasWait) $colorByDate[$date] = 'wait';
         else              $colorByDate[$date] = 'ok';
     }
+
+    // Préparer les recommandations par créneau pour cet atelier
+    $recosByCreneauJs = [];
+    foreach ($creneaux as $cr) {
+        $crId = (int)$cr['id'];
+        if (isset($recommendationsData[$crId])) {
+            $recosByCreneauJs[$crId] = $recommendationsData[$crId];
+        }
+    }
 ?>
 <details class="activity-item" id="act-<?= $idx ?>" style="margin-bottom:18px; border:1px solid #e2e8f0; border-radius:18px; overflow:hidden;">
     <summary style="list-style:none; display:flex; align-items:center; gap:12px; padding:16px 22px; background:#fafafa; cursor:pointer;">
@@ -113,10 +122,6 @@
             </div>
 
             <div class="attente-info" id="attente-info-<?= $idx ?>"></div>
-            <div class="alt-box" id="alt-box-<?= $idx ?>">
-                <h5>📅 Autres créneaux disponibles pour cette activité :</h5>
-                <div id="alt-list-<?= $idx ?>"></div>
-            </div>
 
             <form method="POST" action="activites.php">
                 <input type="hidden" name="action"     value="inscrire">
@@ -124,7 +129,7 @@
                 <select name="id_enfant" id="sel-<?= $idx ?>" onchange="onEnfantChange_<?= $idx ?>()">
                     <option value="">-- Choisir un enfant --</option>
                     <?php foreach ($enfants as $enf): ?>
-                    <option value="<?= $enf['id'] ?>"><?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?></option>
+                    <option value="<?= $enf['id'] ?>" data-age="<?= (int)$enf['age'] ?>"><?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?></option>
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" class="btn-inscr" id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
@@ -146,177 +151,299 @@
             </form>
         </div>
     </div>
+
+    <!-- ══ PANNEAU DE RECOMMANDATIONS (hors grille, pleine largeur) ══ -->
+    <div class="reco-panel" id="reco-<?= $idx ?>">
+        <div class="reco-header">
+            <div class="reco-header-icon">✨</div>
+            <div class="reco-header-text">
+                <h4>Créneaux alternatifs disponibles</h4>
+                <p id="reco-subtitle-<?= $idx ?>">Ce créneau est complet — voici nos meilleures suggestions pour votre enfant</p>
+            </div>
+        </div>
+        <div class="reco-grid" id="reco-grid-<?= $idx ?>">
+            <div class="reco-empty">Sélectionnez un créneau complet pour voir les suggestions.</div>
+        </div>
+    </div>
+
 </details>
 
 <?php if ($firstDate): ?>
 <script>
 (function(){
+/* ── Données PHP → JS ── */
 const byDate_<?= $idx ?>      = <?= json_encode($byDate) ?>;
 const colorByDate_<?= $idx ?> = <?= json_encode($colorByDate) ?>;
 const mesIns_<?= $idx ?>      = <?= json_encode($mesInscriptions) ?>;
 const mesAtt_<?= $idx ?>      = <?= json_encode($mesAttentes) ?>;
-const altsData_<?= $idx ?>    = <?php
-    $altsJs = [];
-    foreach ($creneaux as $cr) {
-        if ($cr['nb_inscrits'] >= $cr['cap_activite']) {
-            $altsJs[$cr['id']] = creneauxAlternatifs($db, $cr['id']);
-        }
-    }
-    echo json_encode($altsJs);
-?>;
+const recosByCreneau_<?= $idx ?> = <?= json_encode($recosByCreneauJs) ?>;
 
+/* ── Labels ── */
 const moisFR = ['','Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-let cy = <?= $initY ?>, cm = <?= $initM ?>;
+const moisCourt = ['','jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+function pad(n){ return n<10?'0'+n:n; }
+function formatDate(ds){ const[y,m,d]=ds.split('-'); return d+'/'+m+'/'+y; }
+function formatDateLong(ds){
+    const[y,m,d]=ds.split('-');
+    const jours=['dim','lun','mar','mer','jeu','ven','sam'];
+    const j=new Date(ds).getDay();
+    return jours[j]+' '+parseInt(d)+' '+moisCourt[parseInt(m)]+' '+y;
+}
 
-function pad(n){ return n < 10 ? '0'+n : n; }
+/* ── Libellés des raisons ── */
+const raisonLabels = {
+    'same_activity': { text:'Même atelier', cls:'tag-same-activity' },
+    'same_theme':    { text:'Même thème',   cls:'tag-same-theme'    },
+    'age_match':     { text:'Âge adapté',   cls:'tag-age-match'     },
+    'close_time':    { text:'Horaire proche',cls:'tag-close-time'   },
+    'low_fill':      { text:'Peu rempli',   cls:'tag-low-fill'      },
+    'similar_name':  { text:'Activité similaire', cls:'tag-similar-name'},
+};
 
+let cy=<?= $initY ?>, cm=<?= $initM ?>;
+
+/* ── Calendrier ── */
 function renderCal(){
     document.getElementById('cal-label-<?= $idx ?>').textContent = moisFR[cm]+' '+cy;
-    const g = document.getElementById('cal-<?= $idx ?>');
-    g.innerHTML = '';
-    ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].forEach(d => {
-        const s = document.createElement('span'); s.className='dl'; s.textContent=d; g.appendChild(s);
+    const g=document.getElementById('cal-<?= $idx ?>');
+    g.innerHTML='';
+    ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].forEach(d=>{
+        const s=document.createElement('span'); s.className='dl'; s.textContent=d; g.appendChild(s);
     });
-    const fd  = new Date(cy, cm-1, 1).getDay();
-    const dim = new Date(cy, cm, 0).getDate();
-    for (let e=0; e<fd; e++){
-        const s = document.createElement('span'); s.className='dj empty'; g.appendChild(s);
-    }
-    for (let d=1; d<=dim; d++){
-        const ds  = cy+'-'+pad(cm)+'-'+pad(d);
-        const has = !!byDate_<?= $idx ?>[ds];
-        const s   = document.createElement('span');
-        s.textContent = d;
-        if (has){
-            const col = colorByDate_<?= $idx ?>[ds] || 'ok';
-            s.className = 'dj day-'+col+' clickable';
-            s.title = byDate_<?= $idx ?>[ds].length+' créneau(x)';
-            s.onclick = () => selectDate(ds, s);
+    const fd=new Date(cy,cm-1,1).getDay();
+    const dim=new Date(cy,cm,0).getDate();
+    for(let e=0;e<fd;e++){const s=document.createElement('span');s.className='dj empty';g.appendChild(s);}
+    for(let d=1;d<=dim;d++){
+        const ds=cy+'-'+pad(cm)+'-'+pad(d);
+        const has=!!byDate_<?= $idx ?>[ds];
+        const s=document.createElement('span');
+        s.textContent=d;
+        if(has){
+            const col=colorByDate_<?= $idx ?>[ds]||'ok';
+            s.className='dj day-'+col+' clickable';
+            s.title=byDate_<?= $idx ?>[ds].length+' créneau(x)';
+            s.onclick=()=>selectDate(ds,s);
         } else {
-            s.className = 'dj empty';
+            s.className='dj empty';
         }
         g.appendChild(s);
     }
 }
+window.prevMonth_<?= $idx ?>=function(){cm--;if(cm<1){cm=12;cy--;}renderCal();};
+window.nextMonth_<?= $idx ?>=function(){cm++;if(cm>12){cm=1;cy++;}renderCal();};
 
-window.prevMonth_<?= $idx ?> = function(){ cm--; if(cm<1){cm=12;cy--;} renderCal(); };
-window.nextMonth_<?= $idx ?> = function(){ cm++; if(cm>12){cm=1;cy++;} renderCal(); };
-
-let lastDate = null;
-function selectDate(date, el){
-    lastDate = date;
-    document.querySelectorAll('#cal-<?= $idx ?> .dj').forEach(d => d.classList.remove('active'));
+/* ── Sélection de date ── */
+let lastDate=null;
+function selectDate(date,el){
+    lastDate=date;
+    document.querySelectorAll('#cal-<?= $idx ?> .dj').forEach(d=>d.classList.remove('active'));
     el.classList.add('active');
     renderSlots(date);
 }
 
+/* ── Rendu des créneaux ── */
 function renderSlots(date){
-    const crs    = byDate_<?= $idx ?>[date] || [];
-    const list   = document.getElementById('slots-<?= $idx ?>');
-    const selEnf = parseInt(document.getElementById('sel-<?= $idx ?>').value) || 0;
-    list.innerHTML = '';
+    const crs=byDate_<?= $idx ?>[date]||[];
+    const list=document.getElementById('slots-<?= $idx ?>');
+    const selEnf=parseInt(document.getElementById('sel-<?= $idx ?>').value)||0;
+    list.innerHTML='';
     resetActions();
-    if (!crs.length){
-        list.innerHTML = '<div style="text-align:center;color:#aaa;font-size:.8rem;padding:10px;">Aucun créneau ce jour</div>';
+    hideReco();
+    if(!crs.length){
+        list.innerHTML='<div style="text-align:center;color:#aaa;font-size:.8rem;padding:10px;">Aucun créneau ce jour</div>';
         return;
     }
-    crs.forEach(cr => {
-        const nb      = parseInt(cr.nb_inscrits);
-        const cap     = parseInt(cr.cap_activite);
-        const full    = nb >= cap;
-        const pct     = cap > 0 ? nb / cap : 1;
-        const quasi   = !full && pct >= 0.8;
-        const confirme = selEnf && mesIns_<?= $idx ?>[selEnf] && mesIns_<?= $idx ?>[selEnf].includes(cr.id);
-        const enAtt    = selEnf && mesAtt_<?= $idx ?>[selEnf] && mesAtt_<?= $idx ?>[selEnf][cr.id];
-        const salle    = cr.salle_id ? ' · <strong>Salle '+cr.salle_id+'</strong>' : '';
+    crs.forEach(cr=>{
+        const nb=parseInt(cr.nb_inscrits);
+        const cap=parseInt(cr.cap_activite);
+        const full=nb>=cap;
+        const pct=cap>0?nb/cap:1;
+        const quasi=!full&&pct>=0.8;
+        const confirme=selEnf&&mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
+        const enAtt=selEnf&&mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
+        const salle=cr.salle_id?' · <strong>Salle '+cr.salle_id+'</strong>':'';
 
-        const div = document.createElement('div');
-        let cls = 'slot-item ';
-        if      (confirme) cls += 'inscrit';
-        else if (enAtt)    cls += 'en-attente';
-        else if (full)     cls += 'full';
-        else if (quasi)    cls += 'wait';
-        else               cls += 'ok';
+        const div=document.createElement('div');
+        let cls='slot-item ';
+        if(confirme)      cls+='inscrit';
+        else if(enAtt)    cls+='en-attente';
+        else if(full)     cls+='full';
+        else if(quasi)    cls+='wait';
+        else              cls+='ok';
 
-        let badge = '';
-        if      (confirme) badge = '<span class="badge badge-conf">✔ Inscrit</span>';
-        else if (enAtt)    badge = '<span class="badge badge-att">⏳ File #'+enAtt+'</span>';
-        else if (full)     badge = '<span class="badge badge-full">Complet</span>';
-        else if (quasi)    badge = '<span class="badge badge-wait">Presque complet</span>';
-        else               badge = '<span class="badge badge-ok">Disponible</span>';
+        let badge='';
+        if(confirme)      badge='<span class="badge badge-conf">✔ Inscrit</span>';
+        else if(enAtt)    badge='<span class="badge badge-att">⏳ File #'+enAtt+'</span>';
+        else if(full)     badge='<span class="badge badge-full">Complet</span>';
+        else if(quasi)    badge='<span class="badge badge-wait">Presque complet</span>';
+        else              badge='<span class="badge badge-ok">Disponible</span>';
 
-        const restantes = Math.max(0, cap - nb);
-        div.className = cls;
-        div.innerHTML = '<strong>'+cr.debut.substring(0,5)+' – '+cr.fin.substring(0,5)+'</strong>'+salle+badge+'<br>'
+        const restantes=Math.max(0,cap-nb);
+        div.className=cls;
+        div.innerHTML='<strong>'+cr.debut.substring(0,5)+' – '+cr.fin.substring(0,5)+'</strong>'+salle+badge+'<br>'
             +'<small style="opacity:.7">'+nb+'/'+cap+' inscrits'
-            +(full ? ' · '+cr.nb_attente+' en attente' : ' · '+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':''))
+            +(full?' · '+cr.nb_attente+' en attente':' · '+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':''))
             +'</small>';
-        div.onclick = () => selectSlot(cr, div, selEnf);
+        div.onclick=()=>selectSlot(cr,div,selEnf);
         list.appendChild(div);
     });
 }
 
-function selectSlot(cr, el, selEnf){
-    document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s => s.classList.remove('selected'));
+/* ── Sélection d'un créneau ── */
+function selectSlot(cr,el,selEnf){
+    document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s=>s.classList.remove('selected'));
     el.classList.add('selected');
-    const nb      = parseInt(cr.nb_inscrits);
-    const cap     = parseInt(cr.cap_activite);
-    const full    = nb >= cap;
-    const confirme = selEnf && mesIns_<?= $idx ?>[selEnf] && mesIns_<?= $idx ?>[selEnf].includes(cr.id);
-    const enAtt    = selEnf && mesAtt_<?= $idx ?>[selEnf] && mesAtt_<?= $idx ?>[selEnf][cr.id];
+    const nb=parseInt(cr.nb_inscrits);
+    const cap=parseInt(cr.cap_activite);
+    const full=nb>=cap;
+    const confirme=selEnf&&mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
+    const enAtt=selEnf&&mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
     resetActions();
-    document.getElementById('creneau-<?= $idx ?>').value = cr.id;
+    hideReco();
+    document.getElementById('creneau-<?= $idx ?>').value=cr.id;
 
-    const btnI    = document.getElementById('btn-inscr-<?= $idx ?>');
-    const btnW    = document.getElementById('btn-wait-<?= $idx ?>');
-    const attInfo = document.getElementById('attente-info-<?= $idx ?>');
-    const altBox  = document.getElementById('alt-box-<?= $idx ?>');
-    const altList = document.getElementById('alt-list-<?= $idx ?>');
+    const btnI=document.getElementById('btn-inscr-<?= $idx ?>');
+    const btnW=document.getElementById('btn-wait-<?= $idx ?>');
+    const attInfo=document.getElementById('attente-info-<?= $idx ?>');
 
-    if (confirme) {
-        document.getElementById('des-creneau-<?= $idx ?>').value = cr.id;
-        document.getElementById('des-enfant-<?= $idx ?>').value  = selEnf;
-        document.getElementById('btn-des-<?= $idx ?>').style.display = 'block';
-        btnI.style.display = 'none'; btnW.style.display = 'none';
-    } else if (enAtt) {
-        document.getElementById('quit-creneau-<?= $idx ?>').value = cr.id;
-        document.getElementById('quit-enfant-<?= $idx ?>').value  = selEnf;
-        document.getElementById('btn-quit-<?= $idx ?>').style.display = 'block';
-        attInfo.textContent = '⏳ Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
-        attInfo.style.display = 'block';
-        btnI.style.display = 'none'; btnW.style.display = 'none';
-    } else if (full) {
-        btnI.style.display = 'none'; btnW.style.display = 'block';
-        const alts = altsData_<?= $idx ?>[cr.id] || [];
-        if (alts.length) {
-            altList.innerHTML = '';
-            alts.forEach(a => {
-                const dispo = a.capacite - a.nb_ins;
-                const d = document.createElement('div');
-                d.className = 'alt-item';
-                d.innerHTML = '📅 <strong>'+formatDate(a.date)+'</strong>'
-                    +' · '+a.debut.substring(0,5)+' – '+a.fin.substring(0,5)
-                    +' · <strong style="color:#16a34a">'+dispo+' place'+(dispo>1?'s':'')+' dispo</strong>';
-                altList.appendChild(d);
-            });
-            altBox.style.display = 'block';
-        }
+    if(confirme){
+        document.getElementById('des-creneau-<?= $idx ?>').value=cr.id;
+        document.getElementById('des-enfant-<?= $idx ?>').value=selEnf;
+        document.getElementById('btn-des-<?= $idx ?>').style.display='block';
+        btnI.style.display='none'; btnW.style.display='none';
+    } else if(enAtt){
+        document.getElementById('quit-creneau-<?= $idx ?>').value=cr.id;
+        document.getElementById('quit-enfant-<?= $idx ?>').value=selEnf;
+        document.getElementById('btn-quit-<?= $idx ?>').style.display='block';
+        attInfo.textContent='⏳ Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
+        attInfo.style.display='block';
+        btnI.style.display='none'; btnW.style.display='none';
+    } else if(full){
+        btnI.style.display='none'; btnW.style.display='block';
+        // ── Afficher les recommandations ──
+        showReco(cr.id, selEnf);
     } else {
-        btnI.style.display = 'block'; btnW.style.display = 'none';
+        btnI.style.display='block'; btnW.style.display='none';
     }
 }
 
-function resetActions(){
-    ['btn-inscr','btn-wait','btn-des','btn-quit'].forEach(id =>
-        document.getElementById(id+'-<?= $idx ?>').style.display = 'none'
-    );
-    document.getElementById('attente-info-<?= $idx ?>').style.display = 'none';
-    document.getElementById('alt-box-<?= $idx ?>').style.display      = 'none';
+/* ═══════════════════════════════════════════
+   MOTEUR D'AFFICHAGE DES RECOMMANDATIONS
+═══════════════════════════════════════════ */
+function showReco(creneauId, selEnf){
+    const panel = document.getElementById('reco-<?= $idx ?>');
+    const grid  = document.getElementById('reco-grid-<?= $idx ?>');
+    const sub   = document.getElementById('reco-subtitle-<?= $idx ?>');
+    const recos = recosByCreneau_<?= $idx ?>[creneauId] || [];
+
+    // Récupérer l'âge de l'enfant sélectionné pour affichage contextuel
+    let enfNom = '';
+    if(selEnf){
+        const opt = document.querySelector('#sel-<?= $idx ?> option[value="'+selEnf+'"]');
+        if(opt) enfNom = opt.textContent.trim();
+    }
+
+    sub.textContent = enfNom
+        ? 'Ce créneau est complet — voici nos meilleures suggestions pour '+enfNom
+        : 'Ce créneau est complet — voici nos meilleures suggestions';
+
+    grid.innerHTML = '';
+
+    if(!recos.length){
+        grid.innerHTML = '<div class="reco-empty">😕 Aucun créneau alternatif disponible pour le moment.<br>Vous pouvez rejoindre la liste d\'attente ci-dessus.</div>';
+        panel.style.display = 'block';
+        return;
+    }
+
+    recos.forEach((r, i) => {
+        const taux      = parseInt(r.taux_remplissage) || 0;
+        const places    = parseInt(r.places_restantes) || 0;
+        const dateF     = formatDateLong(r.date);
+        const fillCls   = taux < 40 ? 'fill-low' : taux < 75 ? 'fill-mid' : 'fill-high';
+        const isBest    = (i === 0);
+
+        // Tags des raisons
+        const tagsHtml = (r.raisons || []).map(reason => {
+            const lbl = raisonLabels[reason];
+            return lbl ? `<span class="reco-tag ${lbl.cls}">${lbl.text}</span>` : '';
+        }).join('');
+
+        // Salle
+        const salleHtml = r.id_salle
+            ? `<span class="reco-meta-chip chip-room">🚪 Salle ${r.id_salle}</span>`
+            : '';
+
+        // Bouton : déjà inscrit / déjà en attente / inscription rapide
+        let btnHtml = '';
+        const alreadyIn  = selEnf && mesIns_<?= $idx ?>[selEnf] && mesIns_<?= $idx ?>[selEnf].includes(r.id);
+        const alreadyWait= selEnf && mesAtt_<?= $idx ?>[selEnf] && mesAtt_<?= $idx ?>[selEnf][r.id];
+
+        if(alreadyIn){
+            btnHtml = `<button class="reco-btn" disabled>✔ Déjà inscrit</button>`;
+        } else if(alreadyWait){
+            btnHtml = `<button class="reco-btn" disabled>⏳ Déjà en attente</button>`;
+        } else if(!selEnf){
+            btnHtml = `<button class="reco-btn" disabled title="Choisissez un enfant d'abord">Choisir un enfant d'abord</button>`;
+        } else {
+            btnHtml = `
+            <form method="POST" action="activites.php" style="margin:0;">
+                <input type="hidden" name="action"     value="inscrire">
+                <input type="hidden" name="id_creneau" value="${r.id}">
+                <input type="hidden" name="id_enfant"  value="${selEnf}">
+                <button type="submit" class="reco-btn">
+                    + Inscrire sur ce créneau
+                </button>
+            </form>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'reco-card' + (isBest ? ' best-match' : '');
+        card.innerHTML = `
+            <div class="reco-card-title">${escHtml(r.nom_activite)}</div>
+            <div class="reco-card-meta">
+                <span class="reco-meta-chip chip-date">📅 ${dateF}</span>
+                <span class="reco-meta-chip chip-time">🕐 ${r.debut.substring(0,5)} – ${r.fin.substring(0,5)}</span>
+                ${salleHtml}
+            </div>
+            <div class="reco-fill-bar">
+                <div class="reco-fill-inner ${fillCls}" style="width:${taux}%"></div>
+            </div>
+            <div class="reco-places">
+                <strong>${places} place${places>1?'s':''} disponible${places>1?'s':''}</strong>
+                · ${taux}% rempli
+            </div>
+            <div class="reco-tags">${tagsHtml}</div>
+            ${btnHtml}
+        `;
+        grid.appendChild(card);
+    });
+
+    panel.style.display = 'block';
+    // Scroll doux vers le panneau
+    setTimeout(()=> panel.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
 }
 
-function formatDate(ds){ const [y,m,d]=ds.split('-'); return d+'/'+m+'/'+y; }
+function hideReco(){
+    const panel = document.getElementById('reco-<?= $idx ?>');
+    panel.style.display = 'none';
+}
 
-window.onEnfantChange_<?= $idx ?> = function(){ if(lastDate) renderSlots(lastDate); };
+function escHtml(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── Réinitialiser les boutons d'action ── */
+function resetActions(){
+    ['btn-inscr','btn-wait','btn-des','btn-quit'].forEach(id=>
+        document.getElementById(id+'-<?= $idx ?>').style.display='none'
+    );
+    document.getElementById('attente-info-<?= $idx ?>').style.display='none';
+}
+
+/* ── Changement d'enfant → re-render créneau sélectionné ── */
+window.onEnfantChange_<?= $idx ?>=function(){
+    if(lastDate) renderSlots(lastDate);
+};
 
 renderCal();
 })();
@@ -331,9 +458,9 @@ renderCal();
 
 <script>
 document.getElementById('searchBar').addEventListener('input', function(){
-    const t = this.value.toLowerCase();
-    document.querySelectorAll('.activity-item').forEach(i =>
-        i.style.display = i.querySelector('h2').innerText.toLowerCase().includes(t) ? '' : 'none'
+    const t=this.value.toLowerCase();
+    document.querySelectorAll('.activity-item').forEach(i=>
+        i.style.display=i.querySelector('h2').innerText.toLowerCase().includes(t)?'':'none'
     );
 });
 </script>
