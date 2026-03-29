@@ -8,6 +8,43 @@
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/parent.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ── Notifications admin ── */
+        .notif-admin-wrapper {
+            max-width: 900px;
+            margin: 18px auto 0;
+            padding: 0 20px;
+        }
+        .notif-admin-card {
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            position: relative;
+        }
+        .notif-admin-card.accepte {
+            background: #e8f5e9;
+            border-left: 5px solid #28a745;
+        }
+        .notif-admin-card.attente {
+            background: #fff8e1;
+            border-left: 5px solid #ffc107;
+        }
+        .notif-icon  { font-size: 1.5rem; flex-shrink: 0; }
+        .notif-body  { flex: 1; }
+        .notif-title { font-weight: 800; font-size: .95rem; margin-bottom: 3px; }
+        .notif-msg   { font-size: .88rem; color: #444; line-height: 1.5; }
+        .notif-date  { font-size: .75rem; color: #999; margin-top: 4px; }
+        .notif-badge-new {
+            background: #ff5e78; color: white;
+            font-size: .68rem; font-weight: bold;
+            padding: 2px 8px; border-radius: 10px;
+            margin-left: 8px; vertical-align: middle;
+        }
+    </style>
 </head>
 <body>
 
@@ -31,6 +68,32 @@ if ($nbIns > 0): ?>
 <div class="notification-bar" id="notif-bar">
     <span>Bienvenue, <?= htmlspecialchars($_SESSION['nom']) ?> — <?= $nbIns ?> inscription(s) enregistrée(s).</span>
     <span class="close-notif" onclick="document.getElementById('notif-bar').style.display='none'">✕</span>
+</div>
+<?php endif; ?>
+
+<!-- ══ Notifications administrateur (non lues) ══ -->
+<?php if (!empty($notifications)): ?>
+<div class="notif-admin-wrapper">
+    <h3 style="font-family:'Baloo 2'; font-size:1.2rem; margin-bottom:10px; color:#1a5fb4;">
+        🔔 Nouvelles notifications
+        <span class="notif-badge-new"><?= count($notifications) ?> nouvelle(s)</span>
+    </h3>
+    <?php foreach ($notifications as $notif):
+        $isAccepte = ($notif['type'] === 'accepte');
+        $dateF     = date('d/m/Y à H:i', strtotime($notif['date_creation']));
+    ?>
+    <div class="notif-admin-card <?= $isAccepte ? 'accepte' : 'attente' ?>">
+        <div class="notif-icon"><?= $isAccepte ? '✅' : '⏳' ?></div>
+        <div class="notif-body">
+            <div class="notif-title">
+                <?= $isAccepte ? 'Place confirmée' : 'Mise en liste d\'attente' ?>
+                — <?= htmlspecialchars($notif['prenom'] . ' ' . $notif['nom_enfant']) ?>
+            </div>
+            <div class="notif-msg"><?= htmlspecialchars($notif['message']) ?></div>
+            <div class="notif-date">Notifié le <?= $dateF ?></div>
+        </div>
+    </div>
+    <?php endforeach; ?>
 </div>
 <?php endif; ?>
 
