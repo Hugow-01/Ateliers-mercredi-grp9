@@ -1,0 +1,83 @@
+/* ===================== ESPACE PARENT ===================== */
+
+/* ── Barre de notification ── */
+.notification-bar {
+    background-color: #ffb3ba;
+    border: 1px solid #ff4d4d;
+    width: 70%;
+    margin: 20px auto;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    border-radius: 8px;
+    font-size: 14px;
+}
+.close-notif { color: red; cursor: pointer; font-weight: bold; padding: 0 10px; font-size: 1.2rem; }
+
+/* ── Grille des cartes enfants ── */
+.children-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    padding: 20px;
+}
+
+/* ── Carte enfant ── */
+.child-card {
+    width: 370px;
+    background: white;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,.1);
+    border: 1px solid #ddd;
+}
+
+.card-top     { padding: 20px 28px; background: white; }
+.child-title  {
+    color: var(--pink-dark);
+    text-align: center;
+    font-size: 1.6rem;
+    margin-bottom: 15px;
+    font-family: 'Baloo 2', cursive;
+}
+
+.info-group       { margin-bottom: 10px; }
+.info-group label { font-size: 1rem; font-weight: bold; display: block; margin-bottom: 3px; }
+.value            { background: var(--blue-input); padding: 8px 12px; border-radius: 5px; font-size: .95rem; }
+
+.card-bottom      { background: var(--purple-card); color: white; padding: 20px 28px; }
+.section-title-card { font-size: 1.1rem; margin-bottom: 12px; font-weight: bold; }
+
+/* ── Items d'activité dans la carte ── */
+.activity-item-card {
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.2);
+}
+.activity-item-card:last-child { border-bottom: none; }
+.act-name-card  { font-size: 1.1rem; font-weight: bold; display: block; margin-bottom: 4px; }
+.act-detail     { font-size: .78rem; opacity: .85; margin-bottom: 4px; }
+.status-row     { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+
+.badge-ok   { background: rgba(255,255,255,.3); padding: 3px 10px; border-radius: 8px; font-size: .8rem; font-weight: bold; }
+.badge-wait { background: rgba(255,80,80,.5);   padding: 3px 10px; border-radius: 8px; font-size: .8rem; font-weight: bold; }
+
+.salle-badge         { background: rgba(255,255,255,.2); padding: 2px 8px; border-radius: 6px; font-size: .75rem; }
+.btn-desins-card     { background: #ff7043; color: white; border: none; padding: 4px 12px; border-radius: 8px; font-size: .75rem; cursor: pointer; font-weight: bold; }
+
+/* ── Footer actions ── */
+.footer-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 30px 0 50px;
+}
+
+@media (max-width: 900px) {
+    .children-grid { flex-direction: column; align-items: center; }
+    .notification-bar { width: 95%; }
+}

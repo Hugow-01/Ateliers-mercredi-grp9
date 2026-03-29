@@ -1,0 +1,172 @@
+/* ===================== ACTIVITES ===================== */
+
+/* ── Barre de recherche ── */
+.search-container { text-align: center; margin: 20px 0 30px; }
+.search-bar {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    background: white;
+}
+
+/* ── Légende ── */
+.legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: .8rem;
+    margin-bottom: 14px;
+    color: #333;
+}
+.legend-dot { width: 11px; height: 11px; border-radius: 3px; display: inline-block; margin-right: 6px; }
+.dot-ok   { background: #1a1a2e; }
+.dot-wait { background: #4a4a6a; }
+.dot-full { background: #888; }
+
+/* ── Grille activité ── */
+.act-grid {
+    display: grid;
+    grid-template-columns: 160px 1fr 1fr 1fr;
+    gap: 18px;
+    padding: 20px;
+    align-items: start;
+}
+.activity-img { width: 100%; border-radius: 12px; object-fit: cover; height: 130px; }
+
+/* ── details / summary ── */
+details { margin-bottom: 15px; border-bottom: 2px solid #f0f0f0; }
+summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 14px 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+summary::-webkit-details-marker { display: none; }
+.arrow { font-size: 1.1rem; transition: transform .3s; display: inline-block; }
+details[open] .arrow { transform: rotate(90deg); }
+
+/* ── Calendrier ── */
+.cal-box {
+    background: #f5f5f8;
+    border-radius: 14px;
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+.cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.cal-nav button {
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    padding: 4px 11px;
+    cursor: pointer;
+    font-size: .95rem;
+    font-weight: bold;
+}
+.cal-nav button:hover { background: #111; }
+.cal-month-label { font-weight: 800; font-size: .95rem; font-family: 'Baloo 2'; color: #1a1a2e; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+
+.dj  { text-align: center; padding: 5px 2px; border-radius: 6px; font-size: .78rem; color: #333; }
+.dl  { font-weight: 700; font-size: .68rem; color: #777; text-align: center; padding: 3px 0; }
+.dj.empty    { color: #ccc; }
+.dj.has-slot { cursor: pointer; font-weight: bold; }
+.dj.day-ok   { background: #1a1a2e; color: #fff; }
+.dj.day-ok:hover   { background: #111; }
+.dj.day-wait { background: #4a4a6a; color: #fff; }
+.dj.day-wait:hover { background: #333355; }
+.dj.day-full { background: #aaa; color: #fff; }
+.dj.day-full:hover { background: #888; }
+.dj.active   { outline: 2px solid #000; outline-offset: 1px; }
+.dj.clickable { cursor: pointer; }
+.dj.clickable:hover { background: #d6f2ff; }
+
+/* ── Liste des créneaux ── */
+.inscr-box { display: flex; flex-direction: column; }
+.slot-list  { max-height: 220px; overflow-y: auto; margin-bottom: 6px; }
+.inscr-box select {
+    width: 100%;
+    padding: 7px;
+    border-radius: 8px;
+    border: 1px solid #bbb;
+    margin-top: 6px;
+    font-size: .9rem;
+    background: #fff;
+    color: #111;
+}
+
+.slot-item {
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    padding: 9px 12px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    transition: all .15s;
+    position: relative;
+    background: #fff;
+    color: #111;
+}
+.slot-item.ok        { border-color: #1a1a2e; background: #f5f5f8; }
+.slot-item.ok:hover  { background: #e8e8f0; transform: translateX(3px); }
+.slot-item.wait      { border-color: #4a4a6a; background: #f0f0f5; }
+.slot-item.wait:hover{ background: #e4e4ee;  transform: translateX(3px); }
+.slot-item.full      { border-color: #bbb; background: #f7f7f7; cursor: not-allowed; opacity: .7; }
+.slot-item.inscrit      { border-color: #1a1a2e; border-width: 3px; background: #f5f5f8; color: #111; }
+.slot-item.en-attente   { border-color: #4a4a6a; border-width: 3px; background: #f0f0f5; color: #111; }
+.slot-item.selected     { border-color: #1a1a2e; border-width: 3px; background: #fff; color: #111; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+
+/* ── Badges ── */
+.badge      { display: inline-block; border-radius: 5px; font-size: .7rem; font-weight: 700; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
+.badge-ok   { background: #1a1a2e; color: #fff; }
+.badge-wait { background: #4a4a6a; color: #fff; }
+.badge-full { background: #888;    color: #fff; }
+.badge-conf { background: #111;    color: #fff; }
+.badge-att  { background: #555;    color: #fff; }
+
+/* ── Boutons d'action ── */
+.btn-inscr  { background: #1a1a2e; color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 700; cursor: pointer; margin-top: 8px; width: 100%; font-size: .9rem; }
+.btn-inscr:hover  { background: #111; }
+.btn-wait   { background: #4a4a6a; color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 700; cursor: pointer; margin-top: 4px; width: 100%; font-size: .9rem; }
+.btn-wait:hover   { background: #333355; }
+.btn-desins { background: #333; color: #fff; border: none; border-radius: 10px; padding: 8px 20px; font-weight: 700; cursor: pointer; margin-top: 4px; width: 100%; display: none; font-size: .88rem; }
+.btn-desins:hover { background: #111; }
+.btn-quitter{ background: #555; color: #fff; border: none; border-radius: 10px; padding: 8px 20px; font-weight: 700; cursor: pointer; margin-top: 4px; width: 100%; display: none; font-size: .88rem; }
+.btn-quitter:hover{ background: #333; }
+
+/* ── Alternatives & attente ── */
+.alt-box {
+    background: #f5f5f8;
+    border: 1px solid #c0c0d0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: .82rem;
+    display: none;
+    color: #111;
+}
+.alt-box h5   { margin: 0 0 6px; color: #1a1a2e; font-weight: 700; }
+.alt-item     { padding: 4px 0; border-bottom: 1px solid #d0d0e0; color: #222; }
+.alt-item:last-child { border: none; }
+
+.attente-info {
+    background: #f0f0f5;
+    border: 1px solid #aaaacc;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    font-size: .82rem;
+    color: #1a1a2e;
+    font-weight: 600;
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .act-grid { grid-template-columns: 1fr; }
+}

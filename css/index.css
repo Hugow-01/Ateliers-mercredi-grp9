@@ -1,0 +1,70 @@
+/* ===================== INDEX ===================== */
+
+/* ── Header ── */
+header {
+    background-color: var(--primary-yellow);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,.08);
+}
+.logo {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-weight: 900;
+}
+nav a {
+    color: var(--text-dark);
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 20px;
+    font-size: 1rem;
+}
+nav a:hover { text-decoration: underline; }
+
+/* ── Hero ── */
+.hero-bg {
+    background: url('../images/atel.jpg') center/cover no-repeat;
+    position: relative;
+    text-align: center;
+    padding: 100px 20px;
+    border-radius: 15px;
+    margin: 25px 0 40px;
+    overflow: hidden;
+}
+.hero-bg::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.3);
+    z-index: 1;
+}
+.hero-content { position: relative; z-index: 2; color: white; }
+.hero-content h1 {
+    font-family: 'Baloo 2';
+    font-size: 3rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,.5);
+}
+.hero-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* ── Piliers ── */
+.pillars {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    margin: 50px 0;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.pillar h3 { font-family: 'Baloo 2'; font-size: 1.4rem; margin-bottom: 8px; }
+.pillar hr  { width: 50px; border: 2px solid #333; margin: 8px auto 12px; }
+.pillar p   { color: #555; font-size: .9rem; max-width: 220px; margin: 0 auto; }

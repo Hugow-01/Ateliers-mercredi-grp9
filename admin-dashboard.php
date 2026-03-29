@@ -1,49 +1,18 @@
-<?php
-require_once 'config.php';
-requireAdmin();
-
-$db = getDB();
-
-// Stats globales
-$nbActivites  = $db->query("SELECT COUNT(*) FROM Activité")->fetchColumn();
-$nbEnfants    = $db->query("SELECT COUNT(*) FROM Enfant")->fetchColumn();
-$nbFamilles   = $db->query("SELECT COUNT(*) FROM Famille")->fetchColumn();
-$nbCreneaux   = $db->query("SELECT COUNT(*) FROM Creneau")->fetchColumn();
-
-// Inscriptions récentes
-$recents = $db->query("
-    SELECT e.nom, e.prenom, a.nom as activite, c.date, c.debut
-    FROM Enfant_Creneau ec
-    JOIN Enfant e ON e.id = ec.id_enfant
-    JOIN Creneau c ON c.id = ec.id_creneau
-    JOIN Activité a ON a.nom = c.nom_activite
-    ORDER BY c.date DESC
-    LIMIT 10
-")->fetchAll();
-?>
+<?php require_once 'php/admin-dashboard.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tableau de bord - Admin</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 30px 0; }
-        .stat-card { background: white; border-radius: 15px; padding: 25px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.07); border-top: 4px solid; }
-        .stat-card h2 { font-size: 3rem; margin: 0; font-family: 'Baloo 2'; }
-        .stat-card p { margin: 5px 0 0; color: #666; font-weight: bold; }
-        .quick-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
-        .quick-link { background: white; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.07); text-decoration: none; color: #333; transition: transform 0.2s; font-weight: bold; font-size: 1.1rem; }
-        .quick-link:hover { transform: translateY(-3px); }
-        @media(max-width:800px) { .stats-grid, .quick-links { grid-template-columns: 1fr 1fr; } }
-    </style>
 </head>
 <body>
 
-<header style="background:#fdd835; padding:15px 30px; display:flex; justify-content:space-between; align-items:center;">
-    <h1 style="font-family:'Baloo 2'; font-size:1.8rem; color:#3e2723; margin:0;">Espace administrateur</h1>
+<header class="admin-header">
+    <h1>Espace administrateur</h1>
     <nav>
         <a href="index.php">Accueil</a>
         <a href="admin-dashboard.php" style="text-decoration:underline;">tableau de bord</a>
@@ -58,7 +27,6 @@ $recents = $db->query("
     <h2 style="font-family:'Baloo 2'; font-size:2rem; margin-bottom:5px;">Tableau de bord</h2>
     <p style="color:#888;">Bienvenue, <?= htmlspecialchars($_SESSION['nom']) ?></p>
 
-    <!-- Statistiques -->
     <div class="stats-grid">
         <div class="stat-card" style="border-color:#ff5e78;">
             <h2 style="color:#ff5e78;"><?= $nbActivites ?></h2>
@@ -78,16 +46,14 @@ $recents = $db->query("
         </div>
     </div>
 
-    <!-- Liens rapides -->
     <h3 style="font-family:'Baloo 2'; margin-bottom:15px;">Accès rapides</h3>
     <div class="quick-links">
-        <a href="admin-activites.php" class="quick-link" style="border-top:4px solid #ff5e78;">Gérer les activités</a>
-        <a href="admin-liste-enfants.php" class="quick-link" style="border-top:4px solid #7a86f1;">Liste des enfants</a>
+        <a href="admin-activites.php"          class="quick-link" style="border-top:4px solid #ff5e78;">Gérer les activités</a>
+        <a href="admin-liste-enfants.php"       class="quick-link" style="border-top:4px solid #7a86f1;">Liste des enfants</a>
         <a href="admin-inscription-parents.php" class="quick-link" style="border-top:4px solid #fdd835;">Inscriptions parents</a>
-        <a href="admin-responsables.php" class="quick-link" style="border-top:4px solid #00e5ff;">Gérer les responsables</a>
+        <a href="admin-responsables.php"        class="quick-link" style="border-top:4px solid #00e5ff;">Gérer les responsables</a>
     </div>
 
-    <!-- Dernières inscriptions -->
     <h3 style="font-family:'Baloo 2'; margin-bottom:15px;">Dernières inscriptions</h3>
     <div class="card">
         <div class="table-wrapper">
@@ -106,7 +72,7 @@ $recents = $db->query("
                         <td><?= htmlspecialchars($r['prenom'] . ' ' . $r['nom']) ?></td>
                         <td><?= htmlspecialchars($r['activite']) ?></td>
                         <td><?= htmlspecialchars($r['date']) ?></td>
-                        <td><?= htmlspecialchars(substr($r['debut'],0,5)) ?></td>
+                        <td><?= htmlspecialchars(substr($r['debut'], 0, 5)) ?></td>
                     </tr>
                     <?php endforeach; ?>
                     <?php if (empty($recents)): ?>

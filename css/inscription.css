@@ -1,0 +1,56 @@
+/* ===================== INSCRIPTION ===================== */
+
+.inscription-wrapper {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.white-card {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 5px 20px rgba(0,0,0,.08);
+    flex: 1;
+    max-width: 480px;
+}
+.form-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    margin-bottom: 25px;
+    color: var(--text-dark);
+}
+
+.image-container {
+    flex: 1;
+    min-width: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.image-container img {
+    width: 100%;
+    border-radius: 20px;
+    max-height: 420px;
+    object-fit: cover;
+}
+
+.btn-submit {
+    background: var(--pink);
+    color: white;
+    border: none;
+    padding: 14px 60px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.6rem;
+    border-radius: 15px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(255,94,120,.4);
+    margin-top: 10px;
+    transition: transform .2s;
+}
+.btn-submit:hover { transform: scale(1.04); }
+
+.row-2 { display: flex; gap: 10px; }
+.row-2 input { flex: 1; }

@@ -1,68 +1,13 @@
-<?php
-require_once 'config.php';
-
-$error = '';
-$success = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nom    = trim($_POST['nom'] ?? '');
-    $login  = trim($_POST['email'] ?? '');
-    $mdp    = $_POST['mdp'] ?? '';
-    $mdp2   = $_POST['mdp2'] ?? '';
-
-    if (!$nom || !$login || !$mdp || !$mdp2) {
-        $error = "Veuillez remplir tous les champs.";
-    } elseif (!filter_var($login, FILTER_VALIDATE_EMAIL)) {
-        $error = "L'adresse email n'est pas valide.";
-    } elseif (strlen($mdp) < 6) {
-        $error = "Le mot de passe doit contenir au moins 6 caractères.";
-    } elseif ($mdp !== $mdp2) {
-        $error = "Les mots de passe ne correspondent pas.";
-    } else {
-        try {
-            $db = getDB();
-            // Vérifier si le login existe déjà
-            $stmt = $db->prepare("SELECT login FROM Famille WHERE login = ?");
-            $stmt->execute([$login]);
-            if ($stmt->fetch()) {
-                $error = "Cet email est déjà utilisé. <a href='connexion.php'>Se connecter</a>";
-            } else {
-                $hash = password_hash($mdp, PASSWORD_DEFAULT);
-                $stmt = $db->prepare("INSERT INTO Famille (login, mdp, nom) VALUES (?, ?, ?)");
-                $stmt->execute([$login, $hash, $nom]);
-
-                // Connexion automatique après inscription
-                $_SESSION['user']  = $login;
-                $_SESSION['nom']   = $nom;
-                $_SESSION['role']  = 'famille';
-                header("Location: parent-enfants.php");
-                exit;
-            }
-        } catch (PDOException $e) {
-            $error = "Erreur base de données : " . $e->getMessage();
-        }
-    }
-}
-?>
+<?php require_once 'php/inscription.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S'inscrire - Ateliers du Mercredi</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/inscription.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        .inscription-wrapper { display: flex; gap: 40px; align-items: flex-start; justify-content: center; flex-wrap: wrap; }
-        .white-card { background: white; border-radius: 20px; padding: 35px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); flex: 1; max-width: 480px; }
-        .form-title { font-family: 'Baloo 2', cursive; font-size: 2rem; margin-bottom: 25px; color: #3e2723; }
-        .image-container { flex: 1; min-width: 280px; display: flex; align-items: center; justify-content: center; }
-        .image-container img { width: 100%; border-radius: 20px; max-height: 420px; object-fit: cover; }
-        .btn-submit { background: #ff5e78; color: white; border: none; padding: 14px 60px; font-family: 'Baloo 2', cursive; font-size: 1.6rem; border-radius: 15px; cursor: pointer; box-shadow: 0 5px 15px rgba(255,94,120,0.4); margin-top: 10px; transition: transform 0.2s; }
-        .btn-submit:hover { transform: scale(1.04); }
-        .row-2 { display: flex; gap: 10px; }
-        .row-2 input { flex: 1; }
-    </style>
 </head>
 <body>
 
@@ -90,11 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form method="POST" action="inscription.php">
                 <div class="form-group">
                     <label>Nom de la famille :</label>
-                    <input type="text" name="nom" placeholder="ex: Famille Dubois" value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>" required>
+                    <input type="text" name="nom" placeholder="ex: Famille Dubois"
+                           value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>" required>
                 </div>
                 <div class="form-group">
                     <label>Email (servira de login) :</label>
-                    <input type="email" name="email" placeholder="ex: marie.alice@gmail.com" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
+                    <input type="email" name="email" placeholder="ex: marie.alice@gmail.com"
+                           value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
                 </div>
                 <div class="form-group">
                     <label>Mot de passe :</label>
@@ -116,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
 
         <div class="image-container">
-            <img src="create_acc.jpg" alt="Enfants ateliers" onerror="this.style.display='none'">
+            <img src="images/create_acc.jpg" alt="Enfants ateliers" onerror="this.style.display='none'">
         </div>
     </div>
 </div>

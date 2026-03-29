@@ -1,33 +1,13 @@
-<?php
-require_once 'config.php';
-?>
+<?php require_once 'php/index.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Les Ateliers du Mercredi</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/index.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        .hero-bg {
-            background: url('atel.jpg') center/cover no-repeat;
-            position: relative;
-            text-align: center;
-            padding: 100px 20px;
-            border-radius: 15px;
-            margin: 25px 0 40px;
-            overflow: hidden;
-        }
-        .hero-bg::before { content:""; position:absolute; inset:0; background:rgba(0,0,0,0.3); z-index:1; }
-        .hero-content { position:relative; z-index:2; color:white; }
-        .hero-content h1 { font-family:'Baloo 2'; font-size:3rem; text-shadow:2px 2px 4px rgba(0,0,0,0.5); }
-        .hero-actions { margin-top:30px; display:flex; justify-content:center; gap:20px; flex-wrap:wrap; }
-        .pillars { display:flex; justify-content:space-around; text-align:center; margin:50px 0; gap:20px; flex-wrap:wrap; }
-        .pillar h3 { font-family:'Baloo 2'; font-size:1.4rem; margin-bottom:8px; }
-        .pillar hr { width:50px; border:2px solid #333; margin:8px auto 12px; }
-        .pillar p { color:#555; font-size:0.9rem; max-width:220px; margin:0 auto; }
-    </style>
 </head>
 <body>
 
@@ -91,7 +71,7 @@ require_once 'config.php';
 
     <div style="display:flex; align-items:center; gap:40px; margin:60px 0; flex-wrap:wrap;">
         <div style="flex:1; min-width:280px;">
-            <img src="acc.jpg" alt="Atelier" style="width:100%; border-radius:20px; box-shadow:0 5px 15px rgba(0,0,0,0.1);" onerror="this.style.display='none'">
+            <img src="images/acc.jpg" alt="Atelier" style="width:100%; border-radius:20px; box-shadow:0 5px 15px rgba(0,0,0,0.1);" onerror="this.style.display='none'">
         </div>
         <div style="flex:1; min-width:280px;">
             <h2 style="font-family:'Baloo 2'; font-size:1.8rem; margin-bottom:15px;">À propos des ateliers</h2>
