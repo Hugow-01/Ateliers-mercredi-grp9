@@ -5,7 +5,25 @@ requireParent();
 $db    = getDB();
 $login = $_SESSION['user'];
 
-// Récupérer les enfants avec leurs activités et créneaux
+// ── Récupérer les notifications non lues pour cette famille ──
+$stmtNotif = $db->prepare("
+    SELECT n.id, n.type, n.message, n.date_creation,
+           e.prenom, e.nom AS nom_enfant
+    FROM Notification n
+    JOIN Enfant e ON e.id = n.id_enfant
+    WHERE n.login_famille = ? AND n.lu = 0
+    ORDER BY n.date_creation DESC
+");
+$stmtNotif->execute([$login]);
+$notifications = $stmtNotif->fetchAll();
+
+// ── Marquer les notifications comme lues dès affichage ───────
+if (!empty($notifications)) {
+    $ids = implode(',', array_map(fn($n) => intval($n['id']), $notifications));
+    $db->exec("UPDATE Notification SET lu = 1 WHERE id IN ($ids)");
+}
+
+// ── Récupérer les enfants avec leurs activités et créneaux ───
 $stmt = $db->prepare("
     SELECT e.*,
            GROUP_CONCAT(
@@ -30,11 +48,9 @@ function getStatut(PDO $db, int $id_creneau, int $id_enfant, string $nom_activit
     );
     $rang->execute([$id_creneau, $id_enfant]);
     $r = (int) $rang->fetchColumn();
-
     $cap = $db->prepare("SELECT capacite FROM Activité WHERE nom = ?");
     $cap->execute([$nom_activite]);
     $c = (int) ($cap->fetchColumn() ?? 99);
-
     return $r <= $c ? 'accepté' : 'liste d\'attente';
 }
 
