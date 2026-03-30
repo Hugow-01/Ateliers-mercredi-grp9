@@ -75,7 +75,7 @@ if ($nbIns > 0): ?>
 <?php if (!empty($notifications)): ?>
 <div class="notif-admin-wrapper">
     <h3 style="font-family:'Baloo 2'; font-size:1.2rem; margin-bottom:10px; color:#1a5fb4;">
-        🔔 Nouvelles notifications
+        Nouvelles notifications
         <span class="notif-badge-new"><?= count($notifications) ?> nouvelle(s)</span>
     </h3>
     <?php foreach ($notifications as $notif):
@@ -83,7 +83,7 @@ if ($nbIns > 0): ?>
         $dateF     = date('d/m/Y à H:i', strtotime($notif['date_creation']));
     ?>
     <div class="notif-admin-card <?= $isAccepte ? 'accepte' : 'attente' ?>">
-        <div class="notif-icon"><?= $isAccepte ? '✅' : '⏳' ?></div>
+        
         <div class="notif-body">
             <div class="notif-title">
                 <?= $isAccepte ? 'Place confirmée' : 'Mise en liste d\'attente' ?>

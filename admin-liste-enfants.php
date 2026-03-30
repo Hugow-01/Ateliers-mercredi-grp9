@@ -181,7 +181,7 @@
                         <!-- Colonne Statut -->
                         <td>
                             <?php if ($isAccepte): ?>
-                                <span class="badge-accepte">✔ Accepté</span>
+                                <span class="badge-accepte"> Accepté</span>
                             <?php else: ?>
                                 <span class="badge-attente"> Liste d'attente</span>
                                 <span class="badge-pos">#<?= htmlspecialchars($ins['position']) ?></span>
@@ -205,7 +205,7 @@
                                     <input type="hidden" name="<?= $k ?>" value="<?= htmlspecialchars($v) ?>">
                                     <?php endif; endforeach; ?>
                                     <button type="submit" class="btn-toggle btn-to-attente">
-                                        ⬇ Mettre en attente
+                                        Mettre en attente
                                     </button>
                                 </form>
                             <?php else: ?>
@@ -220,7 +220,7 @@
                                     <input type="hidden" name="<?= $k ?>" value="<?= htmlspecialchars($v) ?>">
                                     <?php endif; endforeach; ?>
                                     <button type="submit" class="btn-toggle btn-to-accepte">
-                                        ⬆ Confirmer la place
+                                         Confirmer la place
                                     </button>
                                 </form>
                             <?php endif; ?>

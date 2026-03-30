@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bascu
                      . "votre enfant est maintenant en liste d'attente (position #$pos).";
                 notifierFamille($db, $enf['login_famille'], $idEnfant, $idCreneau, 'attente', $msg);
 
-                $message     = "✔ $prenomNom déplacé en liste d'attente (#$pos). La famille a été notifiée.";
+                $message     = " $prenomNom déplacé en liste d'attente (#$pos). La famille a été notifiée.";
                 $messageType = 'success';
             } else {
                 $message = "Cet enfant n'est pas inscrit (confirmé) à ce créneau.";
