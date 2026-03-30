@@ -92,9 +92,148 @@
     margin-left: 8px;
 }
 
+/* ── Bouton Modifier (dans le tableau des créneaux) ── */
+.btn-edit {
+    display: inline-block;
+    background: #f0a500;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 5px 13px;
+    font-size: .82rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .2s;
+}
+.btn-edit:hover { background: #d48e00; color: #fff; }
+
+/* Cellule actions : boutons côte à côte */
+.actions-cell {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.actions-cell form { margin: 0; }
+
+/* ── Page admin-modif-activite ── */
+.modif-container {
+    max-width: 860px;
+    padding-top: 30px;
+    padding-bottom: 60px;
+}
+
+.breadcrumb {
+    margin-bottom: 18px;
+    font-size: .9rem;
+}
+.breadcrumb a {
+    color: #1a5fb4;
+    text-decoration: none;
+    font-weight: 600;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+
+.modif-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 2rem;
+    margin: 0 0 24px;
+    color: #1a1a2e;
+}
+
+/* ── Carte de modification ── */
+.modif-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.08);
+    padding: 28px 32px;
+    border-top: 4px solid #1a5fb4;
+}
+
+.modif-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.modif-card-header h3 {
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 1.3rem;
+    color: #1a5fb4;
+    margin: 0;
+}
+.modif-card-icon { font-size: 1.5rem; }
+
+/* ── Résumé info actuelle ── */
+.modif-current-info {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.modif-info-badge {
+    background: #f0f4fb;
+    border: 1px solid #c5d4ef;
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-size: .84rem;
+    color: #333;
+}
+
+/* ── Grille de formulaire ── */
+.modif-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+    margin-bottom: 16px;
+}
+
+/* ── Avertissement inscrits ── */
+.modif-warning {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    font-size: .88rem;
+    color: #795548;
+}
+
+/* ── Boutons d'action ── */
+.modif-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+/* Bouton secondaire (annuler) */
+.btn-secondary {
+    background: #f0f0f0;
+    color: #444;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 22px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: .95rem;
+    transition: background .2s;
+}
+.btn-secondary:hover { background: #e0e0e0; color: #222; }
+
 @media (max-width: 900px) {
     .stats-grid  { grid-template-columns: 1fr 1fr; }
     .quick-links { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+    .modif-form-grid { grid-template-columns: 1fr; }
+    .modif-card      { padding: 18px 16px; }
+    .modif-actions   { flex-direction: column; }
+    .modif-actions a,
+    .modif-actions button { width: 100%; text-align: center; }
 }
 @media (max-width: 500px) {
     .stats-grid  { grid-template-columns: 1fr; }

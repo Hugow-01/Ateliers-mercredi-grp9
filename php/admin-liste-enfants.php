@@ -25,8 +25,8 @@ function notifierFamille(
 
     // 2. Email réel via mail() natif PHP
     $sujet  = ($type === 'accepte')
-        ? '✅ Inscription confirmée – Ateliers du Mercredi'
-        : '⏳ Mise en liste d\'attente – Ateliers du Mercredi';
+        ? ' Inscription confirmée – Ateliers du Mercredi'
+        : ' Mise en liste d\'attente – Ateliers du Mercredi';
 
     $corps  = "Bonjour,\n\n"
         . $msgTexte . "\n\n"
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bascu
                      . "Votre enfant est maintenant inscrit(e) et sa place est confirmée.";
                 notifierFamille($db, $enf['login_famille'], $idEnfant, $idCreneau, 'accepte', $msg);
 
-                $message     = "✔ $prenomNom déplacé en inscrit confirmé. La famille a été notifiée.";
+                $message     = " $prenomNom déplacé en inscrit confirmé. La famille a été notifiée.";
                 $messageType = 'success';
             } else {
                 $message = "Cet enfant n'est pas en liste d'attente pour ce créneau.";

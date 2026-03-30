@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
                 $message = 'Cet enfant est déjà inscrit à ce créneau.';
                 $messageType = 'error';
             } elseif ($ligneAtt) {
-                $message = "⏳ Cet enfant est déjà en liste d'attente (position #{$ligneAtt['position']}).";
+                $message = " Cet enfant est déjà en liste d'attente (position #{$ligneAtt['position']}).";
                 $messageType = 'info';
             } else {
                 $nb  = nbInscrits($db, $id_creneau);
@@ -48,13 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
                 if ($nb < $cap) {
                     $db->prepare("INSERT INTO Enfant_Creneau (id_enfant, id_creneau) VALUES (?, ?)")
                        ->execute([$id_enfant, $id_creneau]);
-                    $message = '✔ Inscription confirmée !';
+                    $message = ' Inscription confirmée !';
                     $messageType = 'success';
                 } else {
                     $pos = prochainePosition($db, $id_creneau);
                     $db->prepare("INSERT INTO ListeAttente (id_enfant, id_creneau, position) VALUES (?, ?, ?)")
                        ->execute([$id_enfant, $id_creneau, $pos]);
-                    $message = "⏳ Créneau complet — votre enfant est en liste d'attente (position #$pos).";
+                    $message = " Créneau complet — votre enfant est en liste d'attente (position #$pos).";
                     $messageType = 'info';
                 }
             }

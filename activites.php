@@ -33,7 +33,7 @@
 
 <?php if (empty($enfants)): ?>
 <div style="text-align:center; background:#fff3cd; border:1px solid #ffc107; padding:15px; max-width:600px; margin:15px auto; border-radius:10px;">
-    ⚠️ Aucun enfant enregistré. <a href="ajouter-enfant.php" style="color:#ff5e78; font-weight:bold;">Ajouter un enfant</a>.
+     Aucun enfant enregistré. <a href="ajouter-enfant.php" style="color:#ff5e78; font-weight:bold;">Ajouter un enfant</a>.
 </div>
 <?php endif; ?>
 
@@ -44,7 +44,7 @@
 </div>
 
 <div class="search-container" style="max-width:1200px; margin:0 auto; padding:0 20px 10px;">
-    <input type="text" id="searchBar" class="search-bar" placeholder="🔍  rechercher une activité...">
+    <input type="text" id="searchBar" class="search-bar" placeholder="  rechercher une activité...">
 </div>
 
 <div style="max-width:1200px; margin:0 auto; padding:0 20px 60px;">
@@ -133,7 +133,7 @@
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" class="btn-inscr" id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
-                <button type="submit" class="btn-wait"  id="btn-wait-<?= $idx ?>">⏳ Rejoindre la liste d'attente</button>
+                <button type="submit" class="btn-wait"  id="btn-wait-<?= $idx ?>"> Rejoindre la liste d'attente</button>
             </form>
 
             <form method="POST" action="activites.php" onsubmit="return confirm('Se désinscrire de ce créneau ?')">
@@ -155,10 +155,9 @@
     <!-- ══ PANNEAU DE RECOMMANDATIONS (hors grille, pleine largeur) ══ -->
     <div class="reco-panel" id="reco-<?= $idx ?>">
         <div class="reco-header">
-            <div class="reco-header-icon">✨</div>
             <div class="reco-header-text">
                 <h4>Créneaux alternatifs disponibles</h4>
-                <p id="reco-subtitle-<?= $idx ?>">Ce créneau est complet — voici nos meilleures suggestions pour votre enfant</p>
+                <p id="reco-subtitle-<?= $idx ?>"></p>
             </div>
         </div>
         <div class="reco-grid" id="reco-grid-<?= $idx ?>">
@@ -272,8 +271,8 @@ function renderSlots(date){
         else              cls+='ok';
 
         let badge='';
-        if(confirme)      badge='<span class="badge badge-conf">✔ Inscrit</span>';
-        else if(enAtt)    badge='<span class="badge badge-att">⏳ File #'+enAtt+'</span>';
+        if(confirme)      badge='<span class="badge badge-conf">Inscrit</span>';
+        else if(enAtt)    badge='<span class="badge badge-att"> File #'+enAtt+'</span>';
         else if(full)     badge='<span class="badge badge-full">Complet</span>';
         else if(quasi)    badge='<span class="badge badge-wait">Presque complet</span>';
         else              badge='<span class="badge badge-ok">Disponible</span>';
@@ -315,7 +314,7 @@ function selectSlot(cr,el,selEnf){
         document.getElementById('quit-creneau-<?= $idx ?>').value=cr.id;
         document.getElementById('quit-enfant-<?= $idx ?>').value=selEnf;
         document.getElementById('btn-quit-<?= $idx ?>').style.display='block';
-        attInfo.textContent='⏳ Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
+        attInfo.textContent=' Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
         attInfo.style.display='block';
         btnI.style.display='none'; btnW.style.display='none';
     } else if(full){
@@ -326,6 +325,10 @@ function selectSlot(cr,el,selEnf){
         btnI.style.display='block'; btnW.style.display='none';
     }
 }
+
+
+
+
 
 /* ═══════════════════════════════════════════
    MOTEUR D'AFFICHAGE DES RECOMMANDATIONS
@@ -350,7 +353,7 @@ function showReco(creneauId, selEnf){
     grid.innerHTML = '';
 
     if(!recos.length){
-        grid.innerHTML = '<div class="reco-empty">😕 Aucun créneau alternatif disponible pour le moment.<br>Vous pouvez rejoindre la liste d\'attente ci-dessus.</div>';
+        grid.innerHTML = '<div class="reco-empty"> Aucun créneau alternatif disponible pour le moment.<br>Vous pouvez rejoindre la liste d\'attente ci-dessus.</div>';
         panel.style.display = 'block';
         return;
     }
@@ -370,7 +373,7 @@ function showReco(creneauId, selEnf){
 
         // Salle
         const salleHtml = r.id_salle
-            ? `<span class="reco-meta-chip chip-room">🚪 Salle ${r.id_salle}</span>`
+            ? `<span class="reco-meta-chip chip-room"> Salle ${r.id_salle}</span>`
             : '';
 
         // Bouton : déjà inscrit / déjà en attente / inscription rapide
@@ -379,9 +382,9 @@ function showReco(creneauId, selEnf){
         const alreadyWait= selEnf && mesAtt_<?= $idx ?>[selEnf] && mesAtt_<?= $idx ?>[selEnf][r.id];
 
         if(alreadyIn){
-            btnHtml = `<button class="reco-btn" disabled>✔ Déjà inscrit</button>`;
+            btnHtml = `<button class="reco-btn" disabled> Déjà inscrit</button>`;
         } else if(alreadyWait){
-            btnHtml = `<button class="reco-btn" disabled>⏳ Déjà en attente</button>`;
+            btnHtml = `<button class="reco-btn" disabled> Déjà en attente</button>`;
         } else if(!selEnf){
             btnHtml = `<button class="reco-btn" disabled title="Choisissez un enfant d'abord">Choisir un enfant d'abord</button>`;
         } else {
@@ -401,8 +404,8 @@ function showReco(creneauId, selEnf){
         card.innerHTML = `
             <div class="reco-card-title">${escHtml(r.nom_activite)}</div>
             <div class="reco-card-meta">
-                <span class="reco-meta-chip chip-date">📅 ${dateF}</span>
-                <span class="reco-meta-chip chip-time">🕐 ${r.debut.substring(0,5)} – ${r.fin.substring(0,5)}</span>
+                <span class="reco-meta-chip chip-date">  ${dateF}</span>
+                <span class="reco-meta-chip chip-time">  ${r.debut.substring(0,5)}  ${r.fin.substring(0,5)}</span>
                 ${salleHtml}
             </div>
             <div class="reco-fill-bar">
