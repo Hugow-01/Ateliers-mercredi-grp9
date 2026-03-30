@@ -51,7 +51,7 @@
             <div class="actions">
                 <button class="btn-sm btn-info"
                         onclick="openMdp('<?= htmlspecialchars($r['login']) ?>', '<?= htmlspecialchars($r['nom']) ?>')">
-                    🔑 Mot de passe
+                     Mot de passe
                 </button>
                 <?php if (!$isMe): ?>
                 <form method="POST" onsubmit="return confirm('Supprimer <?= htmlspecialchars($r['nom']) ?> ?')">
@@ -71,7 +71,7 @@
 <!-- Modal ajouter responsable -->
 <div class="modal-bg" id="modal-add">
     <div class="modal">
-        <span class="close-modal" onclick="document.getElementById('modal-add').classList.remove('active')">✕</span>
+        <span class="close-modal" onclick="document.getElementById('modal-add').classList.remove('active')">X</span>
         <h3>Nouveau responsable</h3>
         <form method="POST">
             <input type="hidden" name="action" value="ajouter">
