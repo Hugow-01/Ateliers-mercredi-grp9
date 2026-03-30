@@ -123,7 +123,7 @@
                 <option value="attente"<?= $filtreStatut === 'attente' ? 'selected':'' ?>>Liste d'attente uniquement</option>
             </select>
         </div>
-        <button type="submit" class="btn btn-primary btn-small">🔍 Filtrer</button>
+        <button type="submit" class="btn btn-primary btn-small">Filtrer</button>
         <a href="admin-liste-enfants.php" class="btn btn-small" style="background:#eee; color:#333;">Réinitialiser</a>
     </form>
 
@@ -136,7 +136,7 @@
     <div class="count-bar">
         <span class="count-chip chip-total">Total affiché : <?= $nbTotal ?></span>
         <span class="count-chip chip-accepte">✔ Acceptés : <?= $nbAccepte ?></span>
-        <span class="count-chip chip-attente">⏳ En attente : <?= $nbAttente ?></span>
+        <span class="count-chip chip-attente"> En attente : <?= $nbAttente ?></span>
     </div>
 
     <!-- ══ Tableau ══ -->
@@ -183,7 +183,7 @@
                             <?php if ($isAccepte): ?>
                                 <span class="badge-accepte">✔ Accepté</span>
                             <?php else: ?>
-                                <span class="badge-attente">⏳ Liste d'attente</span>
+                                <span class="badge-attente"> Liste d'attente</span>
                                 <span class="badge-pos">#<?= htmlspecialchars($ins['position']) ?></span>
                             <?php endif; ?>
                         </td>
@@ -232,8 +232,8 @@
         </div>
 
         <p class="legend-inline" style="margin-top:12px;">
-            💡 Cliquer sur le bouton d'action envoie automatiquement une notification dans l'espace parent
-            <strong>et</strong> un email à la famille concernée.
+            Cliquer sur le bouton d'action envoie automatiquement une notification dans l'espace parent
+            et un email à la famille concernée.
         </p>
     </div>
 </div>
