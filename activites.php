@@ -124,7 +124,7 @@
             <div class="attente-info" id="attente-info-<?= $idx ?>"></div>
 
             <form method="POST" action="activites.php" class="form-creneau">
-                <input type="hidden" name="id_creneau" value="<?= $cr['id'] ?>">
+                <input type="hidden" name="id_creneau" id="creneau-<?= $idx ?>" value="">
 
                 <fieldset style="border:1px solid #ddd; border-radius:8px; padding:8px 12px; margin-bottom:8px;">
                     <legend style="font-size:.8rem; font-weight:bold; color:#555; padding:0 4px;">Sélectionner les enfants</legend>
@@ -255,16 +255,11 @@ function selectDate(date,el){
 }
 
 /* ── Rendu des créneaux ── */
-function getCheckedEnfants(){
-    return Array.from(document.querySelectorAll('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked'))
-               .map(cb=>parseInt(cb.value));
-}
 function renderSlots(date){
     const crs=byDate_<?= $idx ?>[date]||[];
     const list=document.getElementById('slots-<?= $idx ?>');
-    // Badges basés sur le premier enfant coché (si aucun : pas de badge perso)
-    const selEnfs=getCheckedEnfants();
-    const selEnf=selEnfs[0]||0;
+    // Badges basés sur le premier enfant coché (aucun coché = badges génériques)
+    const selEnf=parseInt((document.querySelector('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked')||{}).value)||0;
     list.innerHTML='';
     resetActions();
     hideReco();
@@ -310,8 +305,7 @@ function renderSlots(date){
 
 /* ── Sélection d'un créneau ── */
 function selectSlot(cr,el){
-    const selEnfs=getCheckedEnfants();
-    const selEnf=selEnfs[0]||0;
+    const selEnf=parseInt((document.querySelector('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked')||{}).value)||0;
     document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s=>s.classList.remove('selected'));
     el.classList.add('selected');
     const nb=parseInt(cr.nb_inscrits);
@@ -466,7 +460,7 @@ function resetActions(){
 }
 
 /* ── Changement d'enfant → re-render créneau sélectionné ── */
-/* onEnfantChange: géré par les event listeners sur les checkboxes */
+/* onEnfantChange géré par les event listeners sur les checkboxes ci-dessous */
 
 renderCal();
 
