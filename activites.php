@@ -144,25 +144,25 @@
                 </fieldset>
 
                 <div class="form-actions">
-                    <button type="submit" name="action" value="inscrire"        class="btn-inscr"    id="btn-inscr-<?= $idx ?>" style="display:none">+ Inscrire</button>
-                    <button type="submit" name="action" value="desinscrire"     class="btn-desinscr" id="btn-desinscr-<?= $idx ?>" style="display:none">✖ Désinscrire</button>
-                    <button type="submit" name="action" value="vers_attente" class="btn-wait"     id="btn-wait-<?= $idx ?>" style="display:none">⏳ Rejoindre la liste d'attente</button>
-                    <button type="submit" name="action" value="quitter_attente" class="btn-quitter"  id="btn-quit-<?= $idx ?>" style="display:none">✕ Quitter la liste d'attente</button>
+                    <button type="submit" name="action" value="inscrire"        class="btn-inscr"    id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
+                    <button type="submit" name="action" value="desinscrire"     class="btn-desinscr" id="btn-desinscr-<?= $idx ?>">✖ Désinscrire</button>
+                    <button type="submit" name="action" value="vers_attente" class="btn-wait"     id="btn-wait-<?= $idx ?>">⏳ Rejoindre la liste d'attente</button>
+                    <button type="submit" name="action" value="quitter_attente" class="btn-quitter"  id="btn-quit-<?= $idx ?>">✕ Quitter la liste d'attente</button>
                 </div>
             </form>
 
             <form method="POST" action="activites.php" onsubmit="return confirm('Se désinscrire de ce créneau ?')">
                 <input type="hidden" name="action"     value="desinscrire">
                 <input type="hidden" name="id_creneau" id="des-creneau-<?= $idx ?>" value="">
-                <input type="hidden" name="id_enfant"  id="des-enfant-<?= $idx ?>"  value="">
-                <button type="submit" class="btn-desins" id="btn-des-<?= $idx ?>" style="display:none">✕ Se désinscrire</button>
+                <input type="hidden" name="id_enfants[]" id="des-enfant-<?= $idx ?>" value="">
+                <button type="submit" class="btn-desins" id="btn-des-<?= $idx ?>">✕ Se désinscrire</button>
             </form>
 
             <form method="POST" action="activites.php" onsubmit="return confirm('Quitter la liste d\'attente ?')">
                 <input type="hidden" name="action"     value="quitter_attente">
                 <input type="hidden" name="id_creneau" id="quit-creneau-<?= $idx ?>" value="">
-                <input type="hidden" name="id_enfant"  id="quit-enfant-<?= $idx ?>"  value="">
-                <button type="submit" class="btn-quitter" id="btn-quit-<?= $idx ?>" style="display:none">✕ Quitter la liste d'attente</button>
+                <input type="hidden" name="id_enfants[]" id="quit-enfant-<?= $idx ?>" value="">
+                <button type="submit" class="btn-quitter" id="btn-quit-<?= $idx ?>">✕ Quitter la liste d'attente</button>
             </form>
         </div>
     </div>
@@ -304,51 +304,42 @@ function renderSlots(date){
 }
 
 /* ── Sélection d'un créneau ── */
-let currentCr = null;
-
 function selectSlot(cr,el){
+    const selEnf=parseInt((document.querySelector('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked')||{}).value)||0;
     document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s=>s.classList.remove('selected'));
     el.classList.add('selected');
-    currentCr = cr;
-    document.getElementById('creneau-<?= $idx ?>').value=cr.id;
-    updateActions();
-}
-
-/* ── Mettre à jour les boutons selon horaire + enfant sélectionnés ── */
-function updateActions(){
-    resetActions();
-    hideReco();
-
-    const cr = currentCr;
-    if(!cr) return;
-
-    const selEnf=parseInt((document.querySelector('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked')||{}).value)||0;
-    if(!selEnf) return;
-
     const nb=parseInt(cr.nb_inscrits);
     const cap=parseInt(cr.cap_activite);
     const full=nb>=cap;
-    const confirme=mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
-    const enAtt=mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
+    const confirme=selEnf&&mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
+    const enAtt=selEnf&&mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
+    resetActions();
+    hideReco();
+    document.getElementById('creneau-<?= $idx ?>').value=cr.id;
+
+    const btnI=document.getElementById('btn-inscr-<?= $idx ?>');
+    const btnW=document.getElementById('btn-wait-<?= $idx ?>');
     const attInfo=document.getElementById('attente-info-<?= $idx ?>');
 
     if(confirme){
         document.getElementById('des-creneau-<?= $idx ?>').value=cr.id;
         document.getElementById('des-enfant-<?= $idx ?>').value=selEnf;
-        document.getElementById('btn-des-<?= $idx ?>').style.display='inline-block';
+        document.getElementById('btn-des-<?= $idx ?>').style.display='block';
+        //btnI.style.display='none'; btnW.style.display='none';
     } else if(enAtt){
         document.getElementById('quit-creneau-<?= $idx ?>').value=cr.id;
         document.getElementById('quit-enfant-<?= $idx ?>').value=selEnf;
-        document.getElementById('btn-quit-<?= $idx ?>').style.display='inline-block';
-        attInfo.textContent='Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
+        document.getElementById('btn-quit-<?= $idx ?>').style.display='block';
+        attInfo.textContent=' Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
         attInfo.style.display='block';
+        //btnI.style.display='none'; btnW.style.display='none';
     } else if(full){
-        document.getElementById('btn-wait-<?= $idx ?>').style.display='inline-block';
+        btnI.style.display='none'; btnW.style.display='block';
+        // ── Afficher les recommandations ──
         showReco(cr.id, selEnf);
     } else {
-        document.getElementById('btn-inscr-<?= $idx ?>').style.display='inline-block';
+        //btnI.style.display='block'; btnW.style.display='none';
     }
-}
 }
 
 
@@ -462,12 +453,12 @@ function escHtml(s){
 
 /* ── Réinitialiser les boutons d'action ── */
 function resetActions(){
-    ['btn-inscr','btn-wait','btn-desinscr','btn-des','btn-quit'].forEach(id=>{
-        const el=document.getElementById(id+'-<?= $idx ?>');
-        if(el) el.style.display='none';
-    });
-    const ai=document.getElementById('attente-info-<?= $idx ?>');
-    if(ai) ai.style.display='none';
+    // ['btn-inscr','btn-wait','btn-desinscr','btn-des','btn-quit'].forEach(id=>{
+    //     const el=document.getElementById(id+'-<?= $idx ?>');
+    //     if(el) el.style.display='none';
+    // });
+    // const ai=document.getElementById('attente-info-<?= $idx ?>');
+    // if(ai) ai.style.display='none';
 }
 
 /* ── Changement d'enfant → re-render créneau sélectionné ── */
@@ -477,10 +468,7 @@ renderCal();
 
 /* ── Re-render créneaux quand une checkbox change ── */
 document.querySelectorAll('[name="id_enfants[]"][data-act="<?= $idx ?>"]').forEach(function(cb){
-    cb.addEventListener('change', function(){
-        if(lastDate) renderSlots(lastDate); // re-render badges
-        updateActions();                     // re-évalue les boutons
-    });
+    cb.addEventListener('change', function(){ if(lastDate) renderSlots(lastDate); });
 });
 })();
 </script>
