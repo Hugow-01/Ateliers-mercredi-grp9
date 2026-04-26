@@ -146,7 +146,8 @@
                 <div class="form-actions">
                     <button type="submit" name="action" value="inscrire"        class="btn-inscr"    id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
                     <button type="submit" name="action" value="desinscrire"     class="btn-desinscr" id="btn-desinscr-<?= $idx ?>">✖ Désinscrire</button>
-                    <button type="submit" name="action" value="quitter_attente" class="btn-wait"     id="btn-wait-<?= $idx ?>">⏳ Rejoindre la liste d'attente</button>
+                    <button type="submit" name="action" value="vers_attente" class="btn-wait"     id="btn-wait-<?= $idx ?>">⏳ Rejoindre la liste d'attente</button>
+                    <button type="submit" name="action" value="quitter_attente" class="btn-quitter"  id="btn-quit-<?= $idx ?>">✕ Quitter la liste d'attente</button>
                 </div>
             </form>
 
