@@ -130,23 +130,23 @@
                     <legend style="font-size:.8rem; font-weight:bold; color:#555; padding:0 4px;">Sélectionner les enfants</legend>
                     <div style="display:flex; flex-direction:column; gap:6px;">
                     <?php foreach ($enfants as $enf): ?>
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:.88rem;">
+                    <label class="enfant-checkbox-label">
                         <input type="checkbox"
                             name="id_enfants[]"
                             value="<?= $enf['id'] ?>"
                             data-age="<?= (int)$enf['age'] ?>"
                             data-act="<?= $idx ?>">
                         <?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?>
-                        <span style="color:#888; font-size:.8rem;">(<?= $enf['age'] ?> ans)</span>
+                        <span class="enfant-age">(<?= $enf['age'] ?> ans)</span>
                     </label>
                     <?php endforeach; ?>
                     </div>
                 </fieldset>
 
                 <div class="form-actions">
-                    <button type="submit" name="action" value="inscrire"        class="btn-inscr">+ Inscrire</button>
-                    <button type="submit" name="action" value="desinscrire"     class="btn-desinscr">✖ Désinscrire</button>
-                    <button type="submit" name="action" value="quitter_attente" class="btn-wait">⏳ Quitter la liste d'attente</button>
+                    <button type="submit" name="action" value="inscrire"        class="btn-inscr"    id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
+                    <button type="submit" name="action" value="desinscrire"     class="btn-desinscr" id="btn-desinscr-<?= $idx ?>">✖ Désinscrire</button>
+                    <button type="submit" name="action" value="quitter_attente" class="btn-wait"     id="btn-wait-<?= $idx ?>">⏳ Rejoindre la liste d'attente</button>
                 </div>
             </form>
 
@@ -258,7 +258,6 @@ function selectDate(date,el){
 function renderSlots(date){
     const crs=byDate_<?= $idx ?>[date]||[];
     const list=document.getElementById('slots-<?= $idx ?>');
-    // Badges basés sur le premier enfant coché (aucun coché = badges génériques)
     const selEnf=parseInt((document.querySelector('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked')||{}).value)||0;
     list.innerHTML='';
     resetActions();
@@ -325,20 +324,20 @@ function selectSlot(cr,el){
         document.getElementById('des-creneau-<?= $idx ?>').value=cr.id;
         document.getElementById('des-enfant-<?= $idx ?>').value=selEnf;
         document.getElementById('btn-des-<?= $idx ?>').style.display='block';
-        btnI.style.display='none'; btnW.style.display='none';
+        //btnI.style.display='none'; btnW.style.display='none';
     } else if(enAtt){
         document.getElementById('quit-creneau-<?= $idx ?>').value=cr.id;
         document.getElementById('quit-enfant-<?= $idx ?>').value=selEnf;
         document.getElementById('btn-quit-<?= $idx ?>').style.display='block';
         attInfo.textContent=' Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
         attInfo.style.display='block';
-        btnI.style.display='none'; btnW.style.display='none';
+        //btnI.style.display='none'; btnW.style.display='none';
     } else if(full){
         btnI.style.display='none'; btnW.style.display='block';
         // ── Afficher les recommandations ──
         showReco(cr.id, selEnf);
     } else {
-        btnI.style.display='block'; btnW.style.display='none';
+        //btnI.style.display='block'; btnW.style.display='none';
     }
 }
 
@@ -453,14 +452,16 @@ function escHtml(s){
 
 /* ── Réinitialiser les boutons d'action ── */
 function resetActions(){
-    ['btn-inscr','btn-wait','btn-des','btn-quit'].forEach(id=>
-        document.getElementById(id+'-<?= $idx ?>').style.display='none'
-    );
-    document.getElementById('attente-info-<?= $idx ?>').style.display='none';
+    // ['btn-inscr','btn-wait','btn-desinscr','btn-des','btn-quit'].forEach(id=>{
+    //     const el=document.getElementById(id+'-<?= $idx ?>');
+    //     if(el) el.style.display='none';
+    // });
+    // const ai=document.getElementById('attente-info-<?= $idx ?>');
+    // if(ai) ai.style.display='none';
 }
 
 /* ── Changement d'enfant → re-render créneau sélectionné ── */
-/* onEnfantChange géré par les event listeners sur les checkboxes ci-dessous */
+/* onEnfantChange géré par les event listeners sur les checkboxes */
 
 renderCal();
 

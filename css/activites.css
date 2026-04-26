@@ -129,6 +129,7 @@ details[open] .arrow { transform: rotate(90deg); }
 .badge-full { background: #888;    color: #fff; }
 .badge-conf { background: #111;    color: #fff; }
 .badge-att  { background: #555;    color: #fff; }
+.enfant-checkbox-label {display:flex; align-items:center; gap:8px; cursor:pointer; font-size:.88rem}
 
 /* ── Boutons d'action ── */
 .btn-inscr  { background: #1a1a2e; color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 700; cursor: pointer; margin-top: 8px; width: 100%; font-size: .9rem; }
