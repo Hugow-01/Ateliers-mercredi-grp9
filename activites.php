@@ -123,17 +123,31 @@
 
             <div class="attente-info" id="attente-info-<?= $idx ?>"></div>
 
-            <form method="POST" action="activites.php">
-                <input type="hidden" name="action"     value="inscrire">
-                <input type="hidden" name="id_creneau" id="creneau-<?= $idx ?>" value="">
-                <select name="id_enfant" id="sel-<?= $idx ?>" onchange="onEnfantChange_<?= $idx ?>()">
-                    <option value="">-- Choisir un enfant --</option>
+            <form method="POST" action="activites.php" class="form-creneau">
+                <input type="hidden" name="id_creneau" value="<?= $cr['id'] ?>">
+
+                <fieldset style="border:1px solid #ddd; border-radius:8px; padding:8px 12px; margin-bottom:8px;">
+                    <legend style="font-size:.8rem; font-weight:bold; color:#555; padding:0 4px;">Sélectionner les enfants</legend>
+                    <div style="display:flex; flex-direction:column; gap:6px;">
                     <?php foreach ($enfants as $enf): ?>
-                    <option value="<?= $enf['id'] ?>" data-age="<?= (int)$enf['age'] ?>"><?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?></option>
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:.88rem;">
+                        <input type="checkbox"
+                            name="id_enfants[]"
+                            value="<?= $enf['id'] ?>"
+                            data-age="<?= (int)$enf['age'] ?>"
+                            data-act="<?= $idx ?>">
+                        <?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?>
+                        <span style="color:#888; font-size:.8rem;">(<?= $enf['age'] ?> ans)</span>
+                    </label>
                     <?php endforeach; ?>
-                </select>
-                <button type="submit" class="btn-inscr" id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
-                <button type="submit" class="btn-wait"  id="btn-wait-<?= $idx ?>"> Rejoindre la liste d'attente</button>
+                    </div>
+                </fieldset>
+
+                <div class="form-actions">
+                    <button type="submit" name="action" value="inscrire"        class="btn-inscr">+ Inscrire</button>
+                    <button type="submit" name="action" value="desinscrire"     class="btn-desinscr">✖ Désinscrire</button>
+                    <button type="submit" name="action" value="quitter_attente" class="btn-wait">⏳ Quitter la liste d'attente</button>
+                </div>
             </form>
 
             <form method="POST" action="activites.php" onsubmit="return confirm('Se désinscrire de ce créneau ?')">
@@ -241,10 +255,16 @@ function selectDate(date,el){
 }
 
 /* ── Rendu des créneaux ── */
+function getCheckedEnfants(){
+    return Array.from(document.querySelectorAll('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked'))
+               .map(cb=>parseInt(cb.value));
+}
 function renderSlots(date){
     const crs=byDate_<?= $idx ?>[date]||[];
     const list=document.getElementById('slots-<?= $idx ?>');
-    const selEnf=parseInt(document.getElementById('sel-<?= $idx ?>').value)||0;
+    // Badges basés sur le premier enfant coché (si aucun : pas de badge perso)
+    const selEnfs=getCheckedEnfants();
+    const selEnf=selEnfs[0]||0;
     list.innerHTML='';
     resetActions();
     hideReco();
@@ -283,13 +303,15 @@ function renderSlots(date){
             +'<small style="opacity:.7">'+nb+'/'+cap+' inscrits'
             +(full?' · '+cr.nb_attente+' en attente':' · '+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':''))
             +'</small>';
-        div.onclick=()=>selectSlot(cr,div,selEnf);
+        div.onclick=()=>selectSlot(cr,div);
         list.appendChild(div);
     });
 }
 
 /* ── Sélection d'un créneau ── */
-function selectSlot(cr,el,selEnf){
+function selectSlot(cr,el){
+    const selEnfs=getCheckedEnfants();
+    const selEnf=selEnfs[0]||0;
     document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s=>s.classList.remove('selected'));
     el.classList.add('selected');
     const nb=parseInt(cr.nb_inscrits);
@@ -342,8 +364,8 @@ function showReco(creneauId, selEnf){
     // Récupérer l'âge de l'enfant sélectionné pour affichage contextuel
     let enfNom = '';
     if(selEnf){
-        const opt = document.querySelector('#sel-<?= $idx ?> option[value="'+selEnf+'"]');
-        if(opt) enfNom = opt.textContent.trim();
+        const chk = document.querySelector('[name="id_enfants[]"][data-act="<?= $idx ?>"][value="'+selEnf+'"]');
+        if(chk) enfNom = chk.closest('label').textContent.trim();
     }
 
     sub.textContent = enfNom
@@ -444,11 +466,14 @@ function resetActions(){
 }
 
 /* ── Changement d'enfant → re-render créneau sélectionné ── */
-window.onEnfantChange_<?= $idx ?>=function(){
-    if(lastDate) renderSlots(lastDate);
-};
+/* onEnfantChange: géré par les event listeners sur les checkboxes */
 
 renderCal();
+
+/* ── Re-render créneaux quand une checkbox change ── */
+document.querySelectorAll('[name="id_enfants[]"][data-act="<?= $idx ?>"]').forEach(function(cb){
+    cb.addEventListener('change', function(){ if(lastDate) renderSlots(lastDate); });
+});
 })();
 </script>
 <?php endif; ?>
