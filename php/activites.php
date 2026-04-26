@@ -12,114 +12,117 @@ $enfantsStmt = $db->prepare("SELECT id, nom, prenom, age FROM Enfant WHERE login
 $enfantsStmt->execute([$login]);
 $enfants = $enfantsStmt->fetchAll();
 
-// ── INSCRIPTION ─────────────────────────────────────────────
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscrire') {
-    $id_enfant  = intval($_POST['id_enfant']  ?? 0);
-    $id_creneau = intval($_POST['id_creneau'] ?? 0);
+var_dump($_POST);
 
-    if (!$id_enfant || !$id_creneau) {
-        $message = 'Veuillez sélectionner un enfant et un créneau.';
+// ── INSCRIPTION ─────────────────────────────────────────────
+// ── DÉSINSCRIPTION ──────────────────────────────────────────
+// ── QUITTER LISTE D'ATTENTE ─────────────────────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $action = $_POST['action'] ?? null;
+    $id_creneau = intval($_POST['id_creneau'] ?? 0);
+    $id_enfants = $_POST['id_enfants'] ?? [];
+
+    if (empty($id_enfants) || !$id_creneau) {
+        $message = 'Veuillez sélectionner au moins un enfant.';
         $messageType = 'error';
     } else {
-        $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND login_famille = ?");
-        $chk->execute([$id_enfant, $login]);
 
-        if (!$chk->fetch()) {
-            $message = 'Enfant non trouvé.';
+        // 🔐 filtrare copii aparținând familiei
+        $ids = array_map('intval', $id_enfants);
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+
+        $stmt = $db->prepare("
+            SELECT id FROM Enfant 
+            WHERE id IN ($placeholders) 
+            AND login_famille = ?
+        ");
+        $stmt->execute([...$ids, $login]);
+        $enfants_valides = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($enfants_valides)) {
+            $message = 'Aucun enfant valide.';
             $messageType = 'error';
         } else {
-            $dejaConf = $db->prepare("SELECT 1 FROM Enfant_Creneau WHERE id_enfant = ? AND id_creneau = ?");
-            $dejaConf->execute([$id_enfant, $id_creneau]);
 
-            $dejaAtt = $db->prepare("SELECT position FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?");
-            $dejaAtt->execute([$id_enfant, $id_creneau]);
-            $ligneAtt = $dejaAtt->fetch();
+            switch ($action) {
 
-            if ($dejaConf->fetch()) {
-                $message = 'Cet enfant est déjà inscrit à ce créneau.';
-                $messageType = 'error';
-            } elseif ($ligneAtt) {
-                $message = " Cet enfant est déjà en liste d'attente (position #{$ligneAtt['position']}).";
-                $messageType = 'info';
-            } else {
-                $nb  = nbInscrits($db, $id_creneau);
-                $cap = capaciteCreneau($db, $id_creneau);
+                case 'inscrire':
 
-                if ($nb < $cap) {
-                    $db->prepare("INSERT INTO Enfant_Creneau (id_enfant, id_creneau) VALUES (?, ?)")
-                       ->execute([$id_enfant, $id_creneau]);
-                    $message = ' Inscription confirmée !';
+                    foreach ($enfants_valides as $id_enfant) {
+
+                        $dejaConf = $db->prepare("SELECT 1 FROM Enfant_Creneau WHERE id_enfant = ? AND id_creneau = ?");
+                        $dejaConf->execute([$id_enfant, $id_creneau]);
+
+                        $dejaAtt = $db->prepare("SELECT 1 FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?");
+                        $dejaAtt->execute([$id_enfant, $id_creneau]);
+
+                        if ($dejaConf->fetch() || $dejaAtt->fetch()) continue;
+
+                        $nb  = nbInscrits($db, $id_creneau);
+                        $cap = capaciteCreneau($db, $id_creneau);
+
+                        if ($nb < $cap) {
+                            $db->prepare("INSERT INTO Enfant_Creneau (id_enfant, id_creneau) VALUES (?, ?)")
+                               ->execute([$id_enfant, $id_creneau]);
+                        } else {
+                            $pos = prochainePosition($db, $id_creneau);
+                            $db->prepare("INSERT INTO ListeAttente (id_enfant, id_creneau, position) VALUES (?, ?, ?)")
+                               ->execute([$id_enfant, $id_creneau, $pos]);
+                        }
+                    }
+
+                    $message = 'Inscription traitée.';
                     $messageType = 'success';
-                } else {
-                    $pos = prochainePosition($db, $id_creneau);
-                    $db->prepare("INSERT INTO ListeAttente (id_enfant, id_creneau, position) VALUES (?, ?, ?)")
-                       ->execute([$id_enfant, $id_creneau, $pos]);
-                    $message = " Créneau complet — votre enfant est en liste d'attente (position #$pos).";
-                    $messageType = 'info';
-                }
+                break;
+
+                case 'desinscrire':
+
+                    foreach ($enfants_valides as $id_enfant) {
+                        $db->prepare("DELETE FROM Enfant_Creneau WHERE id_enfant = ? AND id_creneau = ?")
+                           ->execute([$id_enfant, $id_creneau]);
+                    }
+
+                    // promotion
+                    while (nbInscrits($db, $id_creneau) < capaciteCreneau($db, $id_creneau)) {
+
+                        $stmt = $db->prepare("SELECT id_enfant FROM ListeAttente WHERE id_creneau = ? ORDER BY position ASC LIMIT 1");
+                        $stmt->execute([$id_creneau]);
+
+                        $promo = $stmt->fetchColumn();
+                        if (!$promo) break;
+
+                        $db->prepare("DELETE FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?")
+                           ->execute([$promo, $id_creneau]);
+
+                        $db->prepare("INSERT INTO Enfant_Creneau (id_enfant, id_creneau) VALUES (?, ?)")
+                           ->execute([$promo, $id_creneau]);
+                    }
+
+                    $message = 'Désinscription effectuée.';
+                    $messageType = 'success';
+                break;
+
+                case 'quitter_attente':
+
+                    foreach ($enfants_valides as $id_enfant) {
+                        $db->prepare("DELETE FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?")
+                           ->execute([$id_enfant, $id_creneau]);
+                    }
+
+                    $message = 'Retiré de la liste d’attente.';
+                    $messageType = 'success';
+                break;
             }
         }
     }
+
+    // refresh enfants
     $enfantsStmt->execute([$login]);
     $enfants = $enfantsStmt->fetchAll();
 }
 
-// ── DÉSINSCRIPTION ──────────────────────────────────────────
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desinscrire') {
-    $id_enfant  = intval($_POST['id_enfant']  ?? 0);
-    $id_creneau = intval($_POST['id_creneau'] ?? 0);
-
-    $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND login_famille = ?");
-    $chk->execute([$id_enfant, $login]);
-
-    if ($chk->fetch()) {
-        $db->prepare("DELETE FROM Enfant_Creneau WHERE id_enfant = ? AND id_creneau = ?")
-           ->execute([$id_enfant, $id_creneau]);
-
-        $premier = $db->prepare("SELECT id_enfant FROM ListeAttente WHERE id_creneau = ? ORDER BY position ASC LIMIT 1");
-        $premier->execute([$id_creneau]);
-        $promo = $premier->fetchColumn();
-
-        if ($promo) {
-            $db->prepare("INSERT INTO Enfant_Creneau (id_enfant, id_creneau) VALUES (?, ?)")
-               ->execute([$promo, $id_creneau]);
-            $db->prepare("DELETE FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?")
-               ->execute([$promo, $id_creneau]);
-
-            $restants = $db->prepare("SELECT id FROM ListeAttente WHERE id_creneau = ? ORDER BY position ASC");
-            $restants->execute([$id_creneau]);
-            $pos = 1;
-            foreach ($restants->fetchAll() as $r) {
-                $db->prepare("UPDATE ListeAttente SET position = ? WHERE id = ?")->execute([$pos++, $r['id']]);
-            }
-        }
-        $message = '✔ Désinscription effectuée.';
-        $messageType = 'success';
-    }
-}
-
-// ── QUITTER LISTE D'ATTENTE ─────────────────────────────────
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'quitter_attente') {
-    $id_enfant  = intval($_POST['id_enfant']  ?? 0);
-    $id_creneau = intval($_POST['id_creneau'] ?? 0);
-
-    $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND login_famille = ?");
-    $chk->execute([$id_enfant, $login]);
-
-    if ($chk->fetch()) {
-        $db->prepare("DELETE FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?")
-           ->execute([$id_enfant, $id_creneau]);
-
-        $restants = $db->prepare("SELECT id FROM ListeAttente WHERE id_creneau = ? ORDER BY position ASC");
-        $restants->execute([$id_creneau]);
-        $pos = 1;
-        foreach ($restants->fetchAll() as $r) {
-            $db->prepare("UPDATE ListeAttente SET position = ? WHERE id = ?")->execute([$pos++, $r['id']]);
-        }
-        $message = '✔ Retiré de la liste d\'attente.';
-        $messageType = 'success';
-    }
-}
+// FIN INSCRIPTION, DESINSCRIPTION, QUITTER
 
 // ── CHARGEMENT DES DONNÉES ──────────────────────────────────
 $activites = $db->query("SELECT * FROM Activité ORDER BY nom")->fetchAll();

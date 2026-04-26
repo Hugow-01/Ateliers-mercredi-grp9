@@ -123,30 +123,38 @@
 
             <div class="attente-info" id="attente-info-<?= $idx ?>"></div>
 
-            <form method="POST" action="activites.php">
-                <input type="hidden" name="action"     value="inscrire">
+            <?php foreach ($creneaux as $idx => $creneau): ?>
+            <?php endforeach; ?>
+            <form method="POST" action="activites.php" >
+                <input type="hidden" name="action" value="inscrire">
                 <input type="hidden" name="id_creneau" id="creneau-<?= $idx ?>" value="">
-                <select name="id_enfant" id="sel-<?= $idx ?>" onchange="onEnfantChange_<?= $idx ?>()">
-                    <option value="">-- Choisir un enfant --</option>
-                    <?php foreach ($enfants as $enf): ?>
-                    <option value="<?= $enf['id'] ?>" data-age="<?= (int)$enf['age'] ?>"><?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?></option>
+                <div class="enfants-list">
+                    <?php foreach ($enfants as $enfant): ?>
+                    <label>
+                        <input type="checkbox" name="id_enfants[]" value="<?= $enfant['id'] ?>">
+                        <?= htmlspecialchars($enfant['prenom']) ?>
+                    </label><br>
                     <?php endforeach; ?>
-                </select>
-                <button type="submit" class="btn-inscr" id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
-                <button type="submit" class="btn-wait"  id="btn-wait-<?= $idx ?>"> Rejoindre la liste d'attente</button>
+                </div>
+                <!--<button name="action" value="inscrire">Inscrire</button>
+                <button name="action" value="desinscrire">Désinscrire</button>
+                <button name="action" value="quitter_attente">Quitter liste d'attente</button>-->
+                <button name="action" value="inscrire" type="submit" class="btn-inscr" id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
+                <button name="action" value="attente" type="submit" class="btn-wait"  id="btn-wait-<?= $idx ?>"> Rejoindre la liste d'attente</button>
             </form>
+            
 
             <form method="POST" action="activites.php" onsubmit="return confirm('Se désinscrire de ce créneau ?')">
                 <input type="hidden" name="action"     value="desinscrire">
                 <input type="hidden" name="id_creneau" id="des-creneau-<?= $idx ?>" value="">
-                <input type="hidden" name="id_enfant"  id="des-enfant-<?= $idx ?>"  value="">
+                <input type="hidden" name="id_enfants[]"  id="des-enfant-<?= $idx ?>"  value="">
                 <button type="submit" class="btn-desins" id="btn-des-<?= $idx ?>">✕ Se désinscrire</button>
             </form>
 
             <form method="POST" action="activites.php" onsubmit="return confirm('Quitter la liste d\'attente ?')">
                 <input type="hidden" name="action"     value="quitter_attente">
                 <input type="hidden" name="id_creneau" id="quit-creneau-<?= $idx ?>" value="">
-                <input type="hidden" name="id_enfant"  id="quit-enfant-<?= $idx ?>"  value="">
+                <input type="hidden" name="id_enfants[]"  id="quit-enfant-<?= $idx ?>"  value="">
                 <button type="submit" class="btn-quitter" id="btn-quit-<?= $idx ?>">✕ Quitter la liste d'attente</button>
             </form>
         </div>
@@ -392,7 +400,7 @@ function showReco(creneauId, selEnf){
             <form method="POST" action="activites.php" style="margin:0;">
                 <input type="hidden" name="action"     value="inscrire">
                 <input type="hidden" name="id_creneau" value="${r.id}">
-                <input type="hidden" name="id_enfant"  value="${selEnf}">
+                <input type="hidden" name="id_enfants[]"  value="${selEnf}">
                 <button type="submit" class="reco-btn">
                     + Inscrire sur ce créneau
                 </button>
@@ -443,10 +451,6 @@ function resetActions(){
     document.getElementById('attente-info-<?= $idx ?>').style.display='none';
 }
 
-/* ── Changement d'enfant → re-render créneau sélectionné ── */
-window.onEnfantChange_<?= $idx ?>=function(){
-    if(lastDate) renderSlots(lastDate);
-};
 
 renderCal();
 })();
