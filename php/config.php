@@ -1,8 +1,8 @@
 <?php
 // ── Configuration base de données ──────────────────────────
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');    // À modifier selon votre config
-define('DB_PASS', '');        // À modifier selon votre config
+define('DB_USER', 'root'); 
+define('DB_PASS', '');    
 define('DB_NAME', 'info9');
 
 function getDB(): PDO {

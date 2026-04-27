@@ -81,3 +81,48 @@
     .children-grid { flex-direction: column; align-items: center; }
     .notification-bar { width: 95%; }
 }
+
+
+.child-actions{
+    display:flex;
+    gap:10px;
+    padding: 0 28px 16px;
+}
+
+.btn-action{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:6px;
+    padding:8px 14px;
+    border-radius:8px;
+    font-size:.85rem;
+    font-weight:600;
+    text-decoration:none;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:0.15s ease;
+}
+
+/* Modifier */
+.btn-edit{
+    background:#f5f7ff;
+    color:#2c3e90;
+    border-color:#d6dcff;
+}
+.btn-edit:hover{
+    background:#e9edff;
+}
+
+/* Supprimer */
+.btn-delete{
+    background:#fff6f6;
+    color:#a83232;
+    border-color:#f3caca;
+    width:100%;
+}
+.btn-delete:hover{
+    background:#ffeaea;
+    border-color:#a83232;
+}
