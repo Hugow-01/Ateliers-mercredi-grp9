@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     "INSERT INTO Activité (nom, capacite, syllabus, theme, tranche_age)
                      VALUES (?, ?, ?, ?, ?)"
                 )->execute([$nom, $cap, $syl, $theme, $tranche_age]);
-                $message = "✔ Activité « $nom » créée.";
+                $message = "Activité « $nom » créée.";
                 $messageType = 'success';
             }
         }
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  WHERE nom = ?"
             )->execute([$nouveauNom, $cap, $syl, $theme, $tranche_age, $nomOriginal]);
 
-            $message = "✔ Activité « $nouveauNom » mise à jour.";
+            $message = "Activité « $nouveauNom » mise à jour.";
             $messageType = 'success';
         }
     }
@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ── Supprimer un créneau ─────────────────────────────────
     if ($action === 'suppr_creneau') {
         $db->prepare("DELETE FROM Creneau WHERE id = ?")->execute([$_POST['id_creneau']]);
-        $message = "✔ Créneau supprimé.";
+        $message = "Créneau supprimé.";
         $messageType = 'success';
     }
 
