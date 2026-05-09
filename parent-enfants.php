@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="css/parent.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ── Notifications admin ── */
         .notif-admin-wrapper {
             max-width: 900px;
             margin: 18px auto 0;
@@ -23,7 +22,6 @@
             align-items: flex-start;
             gap: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,.08);
-            position: relative;
         }
         .notif-admin-card.accepte {
             background: #e8f5e9;
@@ -33,7 +31,14 @@
             background: #fff8e1;
             border-left: 5px solid #ffc107;
         }
-        .notif-icon  { font-size: 1.5rem; flex-shrink: 0; }
+        .notif-admin-card.annulation {
+            background: #fdecea;
+            border-left: 5px solid #e53e3e;
+        }
+        .notif-admin-card.modification {
+            background: #e3f2fd;
+            border-left: 5px solid #1565c0;
+        }
         .notif-body  { flex: 1; }
         .notif-title { font-weight: 800; font-size: .95rem; margin-bottom: 3px; }
         .notif-msg   { font-size: .88rem; color: #444; line-height: 1.5; }
@@ -52,8 +57,9 @@
     <h1 style="font-size:2rem; font-weight:900; margin:0;">Espace parent</h1>
     <nav>
         <a href="index.php">Accueil</a>
-        <a href="activites.php">nos activités</a>
-        <a href="deconnexion.php" style="color:#c0392b;">se déconnecter</a>
+        <a href="activites.php">nos activites</a>
+        <a href="modifier-compte-parent.php">mon compte</a>
+        <a href="deconnexion.php" style="color:#c0392b;">se deconnecter</a>
     </nav>
 </header>
 
@@ -66,19 +72,18 @@ foreach ($enfants as $e) {
 }
 if ($nbIns > 0): ?>
 <div class="notification-bar" id="notif-bar">
-    <span>Bienvenue, <?= htmlspecialchars($_SESSION['nom']) ?> — <?= $nbIns ?> inscription(s) enregistrée(s).</span>
-    <span class="close-notif" onclick="document.getElementById('notif-bar').style.display='none'">✕</span>
+    <span>Bienvenue, <?= htmlspecialchars($_SESSION['nom']) ?> &mdash; <?= $nbIns ?> inscription(s) enregistree(s).</span>
+    <span class="close-notif" onclick="document.getElementById('notif-bar').style.display='none'">x</span>
 </div>
 <?php endif; ?>
 
 <?php if ($deleted): ?>
-    <div style="max-width:700px; margin:12px auto; padding:0 20px;">
-        <div class="alert alert-success">L'enfant a bien été supprimé.</div>
-    </div>
+<div style="max-width:700px; margin:12px auto; padding:0 20px;">
+    <div class="alert alert-success">L'enfant a bien ete supprime.</div>
+</div>
 <?php endif; ?>
 
-
-<!-- ══ Notifications administrateur (non lues) ══ -->
+<!-- Notifications admin non lues -->
 <?php if (!empty($notifications)): ?>
 <div class="notif-admin-wrapper">
     <h3 style="font-family:'Baloo 2'; font-size:1.2rem; margin-bottom:10px; color:#1a5fb4;">
@@ -86,18 +91,27 @@ if ($nbIns > 0): ?>
         <span class="notif-badge-new"><?= count($notifications) ?> nouvelle(s)</span>
     </h3>
     <?php foreach ($notifications as $notif):
-        $isAccepte = ($notif['type'] === 'accepte');
-        $dateF     = date('d/m/Y à H:i', strtotime($notif['date_creation']));
+        $isAccepte     = ($notif['type'] === 'accepte');
+        $isAnnulation  = ($notif['type'] === 'annulation');
+        $isModification= ($notif['type'] === 'modification');
+        $dateF = date('d/m/Y a H:i', strtotime($notif['date_creation']));
+        $cssClass = $isAccepte ? 'accepte' : ($isAnnulation ? 'annulation' : ($isModification ? 'modification' : 'attente'));
     ?>
-    <div class="notif-admin-card <?= $isAccepte ? 'accepte' : 'attente' ?>">
-        
+    <div class="notif-admin-card <?= $cssClass ?>">
         <div class="notif-body">
             <div class="notif-title">
-                <?= $isAccepte ? 'Place confirmée' : 'Mise en liste d\'attente' ?>
-                — <?= htmlspecialchars($notif['prenom'] . ' ' . $notif['nom_enfant']) ?>
+                <?php if($isAccepte): ?>
+                    Place confirmee - <?= htmlspecialchars($notif['prenom'] . ' ' . $notif['nom_enfant']) ?>
+                <?php elseif($isAnnulation): ?>
+                    Activite annulee - <?= htmlspecialchars($notif['prenom'] . ' ' . $notif['nom_enfant']) ?>
+                <?php elseif($isModification): ?>
+                    Activite modifiee - <?= htmlspecialchars($notif['prenom'] . ' ' . $notif['nom_enfant']) ?>
+                <?php else: ?>
+                    Mise en liste d'attente - <?= htmlspecialchars($notif['prenom'] . ' ' . $notif['nom_enfant']) ?>
+                <?php endif; ?>
             </div>
-            <div class="notif-msg"><?= htmlspecialchars($notif['message']) ?></div>
-            <div class="notif-date">Notifié le <?= $dateF ?></div>
+            <div class="notif-msg"><?= nl2br(htmlspecialchars($notif['message'])) ?></div>
+            <div class="notif-date">Notifie le <?= $dateF ?></div>
         </div>
     </div>
     <?php endforeach; ?>
@@ -107,14 +121,14 @@ if ($nbIns > 0): ?>
 <main class="children-grid" style="margin-top:30px;">
 
     <?php if (empty($enfants)): ?>
-        <div style="text-align:center; padding:40px; color:#888; font-size:1.2rem;">
-            <p>Aucun enfant enregistré.</p>
-            <p>Commencez par ajouter un enfant !</p>
-        </div>
+    <div style="text-align:center; padding:40px; color:#888; font-size:1.2rem;">
+        <p>Aucun enfant enregistre.</p>
+        <p>Commencez par ajouter un enfant !</p>
+    </div>
     <?php endif; ?>
 
     <?php foreach ($enfants as $i => $enfant):
-        $ordinal = ['1er', '2ème', '3ème', '4ème', '5ème'][$i] ?? ($i + 1) . 'ème';
+        $ordinal = ['1er', '2eme', '3eme', '4eme', '5eme'][$i] ?? ($i + 1) . 'eme';
         $activitesList = [];
 
         if ($enfant['activites_raw']) {
@@ -140,61 +154,53 @@ if ($nbIns > 0): ?>
         <div class="card-top">
             <h2 class="child-title"><?= $ordinal ?> enfant</h2>
             <div class="info-group"><label>Nom :</label><div class="value"><?= htmlspecialchars($enfant['nom']) ?></div></div>
-            <div class="info-group"><label>Prénom :</label><div class="value"><?= htmlspecialchars($enfant['prenom']) ?></div></div>
-            <div class="info-group"><label>Âge :</label><div class="value"><?= htmlspecialchars($enfant['age']) ?> ans</div></div>
+            <div class="info-group"><label>Prenom :</label><div class="value"><?= htmlspecialchars($enfant['prenom']) ?></div></div>
+            <div class="info-group"><label>Age :</label><div class="value"><?= htmlspecialchars($enfant['age']) ?> ans</div></div>
         </div>
-    <div class="child-actions">
 
-    <a href="modifier-enfant.php?id=<?= $enfant['id'] ?>" class="btn-edit">
-        Modifier les infos
-    </a>
+        <div class="child-actions">
+            <a href="modifier-enfant.php?id=<?= $enfant['id'] ?>" class="btn-edit">
+                Modifier les infos
+            </a>
+        </div>
 
-</div>
-
-<div class="child-actions">
-
-    <form method="POST" action="php/supprimer-enfant.php"
-          onsubmit="return confirm('Supprimer <?= htmlspecialchars(addslashes($enfant['prenom'])) ?> ?\nSes inscriptions seront également supprimées.');">
-
-        <input type="hidden" name="id" value="<?= $enfant['id'] ?>">
-
-        <button type="submit" class="btn-delete">
-         supprimer l'enfant
-        </button>
-
-    </form>
-
-</div>
+        <div class="child-actions">
+            <form method="POST" action="php/supprimer-enfant.php"
+                  onsubmit="return confirm('Supprimer <?= htmlspecialchars(addslashes($enfant['prenom'])) ?> ?\nSes inscriptions seront egalement supprimees.');">
+                <input type="hidden" name="id" value="<?= $enfant['id'] ?>">
+                <button type="submit" class="btn-delete">supprimer l'enfant</button>
+            </form>
+        </div>
 
         <div class="card-bottom">
-            <div class="section-title-card">Activités inscrites :</div>
+            <div class="section-title-card">Activites inscrites :</div>
 
             <?php if (empty($activitesList)): ?>
-                <p style="opacity:.7; font-size:.9rem;">Aucune activité choisie.</p>
+            <p style="opacity:.7; font-size:.9rem;">Aucune activite choisie.</p>
             <?php else: ?>
-                <?php foreach ($activitesList as $act): ?>
-                <div class="activity-item-card">
-                    <span class="act-name-card"><?= htmlspecialchars($act['nom']) ?></span>
-                    <div class="act-detail">
-                        <?= htmlspecialchars($act['date']) ?>
-                        &nbsp; <?= htmlspecialchars($act['heure']) ?>
-                        <?php if ($act['salle']): ?>
-                            &nbsp;<span class="salle-badge">Salle <?= htmlspecialchars($act['salle']) ?></span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="status-row">
-                        <span class="<?= $act['statut'] === 'accepté' ? 'badge-ok' : 'badge-wait' ?>">
-                            <?= $act['statut'] === 'accepté' ? 'accepté' : "liste d'attente" ?>
-                        </span>
-                        <form method="POST" action="activites.php" onsubmit="return confirm('Se désinscrire de cette activité ?')">
-                            <input type="hidden" name="action"     value="desinscrire">
-                            <input type="hidden" name="id_creneau" value="<?= $act['id_creneau'] ?>">
-                            <input type="hidden" name="id_enfant"  value="<?= $enfant['id'] ?>">
-                            <button type="submit" class="btn-desins-card">✕ Se désinscrire</button>
-                        </form>
-                    </div>
+            <?php foreach ($activitesList as $act): ?>
+            <div class="activity-item-card">
+                <span class="act-name-card"><?= htmlspecialchars($act['nom']) ?></span>
+                <div class="act-detail">
+                    <?= htmlspecialchars($act['date']) ?>
+                    &nbsp; <?= htmlspecialchars($act['heure']) ?>
+                    <?php if ($act['salle']): ?>
+                    &nbsp;<span class="salle-badge">Salle <?= htmlspecialchars($act['salle']) ?></span>
+                    <?php endif; ?>
                 </div>
-                <?php endforeach; ?>
+                <div class="status-row">
+                    <span class="<?= $act['statut'] === 'accepte' ? 'badge-ok' : 'badge-wait' ?>">
+                        <?= $act['statut'] === 'accepte' ? 'accepte' : "liste d'attente" ?>
+                    </span>
+                    <form method="POST" action="activites.php" onsubmit="return confirm('Se desinscrire de cette activite ?')">
+                        <input type="hidden" name="action"     value="desinscrire">
+                        <input type="hidden" name="id_creneau" value="<?= $act['id_creneau'] ?>">
+                        <input type="hidden" name="id_enfant"  value="<?= $enfant['id'] ?>">
+                        <button type="submit" class="btn-desins-card">Se desinscrire</button>
+                    </form>
+                </div>
+            </div>
+            <?php endforeach; ?>
             <?php endif; ?>
         </div>
     </div>
@@ -207,7 +213,7 @@ if ($nbIns > 0): ?>
         <button class="btn btn-yellow" style="padding:12px 35px; font-size:1.1rem; font-weight:bold; border-radius:20px;">+ ajouter un enfant</button>
     </a>
     <a href="activites.php">
-        <button class="btn btn-primary btn-big">choisir une activité</button>
+        <button class="btn btn-primary btn-big">choisir une activite</button>
     </a>
 </footer>
 

@@ -34,7 +34,7 @@ $stmt = $db->prepare("
     FROM Enfant e
     LEFT JOIN Enfant_Creneau ec ON ec.id_enfant = e.id
     LEFT JOIN Creneau c         ON c.id = ec.id_creneau
-    LEFT JOIN Activité a        ON a.nom = c.nom_activite
+    LEFT JOIN Activite a        ON a.nom = c.nom_activite
     WHERE e.login_famille = ?
     GROUP BY e.id
     ORDER BY e.id
@@ -49,7 +49,7 @@ function getStatut(PDO $db, int $id_creneau, int $id_enfant, string $nom_activit
     );
     $rang->execute([$id_creneau, $id_enfant]);
     $r = (int) $rang->fetchColumn();
-    $cap = $db->prepare("SELECT capacite FROM Activité WHERE nom = ?");
+    $cap = $db->prepare("SELECT capacite FROM Activite WHERE nom = ?");
     $cap->execute([$nom_activite]);
     $c = (int) ($cap->fetchColumn() ?? 99);
     return $r <= $c ? 'accepté' : 'liste d\'attente';

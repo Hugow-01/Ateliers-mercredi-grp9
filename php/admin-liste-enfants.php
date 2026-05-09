@@ -9,74 +9,7 @@ $messageType = '';
 // ══════════════════════════════════════════════════════════════
 //  HELPER : envoyer une notification en base + email
 // ══════════════════════════════════════════════════════════════
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php';
-
-$mail = new PHPMailer(true);
-
-function notifierFamille(
-    PDO    $db,
-    string $loginFamille,
-    int    $idEnfant,
-    int    $idCreneau,
-    string $type,
-    string $msgTexte
-): void {
-
-    // Notification en base
-    $db->prepare("
-        INSERT INTO Notification (login_famille, id_enfant, id_creneau, type, message)
-        VALUES (?, ?, ?, ?, ?)
-    ")->execute([$loginFamille, $idEnfant, $idCreneau, $type, $msgTexte]);
-
-    try {
-
-        $mail = new PHPMailer(true);
-
-        // SMTP Gmail
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'ranjatinasoa@gmail.com';
-        $mail->Password   = 'timkmklfgvegnwec';
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-
-        // Encodage UTF-8
-        $mail->CharSet = 'UTF-8';
-
-        // Expéditeur
-        $mail->setFrom('ranjatinasoa@gmail.com', 'Ateliers du Mercredi');
-
-        // Destinataire
-        $mail->addAddress($loginFamille);
-
-        // Contenu
-        $mail->isHTML(false);
-
-        $mail->Subject = ($type === 'accepte')
-            ? 'Inscription confirmée – Ateliers du Mercredi'
-            : 'Mise en liste d\'attente – Ateliers du Mercredi';
-
-        $mail->Body =
-            "Bonjour,\n\n"
-            . $msgTexte . "\n\n"
-            . "Connectez-vous à votre espace parent pour plus de détails :\n"
-            . "http://" . ($_SERVER['HTTP_HOST'] ?? 'localhost') . "/parent-enfants.php\n\n"
-            . "Cordialement,\n"
-            . "Les Ateliers du Mercredi";
-
-        $mail->send();
-
-    } catch (Exception $e) {
-
-        echo "<script>alert('Erreur lors de l\\'envoi du mail : "
-    . addslashes($mail->ErrorInfo)
-    . "');</script>";
-    }
-}
 
 // ══════════════════════════════════════════════════════════════
 //  ACTION : basculer le statut d'un enfant sur un créneau
@@ -101,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bascu
     $stmtCr = $db->prepare("
         SELECT c.date, c.debut, c.fin, c.nom_activite, a.capacite
         FROM Creneau c
-        JOIN Activité a ON a.nom = c.nom_activite
+        JOIN Activite a ON a.nom = c.nom_activite
         WHERE c.id = ?
     ");
     $stmtCr->execute([$idCreneau]);
@@ -203,7 +136,7 @@ $stmtConf = $db->prepare("
     FROM Enfant_Creneau ec
     JOIN Enfant   e ON e.id  = ec.id_enfant
     JOIN Creneau  c ON c.id  = ec.id_creneau
-    JOIN Activité a ON a.nom = c.nom_activite
+    JOIN Activite a ON a.nom = c.nom_activite
     $whereConf
     ORDER BY a.nom, c.date, c.debut, e.nom
 ");
@@ -225,7 +158,7 @@ $stmtAtt = $db->prepare("
     FROM ListeAttente la
     JOIN Enfant   e ON e.id  = la.id_enfant
     JOIN Creneau  c ON c.id  = la.id_creneau
-    JOIN Activité a ON a.nom = c.nom_activite
+    JOIN Activite a ON a.nom = c.nom_activite
     $whereAtt
     ORDER BY a.nom, c.date, c.debut, la.position
 ");
@@ -247,4 +180,4 @@ if ($filtreStatut === 'accepte') {
     $inscriptions = $merged;
 }
 
-$activites = $db->query("SELECT nom FROM Activité ORDER BY nom")->fetchAll();
+$activites = $db->query("SELECT nom FROM Activite ORDER BY nom")->fetchAll();

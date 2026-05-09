@@ -44,7 +44,7 @@ $creneaux = $db->query("
     SELECT c.id, c.date, c.debut, c.fin, c.nom_activite, a.capacite,
            COUNT(ec.id_enfant) AS nb_inscrits
     FROM Creneau c
-    JOIN Activité a ON a.nom = c.nom_activite
+    JOIN Activite a ON a.nom = c.nom_activite
     LEFT JOIN Enfant_Creneau ec ON ec.id_creneau = c.id
     GROUP BY c.id
     ORDER BY c.date, c.nom_activite, c.debut
