@@ -144,25 +144,25 @@
                 </fieldset>
 
                 <div class="form-actions">
-                    <button type="submit" name="action" value="inscrire"        class="btn-inscr"    id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
-                    <button type="submit" name="action" value="desinscrire"     class="btn-desinscr" id="btn-desinscr-<?= $idx ?>">✖ Désinscrire</button>
-                    <button type="submit" name="action" value="vers_attente" class="btn-wait"     id="btn-wait-<?= $idx ?>">⏳ Rejoindre la liste d'attente</button>
-                    <button type="submit" name="action" value="quitter_attente" class="btn-quitter"  id="btn-quit-<?= $idx ?>">✕ Quitter la liste d'attente</button>
+                    <button type="submit" name="action" value="inscrire"        class="btn-inscr"    id="btn-inscr-<?= $idx ?>" style="display:none">+ Inscrire</button>
+                    <button type="submit" name="action" value="desinscrire"     class="btn-desinscr" id="btn-desinscr-<?= $idx ?>" style="display:none">✖ Désinscrire</button>
+                    <button type="submit" name="action" value="vers_attente" class="btn-wait"     id="btn-wait-<?= $idx ?>" style="display:none">⏳ Rejoindre la liste d'attente</button>
+                    <button type="submit" name="action" value="quitter_attente" class="btn-quitter"  id="btn-quit-<?= $idx ?>" style="display:none">✕ Quitter la liste d'attente</button>
                 </div>
             </form>
 
-            <form method="POST" action="activites.php" onsubmit="return confirm('Se désinscrire de ce créneau ?')">
+            <form method="POST" action="activites.php" id="form-des-<?= $idx ?>" onsubmit="return confirm('Se désinscrire de ce créneau ?')">
                 <input type="hidden" name="action"     value="desinscrire">
                 <input type="hidden" name="id_creneau" id="des-creneau-<?= $idx ?>" value="">
-                <input type="hidden" name="id_enfants[]" id="des-enfant-<?= $idx ?>" value="">
-                <button type="submit" class="btn-desins" id="btn-des-<?= $idx ?>">✕ Se désinscrire</button>
+                <div id="des-enfants-<?= $idx ?>"></div>
+                <button type="submit" class="btn-desins" id="btn-des-<?= $idx ?>" style="display:none">✕ Se désinscrire</button>
             </form>
 
             <form method="POST" action="activites.php" onsubmit="return confirm('Quitter la liste d\'attente ?')">
                 <input type="hidden" name="action"     value="quitter_attente">
                 <input type="hidden" name="id_creneau" id="quit-creneau-<?= $idx ?>" value="">
-                <input type="hidden" name="id_enfants[]" id="quit-enfant-<?= $idx ?>" value="">
-                <button type="submit" class="btn-quitter" id="btn-quit-<?= $idx ?>">✕ Quitter la liste d'attente</button>
+                <input type="hidden" name="id_enfant"  id="quit-enfant-<?= $idx ?>"  value="">
+                <button type="submit" class="btn-quitter" id="btn-quit-<?= $idx ?>" style="display:none">✕ Quitter la liste d'attente</button>
             </form>
         </div>
     </div>
@@ -304,43 +304,63 @@ function renderSlots(date){
 }
 
 /* ── Sélection d'un créneau ── */
+let currentCr = null;
+
 function selectSlot(cr,el){
-    const selEnf=parseInt((document.querySelector('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked')||{}).value)||0;
     document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s=>s.classList.remove('selected'));
     el.classList.add('selected');
-    const nb=parseInt(cr.nb_inscrits);
-    const cap=parseInt(cr.cap_activite);
-    const full=nb>=cap;
-    const confirme=selEnf&&mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
-    const enAtt=selEnf&&mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
+    currentCr = cr;
+    document.getElementById('creneau-<?= $idx ?>').value = cr.id;
+    updateActions();
+}
+
+/* ── Afficher les boutons selon horaire + enfants sélectionnés ── */
+function updateActions(){
     resetActions();
     hideReco();
-    document.getElementById('creneau-<?= $idx ?>').value=cr.id;
+    if(!currentCr) return;
 
-    const btnI=document.getElementById('btn-inscr-<?= $idx ?>');
-    const btnW=document.getElementById('btn-wait-<?= $idx ?>');
-    const attInfo=document.getElementById('attente-info-<?= $idx ?>');
+    // Tous les enfants cochés
+    const selEnfs = Array.from(
+        document.querySelectorAll('[name="id_enfants[]"][data-act="<?= $idx ?>"]:checked')
+    ).map(cb => parseInt(cb.value));
+    if(!selEnfs.length) return;
 
-    if(confirme){
-        document.getElementById('des-creneau-<?= $idx ?>').value=cr.id;
-        document.getElementById('des-enfant-<?= $idx ?>').value=selEnf;
-        document.getElementById('btn-des-<?= $idx ?>').style.display='block';
-        //btnI.style.display='none'; btnW.style.display='none';
-    } else if(enAtt){
-        document.getElementById('quit-creneau-<?= $idx ?>').value=cr.id;
-        document.getElementById('quit-enfant-<?= $idx ?>').value=selEnf;
-        document.getElementById('btn-quit-<?= $idx ?>').style.display='block';
-        attInfo.textContent=' Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
-        attInfo.style.display='block';
-        //btnI.style.display='none'; btnW.style.display='none';
-    } else if(full){
-        btnI.style.display='none'; btnW.style.display='block';
-        // ── Afficher les recommandations ──
-        showReco(cr.id, selEnf);
-    } else {
-        //btnI.style.display='block'; btnW.style.display='none';
+    const cr   = currentCr;
+    const nb   = parseInt(cr.nb_inscrits);
+    const cap  = parseInt(cr.cap_activite);
+    const full = nb >= cap;
+
+    // Statut de chaque enfant coché sur ce créneau
+    const inscrits  = selEnfs.filter(id => mesIns_<?= $idx ?>[id] && mesIns_<?= $idx ?>[id].includes(cr.id));
+    const enAttente = selEnfs.filter(id => mesAtt_<?= $idx ?>[id] && mesAtt_<?= $idx ?>[id][cr.id]);
+    const libres    = selEnfs.filter(id => !inscrits.includes(id) && !enAttente.includes(id));
+
+    const attInfo = document.getElementById('attente-info-<?= $idx ?>');
+
+    if(inscrits.length){
+        // Au moins un inscrit → proposer la désinscription (s'applique aux inscrits cochés)
+        document.getElementById('btn-desinscr-<?= $idx ?>').style.display = 'inline-block';
+    }
+    if(enAttente.length){
+        // Au moins un en attente → proposer de quitter l'attente
+        document.getElementById('btn-quit-<?= $idx ?>').style.display = 'inline-block';
+        const pos = enAttente.map(id => '#'+mesAtt_<?= $idx ?>[id][cr.id]).join(', ');
+        attInfo.textContent = 'Liste d'attente : ' + pos;
+        attInfo.style.display = 'block';
+    }
+    if(libres.length){
+        if(full){
+            // Créneau complet → rejoindre l'attente
+            document.getElementById('btn-wait-<?= $idx ?>').style.display = 'inline-block';
+            showReco(cr.id, selEnfs[0]);
+        } else {
+            // Places disponibles → inscrire
+            document.getElementById('btn-inscr-<?= $idx ?>').style.display = 'inline-block';
+        }
     }
 }
+
 
 
 
@@ -453,12 +473,12 @@ function escHtml(s){
 
 /* ── Réinitialiser les boutons d'action ── */
 function resetActions(){
-    // ['btn-inscr','btn-wait','btn-desinscr','btn-des','btn-quit'].forEach(id=>{
-    //     const el=document.getElementById(id+'-<?= $idx ?>');
-    //     if(el) el.style.display='none';
-    // });
-    // const ai=document.getElementById('attente-info-<?= $idx ?>');
-    // if(ai) ai.style.display='none';
+    ['btn-inscr','btn-wait','btn-desinscr','btn-quit'].forEach(id=>{
+        const el=document.getElementById(id+'-<?= $idx ?>');
+        if(el) el.style.display='none';
+    });
+    const ai=document.getElementById('attente-info-<?= $idx ?>');
+    if(ai) ai.style.display='none';
 }
 
 /* ── Changement d'enfant → re-render créneau sélectionné ── */
@@ -468,7 +488,10 @@ renderCal();
 
 /* ── Re-render créneaux quand une checkbox change ── */
 document.querySelectorAll('[name="id_enfants[]"][data-act="<?= $idx ?>"]').forEach(function(cb){
-    cb.addEventListener('change', function(){ if(lastDate) renderSlots(lastDate); });
+    cb.addEventListener('change', function(){
+        if(lastDate) renderSlots(lastDate);
+        updateActions();
+    });
 });
 })();
 </script>
