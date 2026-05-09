@@ -71,6 +71,13 @@ if ($nbIns > 0): ?>
 </div>
 <?php endif; ?>
 
+<?php if ($deleted): ?>
+    <div style="max-width:700px; margin:12px auto; padding:0 20px;">
+        <div class="alert alert-success">L'enfant a bien été supprimé.</div>
+    </div>
+<?php endif; ?>
+
+
 <!-- ══ Notifications administrateur (non lues) ══ -->
 <?php if (!empty($notifications)): ?>
 <div class="notif-admin-wrapper">
@@ -136,6 +143,28 @@ if ($nbIns > 0): ?>
             <div class="info-group"><label>Prénom :</label><div class="value"><?= htmlspecialchars($enfant['prenom']) ?></div></div>
             <div class="info-group"><label>Âge :</label><div class="value"><?= htmlspecialchars($enfant['age']) ?> ans</div></div>
         </div>
+    <div class="child-actions">
+
+    <a href="modifier-enfant.php?id=<?= $enfant['id'] ?>" class="btn-edit">
+        Modifier les infos
+    </a>
+
+</div>
+
+<div class="child-actions">
+
+    <form method="POST" action="php/supprimer-enfant.php"
+          onsubmit="return confirm('Supprimer <?= htmlspecialchars(addslashes($enfant['prenom'])) ?> ?\nSes inscriptions seront également supprimées.');">
+
+        <input type="hidden" name="id" value="<?= $enfant['id'] ?>">
+
+        <button type="submit" class="btn-delete">
+         supprimer l'enfant
+        </button>
+
+    </form>
+
+</div>
 
         <div class="card-bottom">
             <div class="section-title-card">Activités inscrites :</div>

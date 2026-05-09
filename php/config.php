@@ -1,8 +1,8 @@
 <?php
 // ── Configuration base de données ──────────────────────────
 define('DB_HOST', 'localhost');
-define('DB_USER', 'root');    // À modifier selon votre config
-define('DB_PASS', '');        // À modifier selon votre config
+define('DB_USER', 'root'); 
+define('DB_PASS', '');    
 define('DB_NAME', 'info9');
 
 function getDB(): PDO {
@@ -35,10 +35,15 @@ function isParent(): bool {
     return isLoggedIn() && $_SESSION['role'] === 'famille';
 }
 
-function isAdmin(): bool {
-    return isLoggedIn() && $_SESSION['role'] === 'responsable';
+function isAdmin() {
+    return isset($_SESSION['type_compte']) &&
+           $_SESSION['type_compte'] === 'responsable';
 }
 
+function isSuperAdmin() {
+    return isset($_SESSION['admin_role']) &&
+           $_SESSION['admin_role'] === 'super_admin';
+}
 function requireLogin(string $redirect = 'connexion.php'): void {
     if (!isLoggedIn()) {
         header("Location: $redirect");

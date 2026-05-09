@@ -12,9 +12,9 @@ $nbCreneaux  = $db->query("SELECT COUNT(*) FROM Creneau")->fetchColumn();
 $recents = $db->query("
     SELECT e.nom, e.prenom, a.nom AS activite, c.date, c.debut
     FROM Enfant_Creneau ec
-    JOIN Enfant e    ON e.id = ec.id_enfant
-    JOIN Creneau c   ON c.id = ec.id_creneau
-    JOIN Activité a  ON a.nom = c.nom_activite
+    JOIN Enfant e ON e.id = ec.id_enfant
+    JOIN Creneau c ON c.id = ec.id_creneau
+    JOIN Activité a ON a.nom = c.nom_activite
     ORDER BY c.date DESC
     LIMIT 10
 ")->fetchAll();

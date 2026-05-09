@@ -2,8 +2,8 @@
 require_once __DIR__ . '/config.php';
 requireAdmin();
 
-$db          = getDB();
-$message     = '';
+$db = getDB();
+$message = '';
 $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscrire_admin') {

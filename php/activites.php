@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php';
+require_once 'mail.php';
 requireParent();
 
 $db      = getDB();
@@ -56,6 +57,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
                        ->execute([$id_enfant, $id_creneau, $pos]);
                     $message = " Créneau complet — votre enfant est en liste d'attente (position #$pos).";
                     $messageType = 'info';
+                    // Infos créneau
+$stmtInfo = $db->prepare("
+    SELECT c.date, c.debut, c.fin, c.nom_activite,
+           e.nom, e.prenom, e.login_famille
+    FROM Creneau c
+    JOIN Enfant e ON e.id = ?
+    WHERE c.id = ?
+");
+$stmtInfo->execute([$id_enfant, $id_creneau]);
+$info = $stmtInfo->fetch();
+
+$msgMail = "Votre enfant "
+    . $info['prenom'] . " " . $info['nom']
+    . " a été placé en liste d'attente pour l'activité \""
+    . $info['nom_activite'] . "\" du "
+    . date('d/m/Y', strtotime($info['date']))
+    . " (" . substr($info['debut'],0,5)
+    . " - " . substr($info['fin'],0,5)
+    . ").\n\n"
+    . "Position actuelle : #$pos.";
+
+notifierFamille(
+    $db,
+    $info['login_famille'],
+    $id_enfant,
+    $id_creneau,
+    'attente',
+    $msgMail
+);
                 }
             }
         }
@@ -85,7 +115,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desin
                ->execute([$promo, $id_creneau]);
             $db->prepare("DELETE FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?")
                ->execute([$promo, $id_creneau]);
+            // Récupérer les infos de l'enfant promu
+$stmtPromo = $db->prepare("
+    SELECT e.nom, e.prenom, e.login_famille,
+           c.date, c.debut, c.fin, c.nom_activite
+    FROM Enfant e
+    JOIN Creneau c ON c.id = ?
+    WHERE e.id = ?
+");
+$stmtPromo->execute([$id_creneau, $promo]);
+$promoInfo = $stmtPromo->fetch();
 
+$msgPromo = "Bonne nouvelle !\n\n"
+    . "Une place s'est libérée pour l'activité \""
+    . $promoInfo['nom_activite'] . "\" du "
+    . date('d/m/Y', strtotime($promoInfo['date']))
+    . " (" . substr($promoInfo['debut'],0,5)
+    . " - " . substr($promoInfo['fin'],0,5)
+    . ").\n\n"
+    . "Votre enfant "
+    . $promoInfo['prenom'] . " " . $promoInfo['nom']
+    . " est maintenant inscrit(e) avec une place confirmée.";
+
+notifierFamille(
+    $db,
+    $promoInfo['login_famille'],
+    $promo,
+    $id_creneau,
+    'accepte',
+    $msgPromo
+);
             $restants = $db->prepare("SELECT id FROM ListeAttente WHERE id_creneau = ? ORDER BY position ASC");
             $restants->execute([$id_creneau]);
             $pos = 1;
@@ -93,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desin
                 $db->prepare("UPDATE ListeAttente SET position = ? WHERE id = ?")->execute([$pos++, $r['id']]);
             }
         }
-        $message = '✔ Désinscription effectuée.';
+        $message = 'Désinscription effectuée.';
         $messageType = 'success';
     }
 }

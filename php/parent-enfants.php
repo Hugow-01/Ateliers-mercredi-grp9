@@ -2,6 +2,7 @@
 require_once __DIR__ . '/config.php';
 requireParent();
 
+$deleted = ($_GET['deleted'] ?? '') === '1';
 $db    = getDB();
 $login = $_SESSION['user'];
 

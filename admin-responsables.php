@@ -91,6 +91,13 @@
                 <label>Confirmer le mot de passe</label>
                 <input type="password" name="mdp2" placeholder="Répétez" required>
             </div>
+            <div class="form-group">
+    <label>Rôle</label>
+    <select name="role">
+        <option value="admin">Admin</option>
+        <option value="super_admin">Super Admin</option>
+    </select>
+</div>
             <button type="submit" class="btn btn-primary" style="width:100%; padding:12px; font-size:1.1rem;">Créer le compte</button>
         </form>
     </div>
