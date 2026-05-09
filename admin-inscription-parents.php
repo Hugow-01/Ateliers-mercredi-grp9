@@ -33,12 +33,13 @@
         <h3 style="font-family:'Baloo 2'; margin-top:0;">1. Rechercher une famille</h3>
         <form method="GET" style="display:flex; gap:15px; align-items:flex-end; flex-wrap:wrap; margin-bottom:25px;">
             <div class="form-group" style="flex:2; min-width:250px; margin-bottom:0;">
-                <label>Famille (email/login)</label>
+                <label>Famille</label>
+                <!-- La valeur est l'id (int) de la famille -->
                 <select name="login_famille">
                     <option value="">-- Sélectionner --</option>
                     <?php foreach ($familles as $f): ?>
-                    <option value="<?= htmlspecialchars($f['login']) ?>"
-                            <?= $loginRecherche === $f['login'] ? 'selected' : '' ?>>
+                    <option value="<?= (int)$f['id'] ?>"
+                            <?= $idFamilleRecherche === (int)$f['id'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($f['nom']) ?> (<?= htmlspecialchars($f['login']) ?>)
                     </option>
                     <?php endforeach; ?>
@@ -47,7 +48,7 @@
             <button type="submit" class="btn btn-primary btn-small">🔍 Rechercher</button>
         </form>
 
-        <?php if ($loginRecherche): ?>
+        <?php if ($idFamilleRecherche): ?>
         <form method="POST">
             <input type="hidden" name="action" value="inscrire_admin">
 

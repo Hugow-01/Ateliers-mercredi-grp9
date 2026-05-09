@@ -1,5 +1,4 @@
 /* ===================== INSCRIPTION ===================== */
-
 .inscription-wrapper {
     display: flex;
     gap: 40px;
@@ -7,7 +6,6 @@
     justify-content: center;
     flex-wrap: wrap;
 }
-
 .white-card {
     background: white;
     border-radius: 20px;
@@ -22,7 +20,6 @@
     margin-bottom: 25px;
     color: var(--text-dark);
 }
-
 .image-container {
     flex: 1;
     min-width: 280px;
@@ -36,7 +33,6 @@
     max-height: 420px;
     object-fit: cover;
 }
-
 .btn-submit {
     background: var(--pink);
     color: white;
@@ -51,6 +47,5 @@
     transition: transform .2s;
 }
 .btn-submit:hover { transform: scale(1.04); }
-
 .row-2 { display: flex; gap: 10px; }
 .row-2 input { flex: 1; }

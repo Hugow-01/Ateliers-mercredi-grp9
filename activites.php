@@ -243,7 +243,17 @@
             <?php endif; ?>
         </div>
 
-        <div class="inscr-box">
+       <div class="inscr-box">
+            <div style="font-size:11px; font-weight:bold; color:#555; margin-bottom:6px;">Choisir un enfant :</div>
+
+            <!-- SELECT ENFANT EN PREMIER -->
+            <select name="id_enfant_top" id="sel-<?= $idx ?>" onchange="onEnfantChange_<?= $idx ?>()" style="width:100%; padding:7px; border-radius:8px; border:1px solid #bbb; margin-bottom:10px; font-size:.9rem; background:#fff; color:#111;">
+                <option value="">-- Choisir un enfant --</option>
+                <?php foreach ($enfants as $enf): ?>
+                <option value="<?= $enf['id'] ?>" data-age="<?= (int)$enf['age'] ?>"><?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?></option>
+                <?php endforeach; ?>
+            </select>
+
             <div style="font-size:11px; font-weight:bold; color:#555; margin-bottom:3px;">Horaires disponibles :</div>
 
             <div class="slot-list" id="slots-<?= $idx ?>">
@@ -255,21 +265,16 @@
             <form method="POST" action="activites.php">
                 <input type="hidden" name="action"     value="inscrire">
                 <input type="hidden" name="id_creneau" id="creneau-<?= $idx ?>" value="">
-                <select name="id_enfant" id="sel-<?= $idx ?>" onchange="onEnfantChange_<?= $idx ?>()">
-                    <option value="">-- Choisir un enfant --</option>
-                    <?php foreach ($enfants as $enf): ?>
-                    <option value="<?= $enf['id'] ?>" data-age="<?= (int)$enf['age'] ?>"><?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <input type="hidden" name="id_enfant"  id="hidden-enfant-<?= $idx ?>" value="">
                 <button type="submit" class="btn-inscr" id="btn-inscr-<?= $idx ?>">+ Inscrire</button>
                 <button type="submit" class="btn-wait"  id="btn-wait-<?= $idx ?>">Rejoindre la liste d'attente</button>
             </form>
 
-            <form method="POST" action="activites.php" onsubmit="return confirm('Se desinscrire de ce creneau ?')">
+            <form method="POST" action="activites.php" onsubmit="return confirm('Se désinscrire de ce créneau ?')">
                 <input type="hidden" name="action"     value="desinscrire">
                 <input type="hidden" name="id_creneau" id="des-creneau-<?= $idx ?>" value="">
                 <input type="hidden" name="id_enfant"  id="des-enfant-<?= $idx ?>"  value="">
-                <button type="submit" class="btn-desins" id="btn-des-<?= $idx ?>">Se desinscrire</button>
+                <button type="submit" class="btn-desins" id="btn-des-<?= $idx ?>">Se désinscrire</button>
             </form>
 
             <form method="POST" action="activites.php" onsubmit="return confirm('Quitter la liste d\'attente ?')">
@@ -279,7 +284,6 @@
                 <button type="submit" class="btn-quitter" id="btn-quit-<?= $idx ?>">Quitter la liste d'attente</button>
             </form>
         </div>
-    </div>
 
     <!-- Panneau recommandations pleine largeur -->
     <div class="reco-panel" id="reco-<?= $idx ?>">

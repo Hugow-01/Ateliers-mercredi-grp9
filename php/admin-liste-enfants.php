@@ -1,15 +1,11 @@
 <?php
 require_once __DIR__ . '/config.php';
+require_once 'mail.php';
 requireAdmin();
 
-$db = getDB();
-$message = '';
+$db          = getDB();
+$message     = '';
 $messageType = '';
-
-// ══════════════════════════════════════════════════════════════
-//  HELPER : envoyer une notification en base + email
-// ══════════════════════════════════════════════════════════════
-
 
 // ══════════════════════════════════════════════════════════════
 //  ACTION : basculer le statut d'un enfant sur un créneau
@@ -22,10 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bascu
 
     // Récupérer infos enfant + famille + créneau
     $stmtEnf = $db->prepare("
-        SELECT e.nom, e.prenom, e.login_famille,
+        SELECT e.nom, e.prenom, e.id_famille,
                f.nom AS nom_famille
         FROM Enfant e
-        JOIN Famille f ON f.login = e.login_famille
+        JOIN Famille f ON f.id = e.id_famille
         WHERE e.id = ?
     ");
     $stmtEnf->execute([$idEnfant]);
@@ -47,17 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bascu
         $heureFin   = substr($cr['fin'],   0, 5);
         $activite   = $cr['nom_activite'];
 
-        // ── Passer de "accepté" → "liste d'attente" ────────────
         if ($direction === 'vers_attente') {
-            // Vérifier qu'il est bien inscrit
             $chk = $db->prepare("SELECT 1 FROM Enfant_Creneau WHERE id_enfant=? AND id_creneau=?");
             $chk->execute([$idEnfant, $idCreneau]);
             if ($chk->fetch()) {
-                // Retirer de Enfant_Creneau
                 $db->prepare("DELETE FROM Enfant_Creneau WHERE id_enfant=? AND id_creneau=?")
                    ->execute([$idEnfant, $idCreneau]);
 
-                // Ajouter en ListeAttente (fin de liste)
                 $pos = (function() use ($db, $idCreneau) {
                     $s = $db->prepare("SELECT COALESCE(MAX(position),0)+1 FROM ListeAttente WHERE id_creneau=?");
                     $s->execute([$idCreneau]);
@@ -66,32 +58,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bascu
                 $db->prepare("INSERT INTO ListeAttente (id_enfant,id_creneau,position) VALUES (?,?,?)")
                    ->execute([$idEnfant, $idCreneau, $pos]);
 
-                // Notification
                 $msg = "L'administrateur a modifié le statut de $prenomNom pour l'activité "
                      . "\"$activite\" du $dateF ($heureDebut–$heureFin) : "
                      . "votre enfant est maintenant en liste d'attente (position #$pos).";
-                notifierFamille($db, $enf['login_famille'], $idEnfant, $idCreneau, 'attente', $msg);
+                notifierFamille($db, (int)$enf['id_famille'], $idEnfant, $idCreneau, 'attente', $msg);
 
-                $message     = " $prenomNom déplacé en liste d'attente (#$pos). La famille a été notifiée.";
+                $message     = "$prenomNom déplacé en liste d'attente (#$pos). La famille a été notifiée.";
                 $messageType = 'success';
             } else {
                 $message = "Cet enfant n'est pas inscrit (confirmé) à ce créneau.";
                 $messageType = 'error';
             }
 
-        // ── Passer de "liste d'attente" → "accepté" ────────────
         } elseif ($direction === 'vers_accepte') {
-            // Vérifier qu'il est bien en liste d'attente
             $chk = $db->prepare("SELECT 1 FROM ListeAttente WHERE id_enfant=? AND id_creneau=?");
             $chk->execute([$idEnfant, $idCreneau]);
             if ($chk->fetch()) {
-                // Insérer dans Enfant_Creneau
                 $db->prepare("INSERT INTO Enfant_Creneau (id_enfant,id_creneau) VALUES (?,?)")
                    ->execute([$idEnfant, $idCreneau]);
-
-                // Retirer de ListeAttente et renuméroter
                 $db->prepare("DELETE FROM ListeAttente WHERE id_enfant=? AND id_creneau=?")
                    ->execute([$idEnfant, $idCreneau]);
+
                 $restants = $db->prepare("SELECT id FROM ListeAttente WHERE id_creneau=? ORDER BY position ASC");
                 $restants->execute([$idCreneau]);
                 $pos = 1;
@@ -99,13 +86,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bascu
                     $db->prepare("UPDATE ListeAttente SET position=? WHERE id=?")->execute([$pos++, $r['id']]);
                 }
 
-                // Notification
                 $msg = "Bonne nouvelle ! L'administrateur a confirmé la place de $prenomNom "
                      . "pour l'activité \"$activite\" du $dateF ($heureDebut–$heureFin). "
                      . "Votre enfant est maintenant inscrit(e) et sa place est confirmée.";
-                notifierFamille($db, $enf['login_famille'], $idEnfant, $idCreneau, 'accepte', $msg);
+                notifierFamille($db, (int)$enf['id_famille'], $idEnfant, $idCreneau, 'accepte', $msg);
 
-                $message     = " $prenomNom déplacé en inscrit confirmé. La famille a été notifiée.";
+                $message     = "$prenomNom déplacé en inscrit confirmé. La famille a été notifiée.";
                 $messageType = 'success';
             } else {
                 $message = "Cet enfant n'est pas en liste d'attente pour ce créneau.";
@@ -120,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bascu
 // ══════════════════════════════════════════════════════════════
 $filtreActivite = $_GET['activite'] ?? '';
 $filtreDate     = $_GET['date']     ?? '';
-$filtreStatut   = $_GET['statut']   ?? ''; // '' | 'accepte' | 'attente'
+$filtreStatut   = $_GET['statut']   ?? '';
 
 // ── Inscrits confirmés ──────────────────────────────────────
 $whereConf  = "WHERE 1=1";
@@ -129,12 +115,14 @@ if ($filtreActivite) { $whereConf .= " AND a.nom = ?";    $paramsConf[] = $filtr
 if ($filtreDate)     { $whereConf .= " AND c.date = ?";   $paramsConf[] = $filtreDate; }
 
 $stmtConf = $db->prepare("
-    SELECT e.id AS id_enfant, e.nom, e.prenom, e.age, e.login_famille,
+    SELECT e.id AS id_enfant, e.nom, e.prenom, e.age, e.id_famille,
+           f.login AS login_famille,
            a.nom AS activite, a.capacite,
            c.date, c.debut, c.fin, c.id AS id_creneau,
            'accepte' AS statut_type
     FROM Enfant_Creneau ec
     JOIN Enfant   e ON e.id  = ec.id_enfant
+    JOIN Famille  f ON f.id  = e.id_famille
     JOIN Creneau  c ON c.id  = ec.id_creneau
     JOIN Activite a ON a.nom = c.nom_activite
     $whereConf
@@ -150,13 +138,15 @@ if ($filtreActivite) { $whereAtt .= " AND a.nom = ?";    $paramsAtt[] = $filtreA
 if ($filtreDate)     { $whereAtt .= " AND c.date = ?";   $paramsAtt[] = $filtreDate; }
 
 $stmtAtt = $db->prepare("
-    SELECT e.id AS id_enfant, e.nom, e.prenom, e.age, e.login_famille,
+    SELECT e.id AS id_enfant, e.nom, e.prenom, e.age, e.id_famille,
+           f.login AS login_famille,
            a.nom AS activite, a.capacite,
            c.date, c.debut, c.fin, c.id AS id_creneau,
            la.position,
            'attente' AS statut_type
     FROM ListeAttente la
     JOIN Enfant   e ON e.id  = la.id_enfant
+    JOIN Famille  f ON f.id  = e.id_famille
     JOIN Creneau  c ON c.id  = la.id_creneau
     JOIN Activite a ON a.nom = c.nom_activite
     $whereAtt
@@ -171,7 +161,6 @@ if ($filtreStatut === 'accepte') {
 } elseif ($filtreStatut === 'attente') {
     $inscriptions = $inscritsAtt;
 } else {
-    // Fusionner : pour chaque créneau, afficher d'abord les confirmés puis les attentes
     $merged = [];
     $keys   = [];
     foreach ($inscritsConf as $r) { $k = $r['id_creneau']; $keys[$k][] = $r; }

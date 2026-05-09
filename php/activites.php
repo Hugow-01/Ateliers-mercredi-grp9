@@ -8,9 +8,12 @@ $login   = $_SESSION['user'];
 $message = '';
 $messageType = '';
 
+// Récupérer l'id_famille à partir du login en session
+$idFamille = getIdFamille($db, $login);
+
 // Charger les enfants de la famille
-$enfantsStmt = $db->prepare("SELECT id, nom, prenom, age FROM Enfant WHERE login_famille = ? ORDER BY prenom");
-$enfantsStmt->execute([$login]);
+$enfantsStmt = $db->prepare("SELECT id, nom, prenom, age FROM Enfant WHERE id_famille = ? ORDER BY prenom");
+$enfantsStmt->execute([$idFamille]);
 $enfants = $enfantsStmt->fetchAll();
 
 // ── INSCRIPTION ─────────────────────────────────────────────
@@ -22,8 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
         $message = 'Veuillez selectionner un enfant et un creneau.';
         $messageType = 'error';
     } else {
-        $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND login_famille = ?");
-        $chk->execute([$id_enfant, $login]);
+        // Vérifier que l'enfant appartient à cette famille
+        $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND id_famille = ?");
+        $chk->execute([$id_enfant, $idFamille]);
 
         if (!$chk->fetch()) {
             $message = 'Enfant non trouve.';
@@ -60,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
 
                     $stmtInfo = $db->prepare("
                         SELECT c.date, c.debut, c.fin, c.nom_activite,
-                               e.nom, e.prenom, e.login_famille
+                               e.nom, e.prenom, e.id_famille
                         FROM Creneau c
                         JOIN Enfant e ON e.id = ?
                         WHERE c.id = ?
@@ -81,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
 
                     notifierFamille(
                         $db,
-                        $info['login_famille'],
+                        (int)$info['id_famille'],
                         $id_enfant,
                         $id_creneau,
                         'attente',
@@ -91,7 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
             }
         }
     }
-    $enfantsStmt->execute([$login]);
+    $enfantsStmt->execute([$idFamille]);
     $enfants = $enfantsStmt->fetchAll();
 }
 
@@ -100,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desin
     $id_enfant  = intval($_POST['id_enfant']  ?? 0);
     $id_creneau = intval($_POST['id_creneau'] ?? 0);
 
-    $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND login_famille = ?");
-    $chk->execute([$id_enfant, $login]);
+    $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND id_famille = ?");
+    $chk->execute([$id_enfant, $idFamille]);
 
     if ($chk->fetch()) {
         $db->prepare("DELETE FROM Enfant_Creneau WHERE id_enfant = ? AND id_creneau = ?")
@@ -118,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desin
                ->execute([$promo, $id_creneau]);
 
             $stmtPromo = $db->prepare("
-                SELECT e.nom, e.prenom, e.login_famille,
+                SELECT e.nom, e.prenom, e.id_famille,
                        c.date, c.debut, c.fin, c.nom_activite
                 FROM Enfant e
                 JOIN Creneau c ON c.id = ?
@@ -140,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desin
 
             notifierFamille(
                 $db,
-                $promoInfo['login_famille'],
+                (int)$promoInfo['id_famille'],
                 $promo,
                 $id_creneau,
                 'accepte',
@@ -164,8 +168,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'quitt
     $id_enfant  = intval($_POST['id_enfant']  ?? 0);
     $id_creneau = intval($_POST['id_creneau'] ?? 0);
 
-    $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND login_famille = ?");
-    $chk->execute([$id_enfant, $login]);
+    $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND id_famille = ?");
+    $chk->execute([$id_enfant, $idFamille]);
 
     if ($chk->fetch()) {
         $db->prepare("DELETE FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?")
