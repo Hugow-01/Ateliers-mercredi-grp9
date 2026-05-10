@@ -1,5 +1,4 @@
 /* ===================== INDEX ===================== */
-
 /* ── Header ── */
 header {
     background-color: var(--primary-yellow);
@@ -24,7 +23,6 @@ nav a {
     font-size: 1rem;
 }
 nav a:hover { text-decoration: underline; }
-
 /* ── Hero ── */
 .hero-bg {
     background: url('../images/atel.jpg') center/cover no-repeat;
@@ -55,7 +53,6 @@ nav a:hover { text-decoration: underline; }
     gap: 20px;
     flex-wrap: wrap;
 }
-
 /* ── Piliers ── */
 .pillars {
     display: flex;

@@ -14,9 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$nom || !$prenom || $age < 1) {
         $error = "Veuillez remplir tous les champs correctement.";
     } else {
+        $idFamille = getIdFamille($db, $_SESSION['user']);
         try {
-            $db->prepare("INSERT INTO Enfant (nom, prenom, age, login_famille) VALUES (?, ?, ?, ?)")
-               ->execute([$nom, $prenom, $age, $_SESSION['user']]);
+            $db->prepare("INSERT INTO Enfant (nom, prenom, age, id_famille) VALUES (?, ?, ?, ?)")
+               ->execute([$nom, $prenom, $age, $idFamille]);
             header("Location: parent-enfants.php");
             exit;
         } catch (PDOException $e) {

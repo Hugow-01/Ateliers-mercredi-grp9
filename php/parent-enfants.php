@@ -6,16 +6,19 @@ $deleted = ($_GET['deleted'] ?? '') === '1';
 $db    = getDB();
 $login = $_SESSION['user'];
 
+// Récupérer l'id_famille
+$idFamille = getIdFamille($db, $login);
+
 // ── Récupérer les notifications non lues pour cette famille ──
 $stmtNotif = $db->prepare("
     SELECT n.id, n.type, n.message, n.date_creation,
            e.prenom, e.nom AS nom_enfant
     FROM Notification n
     JOIN Enfant e ON e.id = n.id_enfant
-    WHERE n.login_famille = ? AND n.lu = 0
+    WHERE n.id_famille = ? AND n.lu = 0
     ORDER BY n.date_creation DESC
 ");
-$stmtNotif->execute([$login]);
+$stmtNotif->execute([$idFamille]);
 $notifications = $stmtNotif->fetchAll();
 
 // ── Marquer les notifications comme lues dès affichage ───────
@@ -34,25 +37,21 @@ $stmt = $db->prepare("
     FROM Enfant e
     LEFT JOIN Enfant_Creneau ec ON ec.id_enfant = e.id
     LEFT JOIN Creneau c         ON c.id = ec.id_creneau
-    LEFT JOIN Activité a        ON a.nom = c.nom_activite
-    WHERE e.login_famille = ?
+    LEFT JOIN Activite a        ON a.nom = c.nom_activite
+    WHERE e.id_famille = ?
     GROUP BY e.id
     ORDER BY e.id
 ");
-$stmt->execute([$login]);
+$stmt->execute([$idFamille]);
 $enfants = $stmt->fetchAll();
 
-// Statut : rang de l'enfant dans le créneau vs capacité
+// Statut : vérifie dans Enfant_Creneau (accepté) ou ListeAttente
 function getStatut(PDO $db, int $id_creneau, int $id_enfant, string $nom_activite): string {
-    $rang = $db->prepare(
-        "SELECT COUNT(*) FROM Enfant_Creneau WHERE id_creneau = ? AND id_enfant <= ?"
-    );
-    $rang->execute([$id_creneau, $id_enfant]);
-    $r = (int) $rang->fetchColumn();
-    $cap = $db->prepare("SELECT capacite FROM Activité WHERE nom = ?");
-    $cap->execute([$nom_activite]);
-    $c = (int) ($cap->fetchColumn() ?? 99);
-    return $r <= $c ? 'accepté' : 'liste d\'attente';
+    // Vérifier si présent dans les confirmés
+    $chk = $db->prepare("SELECT 1 FROM Enfant_Creneau WHERE id_creneau = ? AND id_enfant = ?");
+    $chk->execute([$id_creneau, $id_enfant]);
+    if ($chk->fetch()) return 'accepte';
+    return "liste d'attente";
 }
 
 $moisFR = [

@@ -1,5 +1,4 @@
 /* ===================== ESPACE PARENT ===================== */
-
 /* ── Barre de notification ── */
 .notification-bar {
     background-color: #ffb3ba;
@@ -15,7 +14,6 @@
     font-size: 14px;
 }
 .close-notif { color: red; cursor: pointer; font-weight: bold; padding: 0 10px; font-size: 1.2rem; }
-
 /* ── Grille des cartes enfants ── */
 .children-grid {
     display: flex;
@@ -24,7 +22,6 @@
     flex-wrap: wrap;
     padding: 20px;
 }
-
 /* ── Carte enfant ── */
 .child-card {
     width: 370px;
@@ -34,7 +31,6 @@
     box-shadow: 0 10px 25px rgba(0,0,0,.1);
     border: 1px solid #ddd;
 }
-
 .card-top     { padding: 20px 28px; background: white; }
 .child-title  {
     color: var(--pink-dark);
@@ -43,14 +39,11 @@
     margin-bottom: 15px;
     font-family: 'Baloo 2', cursive;
 }
-
 .info-group       { margin-bottom: 10px; }
 .info-group label { font-size: 1rem; font-weight: bold; display: block; margin-bottom: 3px; }
 .value            { background: var(--blue-input); padding: 8px 12px; border-radius: 5px; font-size: .95rem; }
-
 .card-bottom      { background: var(--purple-card); color: white; padding: 20px 28px; }
 .section-title-card { font-size: 1.1rem; margin-bottom: 12px; font-weight: bold; }
-
 /* ── Items d'activité dans la carte ── */
 .activity-item-card {
     margin-bottom: 14px;
@@ -61,13 +54,10 @@
 .act-name-card  { font-size: 1.1rem; font-weight: bold; display: block; margin-bottom: 4px; }
 .act-detail     { font-size: .78rem; opacity: .85; margin-bottom: 4px; }
 .status-row     { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
-
 .badge-ok   { background: rgba(255,255,255,.3); padding: 3px 10px; border-radius: 8px; font-size: .8rem; font-weight: bold; }
 .badge-wait { background: rgba(255,80,80,.5);   padding: 3px 10px; border-radius: 8px; font-size: .8rem; font-weight: bold; }
-
 .salle-badge         { background: rgba(255,255,255,.2); padding: 2px 8px; border-radius: 6px; font-size: .75rem; }
 .btn-desins-card     { background: #ff7043; color: white; border: none; padding: 4px 12px; border-radius: 8px; font-size: .75rem; cursor: pointer; font-weight: bold; }
-
 /* ── Footer actions ── */
 .footer-actions {
     display: flex;
@@ -76,53 +66,92 @@
     gap: 15px;
     padding: 30px 0 50px;
 }
-
 @media (max-width: 900px) {
     .children-grid { flex-direction: column; align-items: center; }
     .notification-bar { width: 95%; }
 }
-
-
-.child-actions{
-    display:flex;
-    gap:10px;
+.child-actions {
+    display: flex;
+    gap: 10px;
     padding: 0 28px 16px;
 }
-
-.btn-action{
-    flex:1;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:6px;
-    padding:8px 14px;
-    border-radius:8px;
-    font-size:.85rem;
-    font-weight:600;
-    text-decoration:none;
-    border:1px solid transparent;
-    cursor:pointer;
-    transition:0.15s ease;
+.btn-action {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: 0.15s ease;
 }
-
 /* Modifier */
-.btn-edit{
-    background:#f5f7ff;
-    color:#2c3e90;
-    border-color:#d6dcff;
+.btn-edit {
+    background: #f5f7ff;
+    color: #2c3e90;
+    border-color: #d6dcff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
 }
-.btn-edit:hover{
-    background:#e9edff;
+.btn-edit:hover {
+    background: #e9edff;
+}
+/* Supprimer */
+.btn-delete {
+    background: #fff6f6;
+    color: #a83232;
+    border: 1px solid #f3caca;
+    width: 100%;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-delete:hover {
+    background: #ffeaea;
+    border-color: #a83232;
 }
 
-/* Supprimer */
-.btn-delete{
-    background:#fff6f6;
-    color:#a83232;
-    border-color:#f3caca;
-    width:100%;
+/* ── Notifications admin ── */
+.notif-admin-wrapper {
+    max-width: 900px;
+    margin: 18px auto 0;
+    padding: 0 20px;
 }
-.btn-delete:hover{
-    background:#ffeaea;
-    border-color:#a83232;
+.notif-admin-card {
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.notif-admin-card.accepte     { background: #e8f5e9; border-left: 5px solid #28a745; }
+.notif-admin-card.attente     { background: #fff8e1; border-left: 5px solid #ffc107; }
+.notif-admin-card.annulation  { background: #fdecea; border-left: 5px solid #e53e3e; }
+.notif-admin-card.modification{ background: #e3f2fd; border-left: 5px solid #1565c0; }
+.notif-body  { flex: 1; }
+.notif-title { font-weight: 800; font-size: .95rem; margin-bottom: 3px; }
+.notif-msg   { font-size: .88rem; color: #444; line-height: 1.5; }
+.notif-date  { font-size: .75rem; color: #999; margin-top: 4px; }
+.notif-badge-new {
+    background: #ff5e78;
+    color: white;
+    font-size: .68rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+    vertical-align: middle;
 }

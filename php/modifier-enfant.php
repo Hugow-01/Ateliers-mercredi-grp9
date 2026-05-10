@@ -4,20 +4,20 @@ requireParent();
 
 $db    = getDB();
 $login = $_SESSION['user'];
+$idFamille = getIdFamille($db, $login);
+
 $error   = '';
 $success = '';
 
-// Récupérer l'ID de l'enfant depuis GET ou POST
 $id = intval($_GET['id'] ?? $_POST['id'] ?? 0);
-
 if (!$id) {
     header("Location: parent-enfants.php");
     exit;
 }
 
 // Vérifier que l'enfant appartient bien à cette famille
-$stmt = $db->prepare("SELECT * FROM Enfant WHERE id = ? AND login_famille = ?");
-$stmt->execute([$id, $login]);
+$stmt = $db->prepare("SELECT * FROM Enfant WHERE id = ? AND id_famille = ?");
+$stmt->execute([$id, $idFamille]);
 $enfant = $stmt->fetch();
 
 if (!$enfant) {
@@ -25,7 +25,6 @@ if (!$enfant) {
     exit;
 }
 
-// ── TRAITEMENT DU FORMULAIRE ─────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom    = trim($_POST['nom']    ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
@@ -35,10 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Veuillez remplir tous les champs correctement (âge entre 1 et 17 ans).";
     } else {
         try {
-            $db->prepare("UPDATE Enfant SET nom = ?, prenom = ?, age = ? WHERE id = ? AND login_famille = ?")
-               ->execute([$nom, $prenom, $age, $id, $login]);
-            // Rafraîchir les données de l'enfant
-            $stmt->execute([$id, $login]);
+            $db->prepare("UPDATE Enfant SET nom = ?, prenom = ?, age = ? WHERE id = ? AND id_famille = ?")
+               ->execute([$nom, $prenom, $age, $id, $idFamille]);
+            $stmt->execute([$id, $idFamille]);
             $enfant = $stmt->fetch();
             $success = "Les informations ont bien été mises à jour.";
         } catch (PDOException $e) {

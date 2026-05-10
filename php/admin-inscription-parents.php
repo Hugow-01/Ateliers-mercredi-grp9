@@ -30,21 +30,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
     }
 }
 
-$loginRecherche = trim($_GET['login_famille'] ?? '');
+// Recherche par id de famille (on reçoit l'id via GET)
+$idFamilleRecherche = intval($_GET['login_famille'] ?? 0); // on garde le nom de param GET pour compatibilité HTML
 $enfantsTrouves = [];
-if ($loginRecherche) {
-    $s = $db->prepare("SELECT * FROM Enfant WHERE login_famille = ? ORDER BY nom");
-    $s->execute([$loginRecherche]);
+
+if ($idFamilleRecherche) {
+    $s = $db->prepare("SELECT * FROM Enfant WHERE id_famille = ? ORDER BY nom");
+    $s->execute([$idFamilleRecherche]);
     $enfantsTrouves = $s->fetchAll();
 }
 
-$familles = $db->query("SELECT login, nom FROM Famille ORDER BY nom")->fetchAll();
+// Pour le select, on liste les familles avec leur id comme valeur
+$familles = $db->query("SELECT id, login, nom FROM Famille ORDER BY nom")->fetchAll();
 
 $creneaux = $db->query("
     SELECT c.id, c.date, c.debut, c.fin, c.nom_activite, a.capacite,
            COUNT(ec.id_enfant) AS nb_inscrits
     FROM Creneau c
-    JOIN Activité a ON a.nom = c.nom_activite
+    JOIN Activite a ON a.nom = c.nom_activite
     LEFT JOIN Enfant_Creneau ec ON ec.id_creneau = c.id
     GROUP BY c.id
     ORDER BY c.date, c.nom_activite, c.debut
