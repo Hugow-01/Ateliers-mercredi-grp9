@@ -31,13 +31,22 @@ if (!empty($notifications)) {
 $stmt = $db->prepare("
     SELECT e.*,
            GROUP_CONCAT(
-               CONCAT(a.nom, '|', c.date, '|', c.debut, '|', ec.id_creneau, '|', IFNULL(c.id_salle, ''))
+               CONCAT(a.nom, '|', c.date, '|', c.debut, '|', c.id, '|', IFNULL(c.id_salle, ''), '|', 'inscrit', '|', '-1', '|', '-1')
                ORDER BY c.date SEPARATOR ';;'
-           ) AS activites_raw
+           ) AS activites_raw,
+           GROUP_CONCAT(
+               CONCAT(a2.nom, '|', c2.date, '|', c2.debut, '|', c2.id, '|', IFNULL(c2.id_salle, ''), '|', 'attente', '|', la.position, '|',
+                   (SELECT COUNT(*) FROM listeattente la2 WHERE la2.id_creneau = c2.id)
+               )
+               ORDER BY c2.date SEPARATOR ';;'
+           ) AS attentes_raw
     FROM Enfant e
     LEFT JOIN Enfant_Creneau ec ON ec.id_enfant = e.id
     LEFT JOIN Creneau c         ON c.id = ec.id_creneau
     LEFT JOIN Activite a        ON a.nom = c.nom_activite
+    LEFT JOIN listeattente la   ON la.id_enfant = e.id
+    LEFT JOIN Creneau c2        ON c2.id = la.id_creneau
+    LEFT JOIN Activite a2       ON a2.nom = c2.nom_activite
     WHERE e.id_famille = ?
     GROUP BY e.id
     ORDER BY e.id
