@@ -54,6 +54,7 @@
         <a href="index.php">Accueil</a>
         <a href="activites.php">nos activités</a>
         <a href="deconnexion.php" style="color:#c0392b;">se déconnecter</a>
+        <a href="profile.php" style="color:#c0392b;">Profile</a>
     </nav>
 </header>
 
