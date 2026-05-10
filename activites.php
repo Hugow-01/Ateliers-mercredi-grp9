@@ -584,7 +584,7 @@ function showReco(creneauId, selEnf){
         : 'Ce creneau est complet - voici nos meilleures suggestions';
 
     renderRecoGrid(recos, selEnf);
-    panel.style.display = 'block';
+    panel.style.display = 'contents';
     setTimeout(()=> panel.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
 }
 
