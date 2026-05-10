@@ -5,12 +5,12 @@
     border-radius: 20px;
     box-shadow: 0 5px 20px rgba(0,0,0,.1);
     overflow: hidden;
-    max-width: 860px;
+    max-width: 1060px;
     margin: 0 auto;
 }
 .form-part {
     flex: 1;
-    padding: 40px;
+    padding: 25px;
 }
 .image-part {
     flex: 1;
