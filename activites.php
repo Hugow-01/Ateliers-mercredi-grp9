@@ -456,22 +456,31 @@ function renderSlots(date){
             +'<small style="opacity:.7">'+nb+'/'+cap+' inscrits'
             +(full?' &middot; '+cr.nb_attente+' en attente':' &middot; '+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':''))
             +'</small>';
-        div.onclick=()=>selectSlot(cr,div,selEnf);
+        div.onclick=()=>selectSlot(cr,div);
         list.appendChild(div);
     });
 }
 
-function selectSlot(cr,el,selEnf){
+function selectSlot(cr, el) {
+    // ✅ CORRECTION 1 : toujours relire la valeur actuelle du select
+    const selEnf = parseInt(document.getElementById('sel-<?= $idx ?>').value) || 0;
+
     document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s=>s.classList.remove('selected'));
     el.classList.add('selected');
+
     const nb=parseInt(cr.nb_inscrits);
     const cap=parseInt(cr.cap_activite);
     const full=nb>=cap;
     const confirme=selEnf&&mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
     const enAtt=selEnf&&mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
+
     resetActions();
     hideReco();
-    document.getElementById('creneau-<?= $idx ?>').value=cr.id;
+
+    // ✅ CORRECTION 2 : alimenter les deux champs cachés du formulaire d'inscription
+    document.getElementById('creneau-<?= $idx ?>').value       = cr.id;
+    document.getElementById('hidden-enfant-<?= $idx ?>').value = selEnf;
+
     currentCreneauId = cr.id;
     currentEnfantId  = selEnf;
 
