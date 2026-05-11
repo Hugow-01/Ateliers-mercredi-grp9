@@ -11,8 +11,8 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $login = trim($_POST['login'] ?? '');
-    $mdp   = $_POST['mdp'] ?? '';
-    $role  = $_POST['role'] ?? 'famille';
+    $mdp = $_POST['mdp'] ?? '';
+    $role = $_POST['role'] ?? 'famille';
 
     if (!$login || !$mdp) {
         $error = "Veuillez remplir tous les champs.";

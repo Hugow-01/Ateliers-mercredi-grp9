@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S'inscrire - Ateliers du Mercredi</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/inscription.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -51,8 +52,7 @@
                 </div>
             </form>
             <p style="text-align:center; margin-top:20px; color:#666;">
-                Déjà un compte ? <a href="connexion.php" style="color:
-#ff5e78; font-weight:bold;">Se connecter</a>
+                Déjà un compte ? <a href="connexion.php" style="color:#ff5e78; font-weight:bold;">Se connecter</a>
             </p>
         </div>
         <div class="image-container">

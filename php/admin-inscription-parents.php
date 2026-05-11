@@ -8,7 +8,7 @@ $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscrire_admin') {
     $ids_enfants = $_POST['ids_enfants'] ?? [];
-    $id_creneau  = intval($_POST['id_creneau'] ?? 0);
+    $id_creneau = intval($_POST['id_creneau'] ?? 0);
 
     if (empty($ids_enfants) || !$id_creneau) {
         $message = "Sélectionnez au moins un enfant et un créneau.";

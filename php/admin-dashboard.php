@@ -5,9 +5,9 @@ requireAdmin();
 $db = getDB();
 
 $nbActivites = $db->query("SELECT COUNT(*) FROM Activite")->fetchColumn();
-$nbEnfants   = $db->query("SELECT COUNT(*) FROM Enfant")->fetchColumn();
-$nbFamilles  = $db->query("SELECT COUNT(*) FROM Famille")->fetchColumn();
-$nbCreneaux  = $db->query("SELECT COUNT(*) FROM Creneau")->fetchColumn();
+$nbEnfants = $db->query("SELECT COUNT(*) FROM Enfant")->fetchColumn();
+$nbFamilles = $db->query("SELECT COUNT(*) FROM Famille")->fetchColumn();
+$nbCreneaux = $db->query("SELECT COUNT(*) FROM Creneau")->fetchColumn();
 
 $recents = $db->query("
     SELECT e.nom, e.prenom, a.nom AS activite, c.date, c.debut

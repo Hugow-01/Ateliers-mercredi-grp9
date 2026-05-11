@@ -1,22 +1,21 @@
 <?php
 require_once __DIR__ . '/config.php';
 requireAdmin();
-
 $db = getDB();
 $message  = '';
 $messageType = '';
 
-// ── AJOUTER ─────────────────────────────────────────────────
+// ── AJOUTER (super admin uniquement) ────────────────────────
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && ($_POST['action'] ?? '') === 'ajouter'
     && isSuperAdmin()
-){
+) {
     $login = trim($_POST['login'] ?? '');
-    $nom   = trim($_POST['nom']   ?? '');
-    $mdp   = $_POST['mdp']  ?? '';
-    $mdp2  = $_POST['mdp2'] ?? '';
-    $role = $_POST['role'] ?? 'admin';
+    $nom = trim($_POST['nom']   ?? '');
+    $mdp = $_POST['mdp']  ?? '';
+    $mdp2 = $_POST['mdp2'] ?? '';
+    $role = in_array($_POST['role'] ?? '', ['admin','super_admin']) ? $_POST['role'] : 'admin';
 
     if (!$login || !$nom || !$mdp) {
         $message = 'Remplissez tous les champs.';
@@ -35,17 +34,15 @@ if (
             $messageType = 'error';
         } else {
             $hash = password_hash($mdp, PASSWORD_DEFAULT);
-           $db->prepare("
-    INSERT INTO Responsable (login, mdp, nom, role)
-    VALUES (?, ?, ?, ?)
-")->execute([$login, $hash, $nom, $role]);
-            $message = "✔ Responsable \"$nom\" ajouté avec succès.";
+            $db->prepare("INSERT INTO Responsable (login, mdp, nom, role) VALUES (?, ?, ?, ?)")
+               ->execute([$login, $hash, $nom, $role]);
+            $message = "Responsable \"$nom\" ajouté avec succès.";
             $messageType = 'success';
         }
     }
 }
 
-// ── SUPPRIMER ────────────────────────────────────────────────
+// ── SUPPRIMER (super admin uniquement) ──────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'supprimer' && isSuperAdmin()) {
     $loginSup = $_POST['login_sup'] ?? '';
     if ($loginSup === $_SESSION['user']) {
@@ -53,12 +50,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'suppr
         $messageType = 'error';
     } elseif ($loginSup) {
         $db->prepare("DELETE FROM Responsable WHERE login = ?")->execute([$loginSup]);
-        $message = "✔ Responsable supprimé.";
+        $message = "Responsable supprimé.";
         $messageType = 'success';
     }
 }
 
-// ── CHANGER MOT DE PASSE ─────────────────────────────────────
+// ── CHANGER MOT DE PASSE (super admin uniquement) ────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'changer_mdp' && isSuperAdmin()) {
     $loginMdp = $_POST['login_mdp'] ?? '';
     $newMdp   = $_POST['new_mdp']   ?? '';
@@ -76,19 +73,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'chang
     }
 }
 
-if (isSuperAdmin()) {
-    $stmt = $db->query("
-        SELECT login, nom, role
-        FROM Responsable
-        ORDER BY nom
-    ");
-} else {
-    $stmt = $db->prepare("
-        SELECT login, nom, role
-        FROM Responsable
-        WHERE login = ?
-    ");
-    $stmt->execute([$_SESSION['user']]);
+// ── MODIFIER RÔLE (super admin uniquement) ───────────────────
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'modifier_role' && isSuperAdmin()) {
+    $loginRole = $_POST['login_role'] ?? '';
+    $nouveauRole = in_array($_POST['nouveau_role'] ?? '', ['admin','super_admin']) ? $_POST['nouveau_role'] : 'admin';
+    if ($loginRole === $_SESSION['user']) {
+        $message = 'Vous ne pouvez pas modifier votre propre rôle.';
+        $messageType = 'error';
+    } elseif ($loginRole) {
+        $db->prepare("UPDATE Responsable SET role = ? WHERE login = ?")->execute([$nouveauRole, $loginRole]);
+        $message = "Rôle mis à jour.";
+        $messageType = 'success';
+    }
 }
 
+if (isSuperAdmin()) {
+    $stmt = $db->query("SELECT login, nom, role FROM Responsable ORDER BY nom");
+} else {
+    $stmt = $db->prepare("SELECT login, nom, role FROM Responsable WHERE login = ?");
+    $stmt->execute([$_SESSION['user']]);
+}
 $responsables = $stmt->fetchAll();

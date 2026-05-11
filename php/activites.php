@@ -3,15 +3,13 @@ require_once __DIR__ . '/config.php';
 require_once 'mail.php';
 requireParent();
 
-$db      = getDB();
-$login   = $_SESSION['user'];
+$db = getDB();
+$login = $_SESSION['user'];
 $message = '';
 $messageType = '';
 
-// Récupérer l'id_famille à partir du login en session
 $idFamille = getIdFamille($db, $login);
 
-// Charger les enfants de la famille
 $enfantsStmt = $db->prepare("SELECT id, nom, prenom, age FROM Enfant WHERE id_famille = ? ORDER BY prenom");
 $enfantsStmt->execute([$idFamille]);
 $enfants = $enfantsStmt->fetchAll();
@@ -22,15 +20,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
     $id_creneau = intval($_POST['id_creneau'] ?? 0);
 
     if (!$id_enfant || !$id_creneau) {
-        $message = 'Veuillez selectionner un enfant et un creneau.';
+        $message = 'Veuillez sélectionner un enfant et un créneau.';
         $messageType = 'error';
     } else {
-        // Vérifier que l'enfant appartient à cette famille
         $chk = $db->prepare("SELECT id FROM Enfant WHERE id = ? AND id_famille = ?");
         $chk->execute([$id_enfant, $idFamille]);
 
         if (!$chk->fetch()) {
-            $message = 'Enfant non trouve.';
+            $message = 'Enfant non trouvé.';
             $messageType = 'error';
         } else {
             $dejaConf = $db->prepare("SELECT 1 FROM Enfant_Creneau WHERE id_enfant = ? AND id_creneau = ?");
@@ -41,10 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
             $ligneAtt = $dejaAtt->fetch();
 
             if ($dejaConf->fetch()) {
-                $message = 'Cet enfant est deja inscrit a ce creneau.';
+                $message = 'Cet enfant est déjà inscrit à ce créneau.';
                 $messageType = 'error';
             } elseif ($ligneAtt) {
-                $message = "Cet enfant est deja en liste d'attente (position #{$ligneAtt['position']}).";
+                $message = "Cet enfant est déjà en liste d'attente (position #{$ligneAtt['position']}).";
                 $messageType = 'info';
             } else {
                 $nb  = nbInscrits($db, $id_creneau);
@@ -53,35 +50,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'inscr
                 if ($nb < $cap) {
                     $db->prepare("INSERT INTO Enfant_Creneau (id_enfant, id_creneau) VALUES (?, ?)")
                        ->execute([$id_enfant, $id_creneau]);
-                    $message = 'Inscription confirmee !';
+                    $message = 'Inscription confirmée !';
                     $messageType = 'success';
+
+                    // ── ENVOI MAIL DE CONFIRMATION ──────────────────────
+                    try {
+                        envoyerMailConfirmationInscription($db, $idFamille, $id_enfant, $id_creneau);
+                    } catch (Exception $e) {
+                        error_log("Erreur mail confirmation : " . $e->getMessage());
+                    }
+
                 } else {
                     $pos = prochainePosition($db, $id_creneau);
                     $db->prepare("INSERT INTO ListeAttente (id_enfant, id_creneau, position) VALUES (?, ?, ?)")
                        ->execute([$id_enfant, $id_creneau, $pos]);
-                    $message = "Creneau complet - votre enfant est en liste d'attente (position #$pos).";
+                    $message = "Créneau complet - votre enfant est en liste d'attente (position #$pos).";
                     $messageType = 'info';
 
                     $stmtInfo = $db->prepare("
-                        SELECT c.date, c.debut, c.fin, c.nom_activite,
-                               e.nom, e.prenom, e.id_famille
-                        FROM Creneau c
-                        JOIN Enfant e ON e.id = ?
-                        WHERE c.id = ?
+SELECT c.date, c.debut, c.fin, c.nom_activite,
+ e.nom, e.prenom, e.id_famille FROM Creneau c JOIN Enfant e ON e.id = ? WHERE c.id = ?
                     ");
                     $stmtInfo->execute([$id_enfant, $id_creneau]);
                     $info = $stmtInfo->fetch();
 
                     $msgMail = "Votre enfant "
                         . $info['prenom'] . " " . $info['nom']
-                        . " a ete place en liste d'attente pour l'activite \""
+                        . " a été placé en liste d'attente pour l'activité \""
                         . $info['nom_activite'] . "\" du "
                         . date('d/m/Y', strtotime($info['date']))
                         . " (" . substr($info['debut'],0,5)
                         . " - " . substr($info['fin'],0,5)
                         . ").\n\n"
                         . "Position actuelle : #$pos.\n\n"
-                        . "Vous serez notifie si une place se libere.";
+                        . "Vous serez notifié si une place se libère.";
 
                     notifierFamille(
                         $db,
@@ -132,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desin
             $promoInfo = $stmtPromo->fetch();
 
             $msgPromo = "Bonne nouvelle !\n\n"
-                . "Une place s'est liberee pour l'activite \""
+                . "Une place s'est libérée pour l'activité \""
                 . $promoInfo['nom_activite'] . "\" du "
                 . date('d/m/Y', strtotime($promoInfo['date']))
                 . " (" . substr($promoInfo['debut'],0,5)
@@ -140,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desin
                 . ").\n\n"
                 . "Votre enfant "
                 . $promoInfo['prenom'] . " " . $promoInfo['nom']
-                . " est maintenant inscrit(e) avec une place confirmee.";
+                . " est maintenant inscrit(e) avec une place confirmée.";
 
             notifierFamille(
                 $db,
@@ -158,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'desin
                 $db->prepare("UPDATE ListeAttente SET position = ? WHERE id = ?")->execute([$pos++, $r['id']]);
             }
         }
-        $message = 'Desinscription effectuee.';
+        $message = 'Désinscription effectuée.';
         $messageType = 'success';
     }
 }
@@ -181,29 +183,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'quitt
         foreach ($restants->fetchAll() as $r) {
             $db->prepare("UPDATE ListeAttente SET position = ? WHERE id = ?")->execute([$pos++, $r['id']]);
         }
-        $message = 'Retire de la liste d\'attente.';
+        $message = 'Retiré de la liste d\'attente.';
         $messageType = 'success';
     }
 }
 
-// ── CHARGEMENT DES DONNEES ──────────────────────────────────
+// ── CHARGEMENT DES DONNÉES ──────────────────────────────────
 $activites = $db->query("SELECT * FROM Activite ORDER BY nom")->fetchAll();
 
-$allCreneaux = $db->query("
-    SELECT c.*,
-           s.batiment, s.id AS salle_id,
-           COUNT(DISTINCT ec.id_enfant) AS nb_inscrits,
-           COUNT(DISTINCT la.id_enfant) AS nb_attente,
-           a.capacite                   AS cap_activite,
-           a.theme                      AS theme,
-           a.tranche_age                AS tranche_age
-    FROM Creneau c
-    LEFT JOIN Salle s           ON s.id = c.id_salle
-    LEFT JOIN Activite a        ON a.nom = c.nom_activite
-    LEFT JOIN Enfant_Creneau ec ON ec.id_creneau = c.id
-    LEFT JOIN ListeAttente la   ON la.id_creneau = c.id
-    GROUP BY c.id
-    ORDER BY c.date, c.debut
+$allCreneaux = $db->query("SELECT c.*, s.batiment, s.id AS salle_id, COUNT(DISTINCT ec.id_enfant) AS nb_inscrits,
+           COUNT(DISTINCT la.id_enfant) AS nb_attente, a.capacite AS cap_activite, a.theme AS theme, a.tranche_age AS tranche_age
+FROM Creneau c LEFT JOIN Salle s ON s.id = c.id_salle LEFT JOIN Activite a ON a.nom = c.nom_activite
+LEFT JOIN Enfant_Creneau ec ON ec.id_creneau = c.id LEFT JOIN ListeAttente la   ON la.id_creneau = c.id
+GROUP BY c.id ORDER BY c.date, c.debut
 ")->fetchAll();
 
 $creneauxByActivite = [];
@@ -211,9 +203,8 @@ foreach ($allCreneaux as $cr) {
     $creneauxByActivite[$cr['nom_activite']][] = $cr;
 }
 
-// Inscriptions confirmees et attentes de cette famille
 $mesInscriptions = [];
-$mesAttentes     = [];
+$mesAttentes = [];
 
 $enfantsById = [];
 foreach ($enfants as $enf) {
@@ -236,7 +227,6 @@ if (!empty($enfants)) {
     }
 }
 
-// Pre-calcul des recommandations pour les creneaux complets
 $recommendationsData = [];
 foreach ($allCreneaux as $cr) {
     if ((int)$cr['nb_inscrits'] >= (int)$cr['cap_activite']) {
@@ -247,7 +237,6 @@ foreach ($allCreneaux as $cr) {
     }
 }
 
-// Images par activite
 $imgMap = [
     'Arts'    => 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400',
     'Jeux'    => 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400',

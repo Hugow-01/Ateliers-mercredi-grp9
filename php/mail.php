@@ -3,12 +3,8 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 require 'vendor/autoload.php';
 
-// URL de base du projet
 define('BASE_URL', 'http://51.68.91.213/info9/Ateliers-mercredi-grp9');
 
-/**
- * Génère le template HTML du mail
- */
 function buildMailHtml(string $corps, string $lien, string $lienParent): string {
     return "
     <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;'>
@@ -48,88 +44,164 @@ function buildMailHtml(string $corps, string $lien, string $lienParent): string 
     </div>";
 }
 
-/**
- * Crée et configure un objet PHPMailer
- */
 function createMailer(): PHPMailer {
     $mail = new PHPMailer(true);
     $mail->isSMTP();
-    $mail->Host       = 'smtp.gmail.com';
-    $mail->SMTPAuth   = true;
-    $mail->Username   = 'ranjatinasoa@gmail.com';
-    $mail->Password   = 'timkmklfgvegnwec';
+    $mail->Host = 'smtp.gmail.com';
+    $mail->SMTPAuth = true;
+    $mail->Username = 'ranjatinasoa@gmail.com';
+    $mail->Password = 'timkmklfgvegnwec';
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 587;
-    $mail->CharSet    = 'UTF-8';
+    $mail->Port = 587;
+    $mail->CharSet = 'UTF-8';
     $mail->setFrom('ranjatinasoa@gmail.com', 'Ateliers du Mercredi');
     return $mail;
 }
 
 /**
- * Notifie une famille.
- * 
- * @param PDO    $db
- * @param int    $idFamille   — id (int) de la famille dans la table Famille
- * @param int    $idEnfant
- * @param int    $idCreneau
- * @param string $type
- * @param string $msgTexte
+ * Mail de bienvenue à l'inscription
+ */
+function envoyerMailBienvenue(string $email, string $nomFamille): void {
+    try {
+        $mail = createMailer();
+        $mail->addAddress($email);
+        $mail->isHTML(true);
+        $mail->Subject = 'Bienvenue aux Ateliers du Mercredi !';
+
+        $corps = "Bienvenue, famille $nomFamille !\n\n"
+            . "Votre compte a bien été créé sur le site des Ateliers du Mercredi.\n\n"
+            . "Vous pouvez dès maintenant vous connecter et inscrire vos enfants aux activités du mercredi.\n\n"
+            . "Rendez-vous sur votre espace parent pour commencer.";
+
+        $lien = BASE_URL . '/activites.php';
+        $lienParent = BASE_URL . '/parent-enfants.php';
+
+        $mail->Body = buildMailHtml($corps, $lien, $lienParent);
+        $mail->AltBody = "Bonjour,\n\n" . $corps . "\n\nVoir les activites : " . $lien
+                       . "\nMon espace : " . $lienParent . "\n\nCordialement,\nLes Ateliers du Mercredi";
+        $mail->send();
+    } catch (Exception $e) {
+        error_log("Erreur envoi mail bienvenue : " . ($mail->ErrorInfo ?? $e->getMessage()));
+    }
+}
+
+/**
+ * Mail de confirmation d'inscription à un créneau
+ */
+function envoyerMailConfirmationInscription(
+    PDO $db,
+    int $idFamille,
+    int $idEnfant,
+    int $idCreneau
+): void {
+    $stmtF = $db->prepare("SELECT login, nom FROM Famille WHERE id = ?");
+    $stmtF->execute([$idFamille]);
+    $famille = $stmtF->fetch();
+    if (!$famille) return;
+
+    $stmtE = $db->prepare("SELECT prenom, nom FROM Enfant WHERE id = ?");
+    $stmtE->execute([$idEnfant]);
+    $enfant = $stmtE->fetch();
+    if (!$enfant) return;
+
+    $stmtC = $db->prepare("SELECT date, debut, fin, nom_activite, id_salle FROM Creneau WHERE id = ?");
+    $stmtC->execute([$idCreneau]);
+    $creneau = $stmtC->fetch();
+    if (!$creneau) return;
+
+    $dateF = date('d/m/Y', strtotime($creneau['date']));
+    $debut = substr($creneau['debut'], 0, 5);
+    $fin = substr($creneau['fin'], 0, 5);
+    $activite = $creneau['nom_activite'];
+    $salle = $creneau['id_salle'] ? " - Salle " . $creneau['id_salle'] : '';
+
+    $prenomNom = $enfant['prenom'] . ' ' . $enfant['nom'];
+
+    $corps = "Inscription confirmée !\n\n"
+        . "Bonjour famille " . $famille['nom'] . ",\n\n"
+        . "Votre enfant $prenomNom a bien été inscrit à l'activité suivante :\n\n"
+        . "• Activité : $activite\n"
+        . "• Date : $dateF\n"
+        . "• Horaire : $debut - $fin$salle\n\n"
+        . "Vous pouvez consulter ou gérer cette inscription depuis votre espace parent.\n\n"
+        . "À mercredi !";
+
+    // Insérer notification en base
+    $db->prepare("
+        INSERT INTO Notification (id_famille, id_enfant, id_creneau, type, message)
+        VALUES (?, ?, ?, 'accepte', ?)
+    ")->execute([$idFamille, $idEnfant, $idCreneau, $corps]);
+
+    try {
+        $mail = createMailer();
+        $mail->addAddress($famille['login']);
+        $mail->isHTML(true);
+        $mail->Subject = "Inscription confirmée - $activite du $dateF";
+
+        $lien = BASE_URL . '/activites.php';
+        $lienParent = BASE_URL . '/parent-enfants.php';
+
+        $mail->Body = buildMailHtml($corps, $lien, $lienParent);
+        $mail->AltBody = "Bonjour,\n\n" . $corps . "\n\nVoir les activites : " . $lien
+                       . "\nMon espace : " . $lienParent . "\n\nCordialement,\nLes Ateliers du Mercredi";
+        $mail->send();
+    } catch (Exception $e) {
+        error_log("Erreur envoi mail confirmation inscription : " . ($mail->ErrorInfo ?? $e->getMessage()));
+    }
+}
+
+/**
+ * Notifie une famille (mise en attente, acceptation, annulation, modification)
  */
 function notifierFamille(
-    PDO    $db,
-    int    $idFamille,
-    int    $idEnfant,
-    int    $idCreneau,
+    PDO $db,
+    int $idFamille,
+    int $idEnfant,
+    int $idCreneau,
     string $type,
     string $msgTexte
 ): void {
-    // Récupérer l'email (login) de la famille
     $stmtF = $db->prepare("SELECT login FROM Famille WHERE id = ?");
     $stmtF->execute([$idFamille]);
     $famille = $stmtF->fetch();
     if (!$famille) return;
     $emailFamille = $famille['login'];
 
-    // Insérer la notif en base
     $db->prepare("
         INSERT INTO Notification (id_famille, id_enfant, id_creneau, type, message)
         VALUES (?, ?, ?, ?, ?)
     ")->execute([$idFamille, $idEnfant, $idCreneau, $type, $msgTexte]);
 
-    // Envoyer le mail
     try {
         $mail = createMailer();
         $mail->addAddress($emailFamille);
         $mail->isHTML(true);
 
-        // Sujet selon le type
         $sujets = [
-            'accepte'      => 'Place confirmee - Ateliers du Mercredi',
-            'annulation'   => 'Activite annulee - Ateliers du Mercredi',
-            'modification' => 'Modification d activite - Ateliers du Mercredi',
+            'accepte' => 'Place confirmée - Ateliers du Mercredi',
+            'annulation' => 'Activité annulée - Ateliers du Mercredi',
+            'modification' => 'Modification d\'activité - Ateliers du Mercredi',
         ];
         $mail->Subject = $sujets[$type] ?? "Liste d'attente - Ateliers du Mercredi";
 
-        $lien       = BASE_URL . '/activites.php';
+        $lien = BASE_URL . '/activites.php';
         $lienParent = BASE_URL . '/parent-enfants.php';
 
-        $mail->Body    = buildMailHtml($msgTexte, $lien, $lienParent);
+        $mail->Body = buildMailHtml($msgTexte, $lien, $lienParent);
         $mail->AltBody = "Bonjour,\n\n" . $msgTexte . "\n\nVoir les activites : " . $lien
                        . "\nMon espace : " . $lienParent . "\n\nCordialement,\nLes Ateliers du Mercredi";
-
         $mail->send();
     } catch (Exception $e) {
-        error_log("Erreur envoi mail notifierFamille : " . $mail->ErrorInfo);
+        error_log("Erreur envoi mail notifierFamille : " . ($mail->ErrorInfo ?? $e->getMessage()));
     }
 }
 
 /**
- * Envoie un mail à tous les inscrits (confirmés + attente) d'un créneau.
- * Utilise id_famille (int) partout.
+ * Notifie tous les inscrits d'un créneau (modification ou annulation)
  */
 function notifierCreneauModifie(
-    PDO    $db,
-    int    $idCreneau,
+    PDO $db,
+    int $idCreneau,
     string $type,
     string $msgTexte
 ): void {
@@ -157,6 +229,29 @@ function notifierCreneauModifie(
 }
 
 /**
+ * Envoie un mail de modification de créneau (avec option de désinscription)
+ */
+function envoyerMailModificationCreneau(
+    PDO $db,
+    int $idCreneau,
+    string $ancienneDate,
+    string $ancienDebut,
+    string $ancienneFin,
+    string $nouvelleDate,
+    string $nouveauDebut,
+    string $nouveauFin,
+    string $nomActivite
+): void {
+    $msgTexte = "Un créneau de l'activité \"$nomActivite\" a été modifié par l'administration.\n\n"
+        . "Ancien horaire : " . date('d/m/Y', strtotime($ancienneDate)) . " de " . substr($ancienDebut, 0, 5) . " à " . substr($ancienneFin, 0, 5) . "\n"
+        . "Nouvel horaire : " . date('d/m/Y', strtotime($nouvelleDate)) . " de " . substr($nouveauDebut, 0, 5) . " à " . substr($nouveauFin, 0, 5) . "\n\n"
+        . "Votre inscription reste valide. Si ce nouvel horaire ne vous convient pas, vous pouvez vous désinscrire depuis votre espace parent.\n\n"
+        . "Rendez-vous sur votre espace parent pour gérer vos inscriptions.";
+
+    notifierCreneauModifie($db, $idCreneau, 'modification', $msgTexte);
+}
+
+/**
  * Envoie un mail de réinitialisation de mot de passe
  */
 function envoyerMailMotDePasseOublie(string $email, string $token): bool {
@@ -164,7 +259,7 @@ function envoyerMailMotDePasseOublie(string $email, string $token): bool {
         $mail = createMailer();
         $mail->addAddress($email);
         $mail->isHTML(true);
-        $mail->Subject = 'Reinitialisation de mot de passe - Ateliers du Mercredi';
+        $mail->Subject = 'Réinitialisation de mot de passe - Ateliers du Mercredi';
 
         $lienReset = BASE_URL . '/reset-password.php?token=' . urlencode($token);
 
@@ -176,7 +271,7 @@ function envoyerMailMotDePasseOublie(string $email, string $token): bool {
             <div style='padding: 30px; background: #ffffff;'>
                 <p style='font-family: Arial, sans-serif; color: #333; font-size: 15px;'>Bonjour,</p>
                 <p style='font-family: Arial, sans-serif; color: #333; font-size: 15px; line-height: 1.6;'>
-                    Vous avez demande la reinitialisation de votre mot de passe.<br>
+                    Vous avez demandé la réinitialisation de votre mot de passe.<br>
                     Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe.<br>
                     Ce lien est valable pendant <strong>1 heure</strong>.
                 </p>
@@ -188,13 +283,13 @@ function envoyerMailMotDePasseOublie(string $email, string $token): bool {
                                       padding: 14px 32px; border-radius: 8px; text-decoration: none;
                                       font-weight: bold; font-family: Arial, sans-serif; font-size: 15px;
                                       border: 2px solid #ff5e78;'>
-                                Reinitialiser mon mot de passe
+                                Réinitialiser mon mot de passe
                             </a>
                         </td>
                     </tr>
                 </table>
                 <p style='font-family: Arial, sans-serif; color: #888; font-size: 13px;'>
-                    Si vous n'etes pas a l'origine de cette demande, ignorez ce message.
+                    Si vous n'êtes pas à l'origine de cette demande, ignorez ce message.
                 </p>
                 <p style='color: #888; font-size: 0.85rem; font-family: Arial, sans-serif;'>Cordialement,<br>Les Ateliers du Mercredi</p>
             </div>
@@ -203,9 +298,9 @@ function envoyerMailMotDePasseOublie(string $email, string $token): bool {
             </div>
         </div>";
 
-        $mail->Body    = $corps;
-        $mail->AltBody = "Bonjour,\n\nPour reinitialiser votre mot de passe, cliquez sur ce lien (valable 1h) :\n"
-                       . $lienReset . "\n\nSi vous n'etes pas a l'origine de cette demande, ignorez ce message.\n\nCordialement,\nLes Ateliers du Mercredi";
+        $mail->Body = $corps;
+        $mail->AltBody = "Bonjour,\n\nPour réinitialiser votre mot de passe, cliquez sur ce lien (valable 1h) :\n"
+                       . $lienReset . "\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez ce message.\n\nCordialement,\nLes Ateliers du Mercredi";
 
         $mail->send();
         return true;

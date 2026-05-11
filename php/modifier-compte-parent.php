@@ -2,10 +2,11 @@
 require_once __DIR__ . '/config.php';
 requireParent();
 
-$db    = getDB();
+$db = getDB();
 $login = $_SESSION['user'];
 
-$error   = '';
+$error = '';
+
 $success = '';
 
 // Récupérer les infos actuelles de la famille
@@ -19,12 +20,11 @@ if (!$famille) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nom          = trim($_POST['nom']           ?? '');
+    $nom = trim($_POST['nom'] ?? '');
     $nouvelEmail  = trim(strtolower($_POST['nouvel_email'] ?? ''));
-    $mdpActuel    = $_POST['mdp_actuel']          ?? '';
-    $nouveauMdp   = $_POST['nouveau_mdp']         ?? '';
-    $confirmerMdp = $_POST['confirmer_mdp']       ?? '';
-
+    $mdpActuel = $_POST['mdp_actuel'] ?? '';
+    $nouveauMdp = $_POST['nouveau_mdp'] ?? '';
+    $confirmerMdp = $_POST['confirmer_mdp'] ?? '';
     if (!$nom) {
         $error = "Le nom de famille est obligatoire.";
     } elseif (!password_verify($mdpActuel, $famille['mdp'])) {

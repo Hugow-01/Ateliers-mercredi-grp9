@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php';
 requireParent();
-
 $deleted = ($_GET['deleted'] ?? '') === '1';
 $db    = getDB();
 $login = $_SESSION['user'];
@@ -27,11 +26,11 @@ if (!empty($notifications)) {
     $db->exec("UPDATE Notification SET lu = 1 WHERE id IN ($ids)");
 }
 
-// ── Récupérer les enfants avec leurs activités et créneaux ───
-$stmt = $db->prepare("
+// ── Récupérer les enfants avec inscriptions confirmées ───────
+$stmtInscr = $db->prepare("
     SELECT e.*,
            GROUP_CONCAT(
-               CONCAT(a.nom, '|', c.date, '|', c.debut, '|', ec.id_creneau, '|', IFNULL(c.id_salle, ''))
+               CONCAT(a.nom, '|', c.date, '|', c.debut, '|', c.id, '|', IFNULL(c.id_salle, ''), '|', 'inscrit', '|', '-1', '|', '-1')
                ORDER BY c.date SEPARATOR ';;'
            ) AS activites_raw
     FROM Enfant e
@@ -42,16 +41,37 @@ $stmt = $db->prepare("
     GROUP BY e.id
     ORDER BY e.id
 ");
-$stmt->execute([$idFamille]);
-$enfants = $stmt->fetchAll();
+$stmtInscr->execute([$idFamille]);
+$enfantsInscr = $stmtInscr->fetchAll();
 
-// Statut : vérifie dans Enfant_Creneau (accepté) ou ListeAttente
-function getStatut(PDO $db, int $id_creneau, int $id_enfant, string $nom_activite): string {
-    // Vérifier si présent dans les confirmés
-    $chk = $db->prepare("SELECT 1 FROM Enfant_Creneau WHERE id_creneau = ? AND id_enfant = ?");
-    $chk->execute([$id_creneau, $id_enfant]);
-    if ($chk->fetch()) return 'accepte';
-    return "liste d'attente";
+// ── Récupérer séparément les listes d'attente par enfant ─────
+$stmtAttente = $db->prepare("
+    SELECT e.id AS id_enfant,
+           a.nom AS act_nom, c.date, c.debut, c.id AS id_creneau,
+           IFNULL(c.id_salle, '') AS id_salle,
+           la.position,
+           (SELECT COUNT(*) FROM ListeAttente la2 WHERE la2.id_creneau = c.id) AS total_attente
+    FROM ListeAttente la
+    JOIN Enfant e   ON e.id  = la.id_enfant
+    JOIN Creneau c  ON c.id  = la.id_creneau
+    JOIN Activite a ON a.nom = c.nom_activite
+    WHERE e.id_famille = ?
+    ORDER BY e.id, c.date
+");
+$stmtAttente->execute([$idFamille]);
+$attentesRows = $stmtAttente->fetchAll();
+
+// Indexer les attentes par id_enfant
+$attentesByEnfant = [];
+foreach ($attentesRows as $row) {
+    $attentesByEnfant[$row['id_enfant']][] = $row;
+}
+
+// Fusionner les données
+$enfants = [];
+foreach ($enfantsInscr as $enf) {
+    $enf['attentes'] = $attentesByEnfant[$enf['id']] ?? [];
+    $enfants[] = $enf;
 }
 
 $moisFR = [

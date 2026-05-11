@@ -13,7 +13,7 @@ function getDB(): PDO {
             DB_USER,
             DB_PASS,
             [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             ]
         );
@@ -102,42 +102,29 @@ function getIdFamille(PDO $db, string $login): int {
 
 // Moteur de recommandation
 function creneauxRecommandes(PDO $db, int $id_creneau_plein, int $age_enfant = 0): array {
-    $ref = $db->prepare("
-        SELECT c.id, c.date, c.debut, c.fin, c.nom_activite,
-               a.capacite, a.theme, a.tranche_age
-        FROM Creneau c
-        JOIN Activite a ON a.nom = c.nom_activite
-        WHERE c.id = ?
+    $ref = $db->prepare("SELECT c.id, c.date, c.debut, c.fin, c.nom_activite, a.capacite, a.theme, a.tranche_age
+FROM Creneau c JOIN Activite a ON a.nom = c.nom_activite WHERE c.id = ?
     ");
     $ref->execute([$id_creneau_plein]);
     $refRow = $ref->fetch();
     if (!$refRow) return [];
 
-    $refDebut    = strtotime('1970-01-01 ' . $refRow['debut']);
+    $refDebut = strtotime('1970-01-01 ' . $refRow['debut']);
     $refActivite = $refRow['nom_activite'];
-    $refTheme    = strtolower(trim($refRow['theme'] ?? ''));
+    $refTheme = strtolower(trim($refRow['theme'] ?? ''));
 
-    $stmt = $db->prepare("
-        SELECT c.id, c.date, c.debut, c.fin, c.id_salle, c.nom_activite,
-               a.capacite, a.theme, a.tranche_age, a.syllabus,
-               COUNT(DISTINCT ec.id_enfant) AS nb_inscrits,
-               COUNT(DISTINCT la.id_enfant) AS nb_attente
-        FROM Creneau c
-        JOIN Activite a ON a.nom = c.nom_activite
-        LEFT JOIN Enfant_Creneau ec ON ec.id_creneau = c.id
-        LEFT JOIN ListeAttente   la ON la.id_creneau  = c.id
-        WHERE c.id <> ?
-          AND c.date >= CURDATE()
-        GROUP BY c.id
-        HAVING nb_inscrits < a.capacite
-        ORDER BY c.date ASC
+    $stmt = $db->prepare("SELECT c.id, c.date, c.debut, c.fin, c.id_salle, c.nom_activite,
+    a.capacite, a.theme, a.tranche_age, a.syllabus, COUNT(DISTINCT ec.id_enfant) AS nb_inscrits,
+    COUNT(DISTINCT la.id_enfant) AS nb_attente FROM Creneau c JOIN Activite a ON a.nom = c.nom_activite
+    LEFT JOIN Enfant_Creneau ec ON ec.id_creneau = c.id LEFT JOIN ListeAttente   la ON la.id_creneau  = c.id
+    WHERE c.id <> ? AND c.date >= CURDATE() GROUP BY c.id HAVING nb_inscrits < a.capacite ORDER BY c.date ASC
     ");
     $stmt->execute([$id_creneau_plein]);
     $candidats = $stmt->fetchAll();
 
     $scored = [];
     foreach ($candidats as $cand) {
-        $score   = 0;
+        $score = 0;
         $raisons = [];
 
         if ($cand['nom_activite'] === $refActivite) {
@@ -148,7 +135,7 @@ function creneauxRecommandes(PDO $db, int $id_creneau_plein, int $age_enfant = 0
         if ($refTheme && $candTheme && $refTheme === $candTheme) {
             $score += 25; $raisons[] = 'same_theme';
         } elseif ($refTheme && $candTheme) {
-            $refWords  = preg_split('/\W+/', strtolower($refActivite));
+            $refWords = preg_split('/\W+/', strtolower($refActivite));
             $candWords = preg_split('/\W+/', strtolower($cand['nom_activite']));
             if (count(array_intersect($refWords, $candWords)) >= 2) {
                 $score += 12; $raisons[] = 'similar_name';
@@ -173,8 +160,8 @@ function creneauxRecommandes(PDO $db, int $id_creneau_plein, int $age_enfant = 0
 
         if ($score > 0) {
             $scored[] = array_merge($cand, [
-                'score'            => $score,
-                'raisons'          => $raisons,
+                'score' => $score,
+                'raisons' => $raisons,
                 'places_restantes' => $cand['capacite'] - $cand['nb_inscrits'],
                 'taux_remplissage' => round($taux * 100),
             ]);

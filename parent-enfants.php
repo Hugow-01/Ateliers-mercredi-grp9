@@ -131,25 +131,36 @@ if ($nbIns > 0): ?>
         $ordinal = ['1er', '2eme', '3eme', '4eme', '5eme'][$i] ?? ($i + 1) . 'eme';
         $activitesList = [];
 
+        $toutes = [];
+        if (!empty($enfant['activites_raw'])) {
+            $toutes = array_merge($toutes, explode(';;', $enfant['activites_raw']));
+        }
+        if (!empty($enfant['attentes_raw'])) {
+            $toutes = array_merge($toutes, explode(';;', $enfant['attentes_raw']));
+        }
+        $enfant['activites_raw'] = implode(';;', $toutes);
+
         if ($enfant['activites_raw']) {
             foreach (explode(';;', $enfant['activites_raw']) as $act) {
                 $parts = explode('|', $act);
-                if (count($parts) >= 5 && $parts[0]) {
-                    $statut = getStatut($db, (int)$parts[3], (int)$enfant['id'], $parts[0]);
+                if (count($parts) >= 8 && $parts[0]) {
                     $dp     = explode('-', $parts[1]);
                     $dateF  = ltrim($dp[2] ?? '', '0') . ' ' . ($moisFR[$dp[1] ?? ''] ?? '') . ' ' . ($dp[0] ?? '');
                     $activitesList[] = [
-                        'nom'        => $parts[0],
-                        'date'       => $dateF,
-                        'heure'      => substr($parts[2], 0, 5),
-                        'id_creneau' => (int)$parts[3],
-                        'salle'      => $parts[4],
-                        'statut'     => $statut,
+                        'nom'           => $parts[0],
+                        'date'          => $dateF,
+                        'heure'         => substr($parts[2], 0, 5),
+                        'id_creneau'    => (int)$parts[3],
+                        'salle'         => $parts[4],
+                        'statut'        => $parts[5] === 'inscrit' ? 'accepte' : "liste d'attente",
+                        'position'      => (int)$parts[6],
+                        'total_attente' => (int)$parts[7],
                     ];
                 }
             }
         }
     ?>
+
     <div class="child-card">
         <div class="card-top">
             <h2 class="child-title"><?= $ordinal ?> enfant</h2>
@@ -192,11 +203,14 @@ if ($nbIns > 0): ?>
                     <span class="<?= $act['statut'] === 'accepte' ? 'badge-ok' : 'badge-wait' ?>">
                         <?= $act['statut'] === 'accepte' ? 'accepte' : "liste d'attente" ?>
                     </span>
+                    <?php if ($act['position']!==-1): ?>
+                    &nbsp;<span class="salle-badge">Position <?= htmlspecialchars($act['position']) ?>/<?= htmlspecialchars($act['total_attente']) ?></span>
+                    <?php endif; ?>
                     <form method="POST" action="activites.php" onsubmit="return confirm('Se desinscrire de cette activite ?')">
-                        <input type="hidden" name="action"     value="desinscrire">
+                        <input type="hidden" name="action"     value="<?= $act['statut'] === 'accepte' ? 'desinscrire' : 'quitter_attente' ?>">
                         <input type="hidden" name="id_creneau" value="<?= $act['id_creneau'] ?>">
                         <input type="hidden" name="id_enfant"  value="<?= $enfant['id'] ?>">
-                        <button type="submit" class="btn-desins-card">Se desinscrire</button>
+                        <button type="submit" class="btn-desins-card"><?= $act['statut'] === 'accepte' ? 'Se desinscrire' : 'Quitter la liste' ?></button>
                     </form>
                 </div>
             </div>
