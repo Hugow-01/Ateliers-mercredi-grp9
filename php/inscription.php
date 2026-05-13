@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/config.php';
-// NE PAS inclure mail.php ici - inscription basique ne nécessite pas de mail
-// Si mail de bienvenue souhaité, on l'inclut seulement si disponible
 $mailDisponible = file_exists(__DIR__ . '/mail.php');
 if ($mailDisponible) {
     require_once __DIR__ . '/mail.php';

@@ -33,12 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($role === 'responsable') {
                     // Compte admin
                     $_SESSION['type_compte'] = 'responsable';
-                    $_SESSION['role']        = 'responsable'; // pour isAdmin()
+                    $_SESSION['role'] = 'responsable'; // pour isAdmin()
                     $_SESSION['admin_role']  = $user['role']; // super_admin ou admin
                     header("Location: admin-dashboard.php");
                 } else {
                     // Compte famille - isParent() cherche $_SESSION['role'] === 'famille'
-                    $_SESSION['role']        = 'famille';
+                    $_SESSION['role'] = 'famille';
                     $_SESSION['type_compte'] = 'famille';
                     header("Location: parent-enfants.php");
                 }

@@ -10,63 +10,8 @@
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/activites.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-.theme-badge { display:inline-block; padding:3px 11px; border-radius:20px; font-size:.75rem; font-weight:700; background:#e0e7ff; color:#3730a3; margin-left:8px; vertical-align:middle; }
-.act-card-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
-.act-card-title  { font-family:'Baloo 2'; color:#1a5fb4; margin:0; font-size:1.2rem; }
-.act-card-actions{ display:flex; gap:8px; flex-shrink:0; }
-.syllabus-preview{ background:#f8fafc; border-left:3px solid #e2e8f0; padding:10px 14px; border-radius:0 8px 8px 0; font-size:.85rem; color:#475569; line-height:1.6; margin-bottom:14px; white-space:pre-wrap; }
-.act-meta-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; font-size:.82rem; }
-.meta-chip { padding:4px 12px; border-radius:8px; font-weight:600; }
-.chip-cap   { background:#dbeafe; color:#1d4ed8; }
-.chip-theme { background:#e0e7ff; color:#3730a3; }
-.chip-age   { background:#fce7f3; color:#9d174d; }
-.edit-form  { display:none; background:#f0f4ff; border:1.5px solid #c7d2fe; border-radius:14px; padding:20px; margin-bottom:14px; }
-.edit-form.open { display:block; }
-.edit-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
-.edit-grid .span2 { grid-column:span 2; }
-.edit-form label { display:block; font-size:.8rem; font-weight:700; color:#475569; margin-bottom:4px; }
-.edit-form input, .edit-form select, .edit-form textarea { background:#fff; border:1px solid #c7d2fe; padding:8px 12px; border-radius:8px; font-size:.88rem; width:100%; }
-.edit-form textarea { min-height:90px; resize:vertical; }
-.edit-form-actions { display:flex; gap:10px; justify-content:flex-end; }
-.btn-edit   { background:#6366f1; color:#fff; }
-.btn-delete { background:#ef4444; color:#fff; }
-.creneau-add-form { display:flex; gap:10px; margin-top:14px; background:#f8fafc; padding:12px; border-radius:12px; flex-wrap:wrap; align-items:flex-end; border:1px dashed #cbd5e1; }
-.creneau-add-form .form-group { margin:0; }
-.creneau-add-form label { font-size:.78rem; font-weight:700; color:#64748b; display:block; margin-bottom:3px; }
-.creneau-add-form input, .creneau-add-form select { width:auto; padding:7px 10px; font-size:.85rem; }
-.cr-edit-form { display:none; background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:14px; margin-top:8px; }
-.cr-edit-form.open { display:block; }
-.cr-edit-form-row { display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; }
-.cr-edit-form label { font-size:.78rem; font-weight:700; color:#0369a1; display:block; margin-bottom:3px; }
-.cr-edit-form input, .cr-edit-form select { padding:7px 10px; font-size:.85rem; border:1px solid #bae6fd; border-radius:8px; }
-/* Image upload */
-.img-upload-preview { width:80px; height:60px; object-fit:cover; border-radius:8px; border:2px solid #e2e8f0; }
-.img-upload-zone { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-.act-thumb { width:60px; height:45px; object-fit:cover; border-radius:6px; border:1px solid #ddd; vertical-align:middle; margin-right:8px; }
-
-/* Calendrier dans l'espace admin — même style que activites.php */
-.admin-cal-section {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 16px;
-    margin-top: 14px;
-}
-.admin-cal-section h4 {
-    font-family: 'Baloo 2';
-    font-size: 1rem;
-    color: #1a5fb4;
-    margin: 0 0 12px;
-}
-@media (max-width:700px) {
-    .edit-grid { grid-template-columns:1fr; }
-    .edit-grid .span2 { grid-column:span 1; }
-}
-    </style>
 </head>
 <body>
-
 <header class="admin-header">
     <h1>Administration</h1>
     <nav>
@@ -94,10 +39,10 @@
     <div style="margin-top:10px;">
         <?php foreach ($activites as $act):
             $nomSlug = preg_replace('/[^a-z0-9]/i', '_', $act['nom']);
-            $crsAct  = $crByAct[$act['nom']] ?? [];
+            $crsAct = $crByAct[$act['nom']] ?? [];
 
             // Préparer données calendrier pour cet atelier
-            $byDateAct    = [];
+            $byDateAct = [];
             $colorDateAct = [];
             foreach ($crsAct as $cr) {
                 $byDateAct[$cr['date']][] = $cr;
@@ -109,15 +54,15 @@
                     if ($cr['nb'] < $act['capacite']) {
                         $allFull = false;
                         if ($pct >= 0.8) $hasWait = true;
-                        else             $hasOk   = true;
+                        else $hasOk   = true;
                     }
                 }
-                if ($allFull)     $colorDateAct[$date] = 'full';
+                if ($allFull) $colorDateAct[$date] = 'full';
                 elseif ($hasWait) $colorDateAct[$date] = 'wait';
-                else              $colorDateAct[$date] = 'ok';
+                else $colorDateAct[$date] = 'ok';
             }
-            $dates    = array_keys($byDateAct); sort($dates);
-            $firstD   = $dates[0] ?? null;
+            $dates = array_keys($byDateAct); sort($dates);
+            $firstD = $dates[0] ?? null;
             $initYAct = $firstD ? (int)date('Y', strtotime($firstD)) : (int)date('Y');
             $initMAct = $firstD ? (int)date('n', strtotime($firstD)) : (int)date('n');
         ?>
@@ -230,7 +175,7 @@
                 </form>
             </div>
 
-            <!-- Calendrier des créneaux -->
+            <!-- Calendrier des créneaux (vue admin) -->
             <?php if ($firstD): ?>
             <div class="admin-cal-section">
                 <h4>Calendrier des créneaux</h4>
@@ -241,38 +186,33 @@
                 </div>
                 <?php
                 $calParams = [
-                    'idx'        => 'admin_' . $nomSlug,
-                    'byDate'     => $byDateAct,
+                    'idx' => 'admin_' . $nomSlug,
+                    'byDate' => $byDateAct,
                     'colorByDate'=> $colorDateAct,
-                    'initY'      => $initYAct,
-                    'initM'      => $initMAct,
+                    'initY' => $initYAct,
+                    'initM' => $initMAct,
                 ];
-                include __DIR__ . '/php/calendrier.php';
                 ?>
                 <div id="admin-slots-<?= $nomSlug ?>" style="margin-top:10px; font-size:.85rem; color:#555;"></div>
                 <script>
                 (function(){
                     const byDate_adm = <?= json_encode($byDateAct) ?>;
-                    const cap_adm    = <?= (int)$act['capacite'] ?>;
+                    const cap_adm = <?= (int)$act['capacite'] ?>;
                     function pad2(n){ return n<10?'0'+n:''+n; }
                     function formatHeure(t){ return t ? t.substring(0,5) : ''; }
-                    function formatDateFr(ds){
-                        const [y,m,d] = ds.split('-');
-                        return pad2(parseInt(d)) + '/' + pad2(parseInt(m)) + '/' + y;
-                    }
                     window['calSelectDate_admin_<?= $nomSlug ?>'] = function(date){
-                        const crs  = byDate_adm[date] || [];
-                        const box  = document.getElementById('admin-slots-<?= $nomSlug ?>');
+                        const crs= byDate_adm[date] || [];
+                        const box= document.getElementById('admin-slots-<?= $nomSlug ?>');
                         if (!crs.length){ box.innerHTML = '<em>Aucun créneau ce jour.</em>'; return; }
                         box.innerHTML = crs.map(cr => {
-                            const nb  = parseInt(cr.nb);
+                            const nb = parseInt(cr.nb);
                             const pct = cap_adm > 0 ? Math.round(nb/cap_adm*100) : 100;
                             const col = nb >= cap_adm ? '#e53e3e' : (pct >= 80 ? '#f59e0b' : '#22c55e');
                             return '<span style="display:inline-block; margin:3px 6px; padding:4px 10px; background:#fff; border:2px solid '+col+'; border-radius:8px; font-size:.8rem;">'
-                                + formatHeure(cr.debut) + '–' + formatHeure(cr.fin)
-                                + ' <strong>' + nb + '/' + cap_adm + '</strong> (' + pct + '%)'
-                                + (cr.id_salle ? ' · Salle ' + cr.id_salle : '')
-                                + '</span>';
+                            + formatHeure(cr.debut) + '–' + formatHeure(cr.fin)
+                            + ' <strong>' + nb + '/' + cap_adm + '</strong> (' + pct + '%)'
+                            + (cr.id_salle ? ' · Salle ' + cr.id_salle : '')
+                            + '</span>';
                         }).join('');
                     };
                 })();
@@ -297,8 +237,12 @@
                         <?php foreach ($crsAct as $cr):
                             $taux_cr = $act['capacite'] > 0
                                 ? round($cr['nb'] / $act['capacite'] * 100) : 0;
-                            // Date en JJ/MM/AAAA
                             $dateAff = date('d/m/Y', strtotime($cr['date']));
+                            // Décomposer l'heure debut/fin pour les time pickers
+                            $debutH = substr($cr['debut'], 0, 2);
+                            $debutM = substr($cr['debut'], 3, 2);
+                            $finH = substr($cr['fin'], 0, 2);
+                            $finM = substr($cr['fin'], 3, 2);
                         ?>
                         <tr class="cr-row">
                             <td><?= $dateAff ?></td>
@@ -322,25 +266,49 @@
                                         <button type="submit" class="btn btn-small btn-danger">Supprimer</button>
                                     </form>
                                 </div>
+                                <!-- Formulaire modification créneau -->
                                 <div class="cr-edit-form" id="cr-edit-<?= $cr['id'] ?>">
                                     <form method="POST">
-                                        <input type="hidden" name="action"     value="modifier_creneau">
+                                        <input type="hidden" name="action" value="modifier_creneau">
                                         <input type="hidden" name="id_creneau" value="<?= $cr['id'] ?>">
+                                        <input type="hidden" name="nouvelle_date" id="cr-date-hidden-<?= $cr['id'] ?>" value="<?= $cr['date'] ?>">
+                                        <!-- Champs cachés alimentés par les time pickers FR -->
+                                        <input type="hidden" name="nouveau_debut" id="cr-debut-hidden-<?= $cr['id'] ?>" value="<?= substr($cr['debut'],0,5) ?>">
+                                        <input type="hidden" name="nouveau_fin" id="cr-fin-hidden-<?= $cr['id'] ?>"   value="<?= substr($cr['fin'],0,5) ?>">
                                         <div class="cr-edit-form-row">
                                             <div>
                                                 <label>Date</label>
-                                                <input type="date" name="nouvelle_date"
-                                                       value="<?= $cr['date'] ?>" required>
+                                                <div class="fr-date-picker" id="cr-picker-<?= $cr['id'] ?>">
+                                                    <div class="fr-date-display"
+                                                         id="cr-picker-display-<?= $cr['id'] ?>"
+                                                         onclick="adminFrCalToggle('<?= $cr['id'] ?>', <?= (int)date('Y', strtotime($cr['date'])) ?>, <?= (int)date('n', strtotime($cr['date'])) ?>)">
+                                                        <span id="cr-picker-label-<?= $cr['id'] ?>"><?= date('d/m/Y', strtotime($cr['date'])) ?></span>
+                                                    </div>
+                                                    <div class="fr-date-dropdown" id="cr-picker-cal-<?= $cr['id'] ?>">
+                                                        <div class="fr-date-nav">
+                                                            <button type="button" onclick="adminFrCalPrev('<?= $cr['id'] ?>')">&#9668;</button>
+                                                            <div class="fr-date-month" id="cr-picker-month-<?= $cr['id'] ?>"></div>
+                                                            <button type="button" onclick="adminFrCalNext('<?= $cr['id'] ?>')">&#9658;</button>
+                                                        </div>
+                                                        <div class="fr-date-grid" id="cr-picker-grid-<?= $cr['id'] ?>"></div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div>
                                                 <label>Début</label>
-                                                <input type="time" name="nouveau_debut"
-                                                       value="<?= substr($cr['debut'],0,5) ?>" required>
+                                                <div class="fr-time-picker" id="cr-time-debut-<?= $cr['id'] ?>">
+                                                    <?= frTimePicker('cr-debut-h-'.$cr['id'], $debutH, 'cr-debut-hidden-'.$cr['id'], 'h', 'cr-debut-m-'.$cr['id']) ?>
+                                                    <span class="fr-time-sep">h</span>
+                                                    <?= frTimePicker('cr-debut-m-'.$cr['id'], $debutM, 'cr-debut-hidden-'.$cr['id'], 'm', 'cr-debut-h-'.$cr['id']) ?>
+                                                </div>
                                             </div>
                                             <div>
                                                 <label>Fin</label>
-                                                <input type="time" name="nouveau_fin"
-                                                       value="<?= substr($cr['fin'],0,5) ?>" required>
+                                                <div class="fr-time-picker" id="cr-time-fin-<?= $cr['id'] ?>">
+                                                    <?= frTimePicker('cr-fin-h-'.$cr['id'], $finH, 'cr-fin-hidden-'.$cr['id'], 'h', 'cr-fin-m-'.$cr['id']) ?>
+                                                    <span class="fr-time-sep">h</span>
+                                                    <?= frTimePicker('cr-fin-m-'.$cr['id'], $finM, 'cr-fin-hidden-'.$cr['id'], 'm', 'cr-fin-h-'.$cr['id']) ?>
+                                                </div>
                                             </div>
                                             <div>
                                                 <label>Salle</label>
@@ -361,9 +329,7 @@
                                                 Annuler
                                             </button>
                                         </div>
-                                        <p style="font-size:.75rem; color:#0369a1; margin:8px 0 0;">
-                                            ℹ Les enfants déjà inscrits restent inscrits. Les parents seront notifiés.
-                                        </p>
+
                                     </form>
                                 </div>
                             </td>
@@ -381,12 +347,50 @@
             </div>
 
             <!-- Ajout d'un créneau -->
-            <form method="POST" class="creneau-add-form">
-                <input type="hidden" name="action"       value="ajouter_creneau">
+            <form method="POST" class="creneau-add-form" id="add-form-<?= $nomSlug ?>">
+                <input type="hidden" name="action" value="ajouter_creneau">
                 <input type="hidden" name="nom_activite" value="<?= htmlspecialchars($act['nom']) ?>">
-                <div class="form-group"><label>Date</label><input type="date" name="date" required></div>
-                <div class="form-group"><label>Début</label><input type="time" name="debut" required></div>
-                <div class="form-group"><label>Fin</label><input type="time" name="fin" required></div>
+                <input type="hidden" name="date" id="add-date-hidden-<?= $nomSlug ?>">
+                <input type="hidden" name="debut" id="add-debut-hidden-<?= $nomSlug ?>" value="08:00">
+                <input type="hidden" name="fin" id="add-fin-hidden-<?= $nomSlug ?>"   value="09:00">
+
+                <div class="form-group">
+                    <label>Date</label>
+                    <div class="fr-date-picker" id="add-picker-<?= $nomSlug ?>">
+                        <div class="fr-date-display"
+                             id="add-picker-display-<?= $nomSlug ?>"
+                             onclick="addFrCalToggle('<?= $nomSlug ?>')">
+                            <span id="add-picker-label-<?= $nomSlug ?>">Choisir une date</span>
+                        </div>
+                        <div class="fr-date-dropdown" id="add-picker-cal-<?= $nomSlug ?>">
+                            <div class="fr-date-nav">
+                                <button type="button" onclick="addFrCalPrev('<?= $nomSlug ?>')">&#9668;</button>
+                                <div class="fr-date-month" id="add-picker-month-<?= $nomSlug ?>"></div>
+                                <button type="button" onclick="addFrCalNext('<?= $nomSlug ?>')">&#9658;</button>
+                            </div>
+                            <div class="fr-date-grid" id="add-picker-grid-<?= $nomSlug ?>"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Début</label>
+                    <div class="fr-time-picker">
+                        <?= frTimePicker('add-debut-h-'.$nomSlug, '08', 'add-debut-hidden-'.$nomSlug, 'h', 'add-debut-m-'.$nomSlug) ?>
+                        <span class="fr-time-sep">h</span>
+                        <?= frTimePicker('add-debut-m-'.$nomSlug, '00', 'add-debut-hidden-'.$nomSlug, 'm', 'add-debut-h-'.$nomSlug) ?>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Fin</label>
+                    <div class="fr-time-picker">
+                        <?= frTimePicker('add-fin-h-'.$nomSlug, '09', 'add-fin-hidden-'.$nomSlug, 'h', 'add-fin-m-'.$nomSlug) ?>
+                        <span class="fr-time-sep">h</span>
+                        <?= frTimePicker('add-fin-m-'.$nomSlug, '00', 'add-fin-hidden-'.$nomSlug, 'm', 'add-fin-h-'.$nomSlug) ?>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Salle</label>
                     <select name="id_salle">
@@ -398,8 +402,10 @@
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <button type="submit" class="btn btn-small btn-primary">+ Ajouter créneau</button>
+                <button type="submit" class="btn btn-small btn-primary"
+                        onclick="return validateAddForm('<?= $nomSlug ?>')">+ Ajouter créneau</button>
             </form>
+
         </div>
         <?php endforeach; ?>
 
@@ -460,7 +466,193 @@
     </div>
 </div>
 
+<?php
+/**
+ * Génère un <select> pour heure (00–23) ou minutes (00, 05, 10 … 55).
+ * $part = 'h' (heures) | 'm' (minutes)
+ * Met à jour l'input caché $hiddenId au format HH:MM à chaque changement.
+ */
+function frTimePicker(string $selectId, string $currentVal, string $hiddenId, string $part, string $siblingId): string {
+    $padVal = str_pad((string)(int)$currentVal, 2, '0', STR_PAD_LEFT);
+    $opts = '';
+    if ($part === 'h') {
+        for ($i = 0; $i <= 23; $i++) {
+            $v = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
+            $opts .= '<option value="'.$v.'"'.($v === $padVal ? ' selected' : '').'>'.$v.'</option>';
+        }
+    } else {
+        foreach ([0,5,10,15,20,25,30,35,40,45,50,55] as $i) {
+            $v = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
+            // Choisir la valeur la plus proche si $currentVal n'est pas un multiple de 5
+            $closest = (string)str_pad((string)(round((int)$currentVal / 5) * 5 % 60), 2, '0', STR_PAD_LEFT);
+            $opts .= '<option value="'.$v.'"'.($v === $closest ? ' selected' : '').'>'.$v.'</option>';
+        }
+    }
+    $typeAttr = $part === 'h' ? 'h' : 'm';
+    return '<select id="'.$selectId.'" data-hidden="'.$hiddenId.'" data-part="'.$typeAttr.'" data-sibling="'.$siblingId.'"
+        onchange="frTimeSyncHidden(this)">'.$opts.'</select>';
+}
+?>
+
 <script>
+/* ── Synchronisation time picker FR → input caché ── */
+function frTimeSyncHidden(sel) {
+    const hiddenEl= document.getElementById(sel.dataset.hidden);
+    const siblingEl = document.getElementById(sel.dataset.sibling);
+    if (!hiddenEl || !siblingEl) return;
+
+    let h, m;
+    if (sel.dataset.part === 'h') {
+        h= sel.value;
+        m = siblingEl.value;
+    } else {
+        h = siblingEl.value;
+        m= sel.value;
+    }
+    hiddenEl.value = h + ':' + m;
+}
+
+/* ══════════════════════════════════════════════════════
+   CALENDRIER FR PICKER — Admin
+   ══════════════════════════════════════════════════════ */
+(function(){
+    const MOIS = ['','Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+    function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+    const _crState = {};
+    const _addState = {};
+
+    function renderGrid(gridEl, cy, cm, currentVal, onSelect){
+        gridEl.innerHTML = '';
+        ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].forEach(d => {
+            const s = document.createElement('span');
+            s.className = 'fr-dl'; s.textContent = d;
+            gridEl.appendChild(s);
+        });
+        const firstDay = new Date(cy, cm-1, 1).getDay();
+        const daysInMonth = new Date(cy, cm, 0).getDate();
+        for(let e = 0; e < firstDay; e++){
+            const s = document.createElement('span');
+            s.className = 'fr-dj empty'; gridEl.appendChild(s);
+        }
+        for(let d = 1; d <= daysInMonth; d++){
+            const ds = cy + '-' + pad(cm) + '-' + pad(d);
+            const s = document.createElement('span');
+            s.textContent = d;
+            s.className = 'fr-dj sel-day' + (ds === currentVal ? ' chosen' : '');
+            s.onclick = () => onSelect(ds, d);
+            gridEl.appendChild(s);
+        }
+    }
+
+    /* ══ Pickers "modification créneau" ══ */
+    window.adminFrCalToggle = function(crId, initY, initM){
+        if(!_crState[crId]){
+            _crState[crId] = {
+                cy: initY || new Date().getFullYear(),
+                cm: initM || new Date().getMonth()+1
+            };
+        }
+        const drop = document.getElementById('cr-picker-cal-'+crId);
+        const isOpen = drop.classList.contains('open');
+        document.querySelectorAll('.fr-date-dropdown.open').forEach(el => el.classList.remove('open'));
+        if(!isOpen){
+            drop.classList.add('open');
+            renderCrCal(crId);
+        }
+    };
+
+    function renderCrCal(crId){
+        const st = _crState[crId];
+        const monthEl = document.getElementById('cr-picker-month-'+crId);
+        const gridEl  = document.getElementById('cr-picker-grid-'+crId);
+        const hiddenEl= document.getElementById('cr-date-hidden-'+crId);
+        if(!monthEl || !gridEl) return;
+        monthEl.textContent = MOIS[st.cm] + ' ' + st.cy;
+        renderGrid(gridEl, st.cy, st.cm, hiddenEl ? hiddenEl.value : '', function(ds){
+            if(hiddenEl) hiddenEl.value = ds;
+            const lbl = document.getElementById('cr-picker-label-'+crId);
+            if(lbl){ const p=ds.split('-'); lbl.textContent=pad(parseInt(p[2]))+'/'+pad(parseInt(p[1]))+'/'+p[0]; }
+            document.getElementById('cr-picker-cal-'+crId).classList.remove('open');
+            renderCrCal(crId);
+        });
+    }
+
+    window.adminFrCalPrev = function(crId){
+        if(!_crState[crId]) return;
+        _crState[crId].cm--;
+        if(_crState[crId].cm < 1){ _crState[crId].cm = 12; _crState[crId].cy--; }
+        renderCrCal(crId);
+    };
+    window.adminFrCalNext = function(crId){
+        if(!_crState[crId]) return;
+        _crState[crId].cm++;
+        if(_crState[crId].cm > 12){ _crState[crId].cm = 1; _crState[crId].cy++; }
+        renderCrCal(crId);
+    };
+
+    /* ══ Pickers "ajout créneau" ══ */
+    window.addFrCalToggle = function(slug){
+        if(!_addState[slug]){
+            const now = new Date();
+            _addState[slug] = { cy: now.getFullYear(), cm: now.getMonth()+1 };
+        }
+        const drop = document.getElementById('add-picker-cal-'+slug);
+        const isOpen = drop.classList.contains('open');
+        document.querySelectorAll('.fr-date-dropdown.open').forEach(el => el.classList.remove('open'));
+        if(!isOpen){
+            drop.classList.add('open');
+            renderAddCal(slug);
+        }
+    };
+
+    function renderAddCal(slug){
+        const st = _addState[slug];
+        const monthEl = document.getElementById('add-picker-month-'+slug);
+        const gridEl  = document.getElementById('add-picker-grid-'+slug);
+        const hiddenEl= document.getElementById('add-date-hidden-'+slug);
+        if(!monthEl || !gridEl) return;
+        monthEl.textContent = MOIS[st.cm] + ' ' + st.cy;
+        renderGrid(gridEl, st.cy, st.cm, hiddenEl ? hiddenEl.value : '', function(ds){
+            if(hiddenEl) hiddenEl.value = ds;
+            const lbl = document.getElementById('add-picker-label-'+slug);
+            if(lbl){ const p=ds.split('-'); lbl.textContent=pad(parseInt(p[2]))+'/'+pad(parseInt(p[1]))+'/'+p[0]; }
+            document.getElementById('add-picker-cal-'+slug).classList.remove('open');
+            renderAddCal(slug);
+        });
+    }
+
+    window.addFrCalPrev = function(slug){
+        if(!_addState[slug]) return;
+        _addState[slug].cm--;
+        if(_addState[slug].cm < 1){ _addState[slug].cm = 12; _addState[slug].cy--; }
+        renderAddCal(slug);
+    };
+    window.addFrCalNext = function(slug){
+        if(!_addState[slug]) return;
+        _addState[slug].cm++;
+        if(_addState[slug].cm > 12){ _addState[slug].cm = 1; _addState[slug].cy++; }
+        renderAddCal(slug);
+    };
+
+    window.validateAddForm = function(slug){
+        const hidden = document.getElementById('add-date-hidden-'+slug);
+        if(!hidden || !hidden.value){
+            alert('Veuillez sélectionner une date dans le calendrier.');
+            return false;
+        }
+        return true;
+    };
+
+    document.addEventListener('click', function(e){
+        if(!e.target.closest('.fr-date-picker')){
+            document.querySelectorAll('.fr-date-dropdown.open').forEach(el => el.classList.remove('open'));
+        }
+    });
+})();
+
+/* ══ Bascule formulaires ══ */
 function toggleEdit(slug) {
     const form = document.getElementById('edit-' + slug);
     form.classList.toggle('open');

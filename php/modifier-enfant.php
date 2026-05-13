@@ -2,11 +2,11 @@
 require_once __DIR__ . '/config.php';
 requireParent();
 
-$db    = getDB();
+$db = getDB();
 $login = $_SESSION['user'];
 $idFamille = getIdFamille($db, $login);
 
-$error   = '';
+$error = '';
 $success = '';
 
 $id = intval($_GET['id'] ?? $_POST['id'] ?? 0);
@@ -26,16 +26,16 @@ if (!$enfant) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nom    = trim($_POST['nom']    ?? '');
+    $nom = trim($_POST['nom']    ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
-    $age    = intval($_POST['age']  ?? 0);
+    $age = intval($_POST['age']  ?? 0);
 
     if (!$nom || !$prenom || $age < 1 || $age > 17) {
         $error = "Veuillez remplir tous les champs correctement (âge entre 1 et 17 ans).";
     } else {
         try {
             $db->prepare("UPDATE Enfant SET nom = ?, prenom = ?, age = ? WHERE id = ? AND id_famille = ?")
-               ->execute([$nom, $prenom, $age, $id, $idFamille]);
+            ->execute([$nom, $prenom, $age, $id, $idFamille]);
             $stmt->execute([$id, $idFamille]);
             $enfant = $stmt->fetch();
             $success = "Les informations ont bien été mises à jour.";

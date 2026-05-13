@@ -89,7 +89,7 @@
                     </button>
                     <form method="POST"
                           onsubmit="return confirm('Supprimer <?= htmlspecialchars($r['nom']) ?> ?')">
-                        <input type="hidden" name="action"    value="supprimer">
+                        <input type="hidden" name="action" value="supprimer">
                         <input type="hidden" name="login_sup" value="<?= htmlspecialchars($r['login']) ?>">
                         <button type="submit" class="btn-sm btn-danger">✕ Supprimer</button>
                     </form>
@@ -106,11 +106,11 @@
         <!-- Form modifier rôle -->
         <div class="role-edit-form" id="role-<?= md5($r['login']) ?>">
             <form method="POST" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                <input type="hidden" name="action"     value="modifier_role">
+                <input type="hidden" name="action" value="modifier_role">
                 <input type="hidden" name="login_role" value="<?= htmlspecialchars($r['login']) ?>">
                 <label style="font-weight:700; font-size:.85rem; color:#3730a3;">Nouveau rôle :</label>
                 <select name="nouveau_role" style="padding:6px 10px; border-radius:8px; border:1px solid #c7d2fe;">
-                    <option value="admin"       <?= $r['role'] === 'admin'       ? 'selected' : '' ?>>Admin</option>
+                    <option value="admin" <?= $r['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
                     <option value="super_admin" <?= $r['role'] === 'super_admin' ? 'selected' : '' ?>>Super Admin</option>
                 </select>
                 <button type="submit" class="btn btn-small btn-primary">Enregistrer</button>
@@ -173,7 +173,7 @@
         <h3>Changer le mot de passe</h3>
         <p id="mdp-label" style="color:#888; margin-bottom:15px;"></p>
         <form method="POST">
-            <input type="hidden" name="action"    value="changer_mdp">
+            <input type="hidden" name="action" value="changer_mdp">
             <input type="hidden" name="login_mdp" id="mdp-login">
             <div class="form-group">
                 <label>Nouveau mot de passe</label>
@@ -190,7 +190,7 @@
 
 <script>
 function openMdp(login, nom) {
-    document.getElementById('mdp-login').value       = login;
+    document.getElementById('mdp-login').value = login;
     document.getElementById('mdp-label').textContent = 'Modifier le mot de passe de : ' + nom;
     document.getElementById('modal-mdp').classList.add('active');
 }

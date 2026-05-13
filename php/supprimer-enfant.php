@@ -2,7 +2,7 @@
 require_once __DIR__ . '/config.php';
 requireParent();
 
-$db    = getDB();
+$db  = getDB();
 $login = $_SESSION['user'];
 $idFamille = getIdFamille($db, $login);
 
@@ -45,9 +45,9 @@ foreach ($listeCreneaux as $cr) {
 
     if ($promo) {
         $db->prepare("INSERT INTO Enfant_Creneau (id_enfant, id_creneau) VALUES (?, ?)")
-           ->execute([$promo, $idCreneau]);
+        ->execute([$promo, $idCreneau]);
         $db->prepare("DELETE FROM ListeAttente WHERE id_enfant = ? AND id_creneau = ?")
-           ->execute([$promo, $idCreneau]);
+        ->execute([$promo, $idCreneau]);
 
         $restants = $db->prepare(
             "SELECT id FROM ListeAttente WHERE id_creneau = ? ORDER BY position ASC"

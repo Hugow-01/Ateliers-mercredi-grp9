@@ -48,10 +48,10 @@
 
     <h3 style="font-family:'Baloo 2'; margin-bottom:15px;">Accès rapides</h3>
     <div class="quick-links">
-        <a href="admin-activites.php"          class="quick-link" style="border-top:4px solid #ff5e78;">Gérer les activités</a>
-        <a href="admin-liste-enfants.php"       class="quick-link" style="border-top:4px solid #7a86f1;">Liste des enfants</a>
+        <a href="admin-activites.php"  class="quick-link" style="border-top:4px solid #ff5e78;">Gérer les activités</a>
+        <a href="admin-liste-enfants.php" class="quick-link" style="border-top:4px solid #7a86f1;">Liste des enfants</a>
         <a href="admin-inscription-parents.php" class="quick-link" style="border-top:4px solid #fdd835;">Inscriptions parents</a>
-        <a href="admin-responsables.php"        class="quick-link" style="border-top:4px solid #00e5ff;">Gérer les responsables</a>
+        <a href="admin-responsables.php" class="quick-link" style="border-top:4px solid #00e5ff;">Gérer les responsables</a>
     </div>
 
     <h3 style="font-family:'Baloo 2'; margin-bottom:15px;">Dernières inscriptions</h3>

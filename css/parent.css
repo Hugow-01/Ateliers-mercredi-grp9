@@ -155,3 +155,45 @@
     margin-left: 8px;
     vertical-align: middle;
 }
+
+/*=============parent-enfants CSS===================*/
+       .notif-admin-wrapper {
+            max-width: 900px;
+            margin: 18px auto 0;
+            padding: 0 20px;
+        }
+        .notif-admin-card {
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        }
+        .notif-admin-card.accepte {
+            background: #e8f5e9;
+            border-left: 5px solid #28a745;
+        }
+        .notif-admin-card.attente {
+            background: #fff8e1;
+            border-left: 5px solid #ffc107;
+        }
+        .notif-admin-card.annulation {
+            background: #fdecea;
+            border-left: 5px solid #e53e3e;
+        }
+        .notif-admin-card.modification {
+            background: #e3f2fd;
+            border-left: 5px solid #1565c0;
+        }
+        .notif-body  { flex: 1; }
+        .notif-title { font-weight: 800; font-size: .95rem; margin-bottom: 3px; }
+        .notif-msg   { font-size: .88rem; color: #444; line-height: 1.5; }
+        .notif-date  { font-size: .75rem; color: #999; margin-top: 4px; }
+        .notif-badge-new {
+            background: #ff5e78; color: white;
+            font-size: .68rem; font-weight: bold;
+            padding: 2px 8px; border-radius: 10px;
+            margin-left: 8px; vertical-align: middle;
+        }

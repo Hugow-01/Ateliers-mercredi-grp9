@@ -8,37 +8,6 @@
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        .badge-accepte {
-            background: #d4edda; color: #155724;
-            padding: 4px 12px; border-radius: 8px;
-            font-weight: bold; font-size: .82rem; white-space: nowrap;
-        }
-        .badge-attente {
-            background: #ffe0e0; color: #c0392b;
-            padding: 4px 12px; border-radius: 8px;
-            font-weight: bold; font-size: .82rem; white-space: nowrap;
-        }
-        .badge-pos {
-            background: #fff3cd; color: #856404;
-            padding: 2px 8px; border-radius: 6px;
-            font-size: .75rem; margin-left: 6px;
-        }
-        .btn-desins-admin {
-            border: none; border-radius: 8px;
-            padding: 5px 13px; font-size: .78rem;
-            font-weight: bold; cursor: pointer;
-            background: #e53e3e; color: white;
-            white-space: nowrap; transition: opacity .15s;
-        }
-        .btn-desins-admin:hover { opacity: .8; }
-        .count-bar { display: flex; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; font-size: .88rem; }
-        .count-chip { padding: 4px 14px; border-radius: 12px; font-weight: bold; }
-        .chip-total   { background: #e8f0fe; color: #1a5fb4; }
-        .chip-accepte { background: #d4edda; color: #155724; }
-        .chip-attente { background: #ffe0e0; color: #c0392b; }
-        td.action-cell { white-space: nowrap; }
-    </style>
 </head>
 <body>
 

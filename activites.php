@@ -8,119 +8,6 @@
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/activites.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-/* ── Panneau recommandations ── */
-.reco-panel {
-    display: none;
-    padding: 20px 24px 24px;
-    background: #f8f9ff;
-    border-top: 2px solid #e2e8f0;
-}
-.reco-header { margin-bottom: 16px; }
-.reco-header h4 { font-family: 'Baloo 2'; color: #1a1a2e; margin: 0 0 4px; font-size: 1.1rem; }
-.reco-header p  { color: #666; font-size: .85rem; margin: 0; }
-
-/* Filtres dans le panneau reco */
-.reco-filters {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-    padding: 12px;
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-}
-.reco-filters select,
-.reco-filters input {
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 1px solid #d0d0e0;
-    font-size: .83rem;
-    background: #fff;
-    color: #333;
-}
-.reco-filters label {
-    font-size: .78rem;
-    font-weight: 700;
-    color: #666;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.reco-filter-btn {
-    background: #1a1a2e;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: .82rem;
-    cursor: pointer;
-    font-weight: bold;
-}
-.reco-filter-btn:hover { background: #111; }
-.reco-filter-reset {
-    background: #eee;
-    color: #555;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: .82rem;
-    cursor: pointer;
-}
-
-.reco-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 14px;
-}
-.reco-card {
-    background: white;
-    border-radius: 12px;
-    padding: 14px;
-    border: 2px solid #e2e8f0;
-    transition: border-color .15s;
-}
-.reco-card:hover { border-color: #9ca3af; }
-.reco-card.best-match { border-color: #1a1a2e; }
-.reco-card-title { font-weight: 800; font-size: .92rem; color: #1a1a2e; margin-bottom: 8px; }
-.reco-card-meta  { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
-.reco-meta-chip  { font-size: .73rem; padding: 3px 8px; border-radius: 6px; }
-.chip-date  { background: #dbeafe; color: #1e40af; }
-.chip-time  { background: #f3e8ff; color: #7e22ce; }
-.chip-room  { background: #dcfce7; color: #166534; }
-.reco-fill-bar   { width: 100%; height: 6px; background: #e5e7eb; border-radius: 99px; overflow: hidden; margin-bottom: 5px; }
-.reco-fill-inner { height: 100%; border-radius: 99px; }
-.fill-low  { background: #22c55e; }
-.fill-mid  { background: #f59e0b; }
-.fill-high { background: #ef4444; }
-.reco-places { font-size: .75rem; color: #666; margin-bottom: 8px; }
-.reco-tags   { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
-.reco-tag    { font-size: .68rem; padding: 2px 7px; border-radius: 10px; font-weight: 700; }
-.tag-same-activity { background: #1a1a2e; color: white; }
-.tag-same-theme    { background: #4a4a6a; color: white; }
-.tag-age-match     { background: #2563eb; color: white; }
-.tag-close-time    { background: #7c3aed; color: white; }
-.tag-low-fill      { background: #059669; color: white; }
-.tag-similar-name  { background: #6b7280; color: white; }
-.reco-btn {
-    width: 100%;
-    background: #1a1a2e;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px;
-    font-size: .8rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-.reco-btn:hover   { background: #111; }
-.reco-btn:disabled { background: #ccc; cursor: not-allowed; }
-.reco-empty { color: #aaa; font-size: .85rem; padding: 20px; text-align: center; grid-column: 1/-1; }
-
-/* compteur de resultats */
-.reco-count { font-size: .8rem; color: #888; margin-bottom: 10px; }
-    </style>
 </head>
 <body>
 
@@ -161,6 +48,12 @@
     <input type="text" id="searchBar" class="search-bar" placeholder="  rechercher une activite...">
 </div>
 
+<?php
+// ── Tous les thèmes distincts de TOUTES les activités (pour le combobox de filtres) ──
+$tousLesThemes = array_values(array_unique(array_filter(array_column($activites, 'theme'))));
+sort($tousLesThemes);
+?>
+
 <div style="max-width:1200px; margin:0 auto; padding:0 20px 60px;">
 
 <?php foreach ($activites as $idx => $act):
@@ -183,9 +76,9 @@
                 else             $hasOk   = true;
             }
         }
-        if ($allFull)     $colorByDate[$date] = 'full';
+        if ($allFull) $colorByDate[$date] = 'full';
         elseif ($hasWait) $colorByDate[$date] = 'wait';
-        else              $colorByDate[$date] = 'ok';
+        else  $colorByDate[$date] = 'ok';
     }
 
     $recosByCreneauJs = [];
@@ -193,16 +86,6 @@
         $crId = (int)$cr['id'];
         if (isset($recommendationsData[$crId])) {
             $recosByCreneauJs[$crId] = $recommendationsData[$crId];
-        }
-    }
-
-    // Recup des themes distincts pour le filtre
-    $themesDispos = [];
-    foreach ($recommendationsData as $recs) {
-        foreach ($recs as $r) {
-            if (!empty($r['theme']) && !in_array($r['theme'], $themesDispos)) {
-                $themesDispos[] = $r['theme'];
-            }
         }
     }
 ?>
@@ -246,7 +129,6 @@
        <div class="inscr-box">
             <div style="font-size:11px; font-weight:bold; color:#555; margin-bottom:6px;">Choisir un enfant :</div>
 
-            <!-- SELECT ENFANT EN PREMIER -->
             <select name="id_enfant_top" id="sel-<?= $idx ?>" onchange="onEnfantChange_<?= $idx ?>()" style="width:100%; padding:7px; border-radius:8px; border:1px solid #bbb; margin-bottom:10px; font-size:.9rem; background:#fff; color:#111;">
                 <option value="">-- Choisir un enfant --</option>
                 <?php foreach ($enfants as $enf): ?>
@@ -294,26 +176,104 @@
 
         <!-- Filtres pour les suggestions -->
         <div class="reco-filters">
+            <!-- Thème -->
             <label>
-                Theme :
+                Thème :
                 <select id="filtre-theme-<?= $idx ?>">
-                    <option value="">Tous les themes</option>
+                    <option value="">Tous les thèmes</option>
+                    <?php foreach ($tousLesThemes as $th): ?>
+                    <option value="<?= htmlspecialchars($th) ?>"><?= htmlspecialchars($th) ?></option>
+                    <?php endforeach; ?>
                 </select>
             </label>
-            <label>
-                Date apres :
-                <input type="date" id="filtre-date-<?= $idx ?>">
-            </label>
-            <label>
+
+            <!-- Filtres de date : intervalle -->
+            <div class="filtre-date-group">
+                <span>Intervalle de dates :</span>
+                <div class="filtre-date-row">
+                    <!-- Calendrier FR picker : date début -->
+                    <div class="fr-cal-picker" id="picker-debut-<?= $idx ?>">
+                        <div class="fr-cal-input-display"
+                             id="picker-debut-<?= $idx ?>-display"
+                             onclick="toggleFrCal('picker-debut-<?= $idx ?>')">
+                            <span id="picker-debut-label-<?= $idx ?>">Date début</span>
+                        </div>
+                        <div class="fr-cal-dropdown" id="picker-debut-<?= $idx ?>-cal">
+                            <div class="fr-cal-nav">
+                                <button type="button" onclick="frCalPrev('picker-debut-<?= $idx ?>')">&#9668;</button>
+                                <div class="fr-cal-month-label" id="picker-debut-<?= $idx ?>-month"></div>
+                                <button type="button" onclick="frCalNext('picker-debut-<?= $idx ?>')">&#9658;</button>
+                            </div>
+                            <div class="fr-cal-grid" id="picker-debut-<?= $idx ?>-grid"></div>
+                            <button type="button" class="fr-cal-clear"
+                                    onclick="frCalClear('picker-debut-<?= $idx ?>', 'filtre-date-debut-<?= $idx ?>', 'picker-debut-label-<?= $idx ?>', 'Date début')">
+                                Effacer
+                            </button>
+                        </div>
+                        <input type="hidden" id="filtre-date-debut-<?= $idx ?>">
+                    </div>
+                    <small>→</small>
+                    <!-- Calendrier FR picker : date fin -->
+                    <div class="fr-cal-picker" id="picker-fin-<?= $idx ?>">
+                        <div class="fr-cal-input-display"
+                             id="picker-fin-<?= $idx ?>-display"
+                             onclick="toggleFrCal('picker-fin-<?= $idx ?>')">
+                            <span id="picker-fin-label-<?= $idx ?>">Date fin</span>
+                        </div>
+                        <div class="fr-cal-dropdown" id="picker-fin-<?= $idx ?>-cal">
+                            <div class="fr-cal-nav">
+                                <button type="button" onclick="frCalPrev('picker-fin-<?= $idx ?>')">&#9668;</button>
+                                <div class="fr-cal-month-label" id="picker-fin-<?= $idx ?>-month"></div>
+                                <button type="button" onclick="frCalNext('picker-fin-<?= $idx ?>')">&#9658;</button>
+                            </div>
+                            <div class="fr-cal-grid" id="picker-fin-<?= $idx ?>-grid"></div>
+                            <button type="button" class="fr-cal-clear"
+                                    onclick="frCalClear('picker-fin-<?= $idx ?>', 'filtre-date-fin-<?= $idx ?>', 'picker-fin-label-<?= $idx ?>', 'Date fin')">
+                                Effacer
+                            </button>
+                        </div>
+                        <input type="hidden" id="filtre-date-fin-<?= $idx ?>">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date exacte -->
+            <div class="filtre-date-group">
+                <span>Date exacte :</span>
+                <div class="fr-cal-picker" id="picker-exacte-<?= $idx ?>">
+                    <div class="fr-cal-input-display"
+                         id="picker-exacte-<?= $idx ?>-display"
+                         onclick="toggleFrCal('picker-exacte-<?= $idx ?>')">
+                        <span id="picker-exacte-label-<?= $idx ?>">Choisir</span>
+                    </div>
+                    <div class="fr-cal-dropdown" id="picker-exacte-<?= $idx ?>-cal">
+                        <div class="fr-cal-nav">
+                            <button type="button" onclick="frCalPrev('picker-exacte-<?= $idx ?>')">&#9668;</button>
+                            <div class="fr-cal-month-label" id="picker-exacte-<?= $idx ?>-month"></div>
+                            <button type="button" onclick="frCalNext('picker-exacte-<?= $idx ?>')">&#9658;</button>
+                        </div>
+                        <div class="fr-cal-grid" id="picker-exacte-<?= $idx ?>-grid"></div>
+                        <button type="button" class="fr-cal-clear"
+                                onclick="frCalClear('picker-exacte-<?= $idx ?>', 'filtre-date-exacte-<?= $idx ?>', 'picker-exacte-label-<?= $idx ?>', 'Choisir')">
+                            Effacer
+                        </button>
+                    </div>
+                    <input type="hidden" id="filtre-date-exacte-<?= $idx ?>">
+                </div>
+            </div>
+
+            <!-- Cases à cocher -->
+            <label class="inline-label">
                 <input type="checkbox" id="filtre-age-<?= $idx ?>">
-                Meme tranche d'age
+                Même tranche d'âge
             </label>
-            <label>
+            <label class="inline-label">
                 <input type="checkbox" id="filtre-moins-rempli-<?= $idx ?>">
-                Les moins remplis
+                Les moins remplis (&lt;50%)
             </label>
+
             <button class="reco-filter-btn" onclick="appliquerFiltres_<?= $idx ?>()">Filtrer</button>
-            <button class="reco-filter-reset" onclick="resetFiltres_<?= $idx ?>()">Reinitialiser</button>
+            <button class="reco-filter-reset" onclick="resetFiltres_<?= $idx ?>()">Réinitialiser</button>
         </div>
 
         <div class="reco-count" id="reco-count-<?= $idx ?>"></div>
@@ -328,10 +288,10 @@
 <script>
 (function(){
 
-const byDate_<?= $idx ?>      = <?= json_encode($byDate) ?>;
+const byDate_<?= $idx ?> = <?= json_encode($byDate) ?>;
 const colorByDate_<?= $idx ?> = <?= json_encode($colorByDate) ?>;
-const mesIns_<?= $idx ?>      = <?= json_encode($mesInscriptions) ?>;
-const mesAtt_<?= $idx ?>      = <?= json_encode($mesAttentes) ?>;
+const mesIns_<?= $idx ?> = <?= json_encode($mesInscriptions) ?>;
+const mesAtt_<?= $idx ?> = <?= json_encode($mesAttentes) ?>;
 const recosByCreneau_<?= $idx ?> = <?= json_encode($recosByCreneauJs) ?>;
 
 const moisFR = ['','Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
@@ -346,34 +306,16 @@ function formatDateLong(ds){
     return jours[j]+' '+parseInt(d)+' '+moisCourt[parseInt(m)]+' '+y;
 }
 
-const raisonLabels = {
-    'same_activity': { text:'Meme atelier',       cls:'tag-same-activity' },
-    'same_theme':    { text:'Meme theme',          cls:'tag-same-theme'    },
-    'age_match':     { text:'Age adapte',          cls:'tag-age-match'     },
-    'close_time':    { text:'Horaire proche',      cls:'tag-close-time'    },
-    'low_fill':      { text:'Peu rempli',          cls:'tag-low-fill'      },
-    'similar_name':  { text:'Activite similaire',  cls:'tag-similar-name'  },
-};
+function formatDateFR(ds){
+    if(!ds) return '';
+    const[y,m,d]=ds.split('-');
+    return pad(parseInt(d))+'/'+pad(parseInt(m))+'/'+y;
+}
 
 let cy=<?= $initY ?>, cm=<?= $initM ?>;
 let currentCreneauId = null;
 let currentEnfantId  = null;
-// Stocker toutes les recos pour filtrage cote client
 let allRecos = [];
-
-// Remplir le select des themes au chargement
-(function remplirThemes(){
-    const sel = document.getElementById('filtre-theme-<?= $idx ?>');
-    const themes = new Set();
-    Object.values(recosByCreneau_<?= $idx ?>).forEach(recs => {
-        recs.forEach(r => { if(r.theme) themes.add(r.theme); });
-    });
-    themes.forEach(t => {
-        const opt = document.createElement('option');
-        opt.value = t; opt.textContent = t;
-        sel.appendChild(opt);
-    });
-})();
 
 function renderCal(){
     document.getElementById('cal-label-<?= $idx ?>').textContent = moisFR[cm]+' '+cy;
@@ -441,14 +383,14 @@ function renderSlots(date){
         else if(enAtt) cls+='en-attente';
         else if(full)  cls+='full';
         else if(quasi) cls+='wait';
-        else           cls+='ok';
+        else cls+='ok';
 
         let badge='';
         if(confirme)   badge='<span class="badge badge-conf">Inscrit</span>';
         else if(enAtt) badge='<span class="badge badge-att">File #'+enAtt+'</span>';
         else if(full)  badge='<span class="badge badge-full">Complet</span>';
         else if(quasi) badge='<span class="badge badge-wait">Presque complet</span>';
-        else           badge='<span class="badge badge-ok">Disponible</span>';
+        else badge='<span class="badge badge-ok">Disponible</span>';
 
         const restantes=Math.max(0,cap-nb);
         div.className=cls;
@@ -462,7 +404,6 @@ function renderSlots(date){
 }
 
 function selectSlot(cr, el) {
-    // ✅ CORRECTION 1 : toujours relire la valeur actuelle du select
     const selEnf = parseInt(document.getElementById('sel-<?= $idx ?>').value) || 0;
 
     document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s=>s.classList.remove('selected'));
@@ -473,14 +414,10 @@ function selectSlot(cr, el) {
     const full=nb>=cap;
     const confirme=selEnf&&mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
     const enAtt=selEnf&&mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
-
     resetActions();
     hideReco();
-
-    // ✅ CORRECTION 2 : alimenter les deux champs cachés du formulaire d'inscription
     document.getElementById('creneau-<?= $idx ?>').value       = cr.id;
     document.getElementById('hidden-enfant-<?= $idx ?>').value = selEnf;
-
     currentCreneauId = cr.id;
     currentEnfantId  = selEnf;
 
@@ -508,13 +445,15 @@ function selectSlot(cr, el) {
     }
 }
 
-// Appliquer les filtres sur les recos
+/* ── Filtres ── */
 function getFilters(){
     return {
         theme: document.getElementById('filtre-theme-<?= $idx ?>').value,
-        date:  document.getElementById('filtre-date-<?= $idx ?>').value,
-        age:   document.getElementById('filtre-age-<?= $idx ?>').checked,
-        moinsRempli: document.getElementById('filtre-moins-rempli-<?= $idx ?>').checked,
+        dateDebut:  document.getElementById('filtre-date-debut-<?= $idx ?>').value,
+        dateFin: document.getElementById('filtre-date-fin-<?= $idx ?>').value,
+        dateExacte: document.getElementById('filtre-date-exacte-<?= $idx ?>').value,
+        age:  document.getElementById('filtre-age-<?= $idx ?>').checked,
+        moinsRempli:document.getElementById('filtre-moins-rempli-<?= $idx ?>').checked,
     };
 }
 
@@ -524,9 +463,15 @@ function filtrerRecos(recos, filtres, selEnf){
     if(filtres.theme){
         res = res.filter(r => r.theme === filtres.theme);
     }
-    if(filtres.date){
-        res = res.filter(r => r.date >= filtres.date);
+
+    // Date exacte prime sur l'intervalle
+    if(filtres.dateExacte){
+        res = res.filter(r => r.date === filtres.dateExacte);
+    } else {
+        if(filtres.dateDebut) res = res.filter(r => r.date >= filtres.dateDebut);
+        if(filtres.dateFin)   res = res.filter(r => r.date <= filtres.dateFin);
     }
+
     if(filtres.age && selEnf){
         const opt = document.querySelector('#sel-<?= $idx ?> option[value="'+selEnf+'"]');
         const age = opt ? parseInt(opt.dataset.age) : 0;
@@ -539,8 +484,8 @@ function filtrerRecos(recos, filtres, selEnf){
             });
         }
     }
+
     if(filtres.moinsRempli){
-        // garder seulement les creneaux avec taux de remplissage < 50%
         res = res.filter(r => parseInt(r.taux_remplissage) < 50);
     }
 
@@ -556,8 +501,10 @@ window.appliquerFiltres_<?= $idx ?> = function(){
 
 window.resetFiltres_<?= $idx ?> = function(){
     document.getElementById('filtre-theme-<?= $idx ?>').value = '';
-    document.getElementById('filtre-date-<?= $idx ?>').value  = '';
-    document.getElementById('filtre-age-<?= $idx ?>').checked = false;
+    frCalClear('picker-debut-<?= $idx ?>',  'filtre-date-debut-<?= $idx ?>',  'picker-debut-label-<?= $idx ?>',  'Date début');
+    frCalClear('picker-fin-<?= $idx ?>',    'filtre-date-fin-<?= $idx ?>',    'picker-fin-label-<?= $idx ?>',    'Date fin');
+    frCalClear('picker-exacte-<?= $idx ?>', 'filtre-date-exacte-<?= $idx ?>', 'picker-exacte-label-<?= $idx ?>', 'Choisir');
+    document.getElementById('filtre-age-<?= $idx ?>').checked          = false;
     document.getElementById('filtre-moins-rempli-<?= $idx ?>').checked = false;
     if(currentCreneauId !== null){
         renderRecoGrid(allRecos, currentEnfantId);
@@ -566,7 +513,7 @@ window.resetFiltres_<?= $idx ?> = function(){
 
 function showReco(creneauId, selEnf){
     const panel = document.getElementById('reco-<?= $idx ?>');
-    const sub   = document.getElementById('reco-subtitle-<?= $idx ?>');
+    const sub = document.getElementById('reco-subtitle-<?= $idx ?>');
     const recos = recosByCreneau_<?= $idx ?>[creneauId] || [];
 
     allRecos = recos;
@@ -595,36 +542,27 @@ function renderRecoGrid(recos, selEnf){
 
     if(!recos.length){
         count.textContent = '';
-        grid.innerHTML = '<div class="reco-empty">Aucun creneau ne correspond a vos filtres.<br>Essayez de les elargir ou rejoignez la liste d\'attente.</div>';
+        grid.innerHTML = '<div class="reco-empty">Aucun créneau disponible.<br>Rejoignez la liste d\'attente.</div>';
         return;
     }
 
-    count.textContent = recos.length + ' creneau(x) trouve(s)';
+    count.textContent = recos.length + ' créneau(x) trouvé(s)';
 
     recos.forEach((r, i) => {
-        const taux   = parseInt(r.taux_remplissage) || 0;
+        const taux = parseInt(r.taux_remplissage) || 0;
         const places = parseInt(r.places_restantes) || 0;
         const dateF  = formatDateLong(r.date);
         const fillCls = taux < 40 ? 'fill-low' : taux < 75 ? 'fill-mid' : 'fill-high';
-        const isBest = (i === 0);
-
-        const tagsHtml = (r.raisons || []).map(reason => {
-            const lbl = raisonLabels[reason];
-            return lbl ? '<span class="reco-tag '+lbl.cls+'">'+lbl.text+'</span>' : '';
-        }).join('');
-
-        const salleHtml = r.id_salle
-            ? '<span class="reco-meta-chip chip-room">Salle '+r.id_salle+'</span>'
-            : '';
+        const salle  = r.id_salle ? ' · Salle ' + r.id_salle : '';
 
         let btnHtml = '';
-        const alreadyIn   = selEnf && mesIns_<?= $idx ?>[selEnf] && mesIns_<?= $idx ?>[selEnf].includes(r.id);
+        const alreadyIn = selEnf && mesIns_<?= $idx ?>[selEnf] && mesIns_<?= $idx ?>[selEnf].includes(r.id);
         const alreadyWait = selEnf && mesAtt_<?= $idx ?>[selEnf] && mesAtt_<?= $idx ?>[selEnf][r.id];
 
         if(alreadyIn){
-            btnHtml = '<button class="reco-btn" disabled>Deja inscrit</button>';
+            btnHtml = '<button class="reco-btn" disabled>Déjà inscrit</button>';
         } else if(alreadyWait){
-            btnHtml = '<button class="reco-btn" disabled>Deja en attente</button>';
+            btnHtml = '<button class="reco-btn" disabled>Déjà en attente</button>';
         } else if(!selEnf){
             btnHtml = '<button class="reco-btn" disabled>Choisir un enfant d\'abord</button>';
         } else {
@@ -632,22 +570,17 @@ function renderRecoGrid(recos, selEnf){
                 + '<input type="hidden" name="action" value="inscrire">'
                 + '<input type="hidden" name="id_creneau" value="'+r.id+'">'
                 + '<input type="hidden" name="id_enfant" value="'+selEnf+'">'
-                + '<button type="submit" class="reco-btn">+ Inscrire sur ce creneau</button>'
+                + '<button type="submit" class="reco-btn">+ Inscrire sur ce créneau</button>'
                 + '</form>';
         }
 
         const card = document.createElement('div');
-        card.className = 'reco-card' + (isBest ? ' best-match' : '');
+        card.className = 'reco-card' + (i === 0 ? ' best-match' : '');
         card.innerHTML =
             '<div class="reco-card-title">'+escHtml(r.nom_activite)+'</div>'
-            +'<div class="reco-card-meta">'
-            +'<span class="reco-meta-chip chip-date">'+dateF+'</span>'
-            +'<span class="reco-meta-chip chip-time">'+r.debut.substring(0,5)+' - '+r.fin.substring(0,5)+'</span>'
-            +salleHtml
-            +'</div>'
+            +'<div class="reco-card-meta">'+dateF+'<br>'+r.debut.substring(0,5)+' – '+r.fin.substring(0,5)+escHtml(salle)+'</div>'
             +'<div class="reco-fill-bar"><div class="reco-fill-inner '+fillCls+'" style="width:'+taux+'%"></div></div>'
-            +'<div class="reco-places"><strong>'+places+' place'+(places>1?'s':'')+' disponible'+(places>1?'s':'')+'</strong> &middot; '+taux+'% rempli</div>'
-            +'<div class="reco-tags">'+tagsHtml+'</div>'
+            +'<div class="reco-places"><strong>'+places+' place'+(places>1?'s':'')+' disponible'+(places>1?'s':'')+'</strong> · '+taux+'% rempli</div>'
             +btnHtml;
         grid.appendChild(card);
     });
@@ -682,6 +615,137 @@ renderCal();
 <div style="text-align:center; padding:60px; color:#aaa;">Aucune activite disponible.</div>
 <?php endif; ?>
 </div>
+
+<!-- CALENDRIER PICKER FR 
+     Utilisé pour les filtres de dates dans les recommandations-->
+<script>
+(function(){
+    const MOIS_FR = ['','Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+    // État par picker : { cy, cm }
+    const _frCalState = {};
+
+    function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+    function frCalInit(pickerId){
+        if(_frCalState[pickerId]) return;
+        const now = new Date();
+        _frCalState[pickerId] = { cy: now.getFullYear(), cm: now.getMonth()+1 };
+        frCalRender(pickerId);
+    }
+
+    function frCalRender(pickerId){
+        const st = _frCalState[pickerId];
+
+        const monthEl = document.getElementById(pickerId + '-month');
+        const gridEl  = document.getElementById(pickerId + '-grid');
+        if(!monthEl || !gridEl) return;
+
+        monthEl.textContent = MOIS_FR[st.cm] + ' ' + st.cy;
+        gridEl.innerHTML = '';
+
+        ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].forEach(d => {
+            const s = document.createElement('span');
+            s.className = 'fr-cal-dl'; s.textContent = d;
+            gridEl.appendChild(s);
+        });
+
+        const firstDay = new Date(st.cy, st.cm-1, 1).getDay();
+        const daysInMonth = new Date(st.cy, st.cm, 0).getDate();
+        const hiddenEl = document.getElementById(extractHiddenId(pickerId));
+        const selectedVal = hiddenEl ? hiddenEl.value : '';
+
+        for(let e = 0; e < firstDay; e++){
+            const s = document.createElement('span');
+            s.className = 'fr-cal-dj empty';
+            gridEl.appendChild(s);
+        }
+        for(let d = 1; d <= daysInMonth; d++){
+            const ds = st.cy + '-' + pad(st.cm) + '-' + pad(d);
+            const s  = document.createElement('span');
+            s.textContent = d;
+            s.className   = 'fr-cal-dj selectable' + (ds === selectedVal ? ' selected' : '');
+            s.onclick = () => frCalSelect(pickerId, ds);
+            gridEl.appendChild(s);
+        }
+    }
+
+    function extractIdx(pickerId){
+        const parts = pickerId.split('-');
+        return parts[parts.length - 1];
+    }
+
+    function extractHiddenId(pickerId){
+        const idx = extractIdx(pickerId);
+        if(pickerId.includes('-debut-'))   return 'filtre-date-debut-'  + idx;
+        if(pickerId.includes('-fin-'))     return 'filtre-date-fin-'    + idx;
+        if(pickerId.includes('-exacte-')) return 'filtre-date-exacte-' + idx;
+        return '';
+    }
+    function extractLabelId(pickerId){
+        const idx = extractIdx(pickerId);
+        if(pickerId.includes('-debut-'))   return 'picker-debut-label-'  + idx;
+        if(pickerId.includes('-fin-'))     return 'picker-fin-label-'    + idx;
+        if(pickerId.includes('-exacte-')) return 'picker-exacte-label-' + idx;
+        return '';
+    }
+
+    function frCalSelect(pickerId, ds){
+        const hiddenId = extractHiddenId(pickerId);
+        const labelId= extractLabelId(pickerId);
+        const hiddenEl= document.getElementById(hiddenId);
+        const labelEl= document.getElementById(labelId);
+        if(hiddenEl) hiddenEl.value = ds;
+
+        const parts = ds.split('-');
+        if(labelEl) labelEl.textContent = pad(parseInt(parts[2])) + '/' + pad(parseInt(parts[1])) + '/' + parts[0];
+
+        const dropEl = document.getElementById(pickerId + '-cal');
+        if(dropEl) dropEl.classList.remove('open');
+
+        frCalRender(pickerId);
+    }
+
+    window.toggleFrCal = function(pickerId){
+        frCalInit(pickerId);
+const dropEl = document.getElementById(pickerId + '-cal');
+        if(!dropEl) return;
+     const isOpen = dropEl.classList.contains('open');
+        document.querySelectorAll('.fr-cal-dropdown.open').forEach(el => el.classList.remove('open'));
+        if(!isOpen) dropEl.classList.add('open');
+    };
+
+    window.frCalPrev = function(pickerId){
+        frCalInit(pickerId);
+        const st = _frCalState[pickerId];
+        st.cm--;
+        if(st.cm < 1){ st.cm = 12; st.cy--; }
+        frCalRender(pickerId);
+    };
+
+    window.frCalNext = function(pickerId){
+        frCalInit(pickerId);
+        const st = _frCalState[pickerId];
+        st.cm++;
+        if(st.cm > 12){ st.cm = 1; st.cy++; }
+        frCalRender(pickerId);
+    };
+
+    window.frCalClear = function(pickerId, hiddenId, labelId, defaultLabel){
+        const hiddenEl = document.getElementById(hiddenId);
+        const labelEl = document.getElementById(labelId);
+        if(hiddenEl) hiddenEl.value = '';
+        if(labelEl) labelEl.textContent = defaultLabel || '...';
+        if(_frCalState[pickerId]) frCalRender(pickerId);
+    };
+
+    document.addEventListener('click', function(e){
+        if(!e.target.closest('.fr-cal-picker')){
+            document.querySelectorAll('.fr-cal-dropdown.open').forEach(el => el.classList.remove('open'));
+        }
+    });
+})();
+</script>
 
 <script>
 document.getElementById('searchBar').addEventListener('input', function(){

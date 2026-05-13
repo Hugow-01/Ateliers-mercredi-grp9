@@ -8,48 +8,6 @@
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/parent.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        .notif-admin-wrapper {
-            max-width: 900px;
-            margin: 18px auto 0;
-            padding: 0 20px;
-        }
-        .notif-admin-card {
-            border-radius: 12px;
-            padding: 14px 18px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.08);
-        }
-        .notif-admin-card.accepte {
-            background: #e8f5e9;
-            border-left: 5px solid #28a745;
-        }
-        .notif-admin-card.attente {
-            background: #fff8e1;
-            border-left: 5px solid #ffc107;
-        }
-        .notif-admin-card.annulation {
-            background: #fdecea;
-            border-left: 5px solid #e53e3e;
-        }
-        .notif-admin-card.modification {
-            background: #e3f2fd;
-            border-left: 5px solid #1565c0;
-        }
-        .notif-body  { flex: 1; }
-        .notif-title { font-weight: 800; font-size: .95rem; margin-bottom: 3px; }
-        .notif-msg   { font-size: .88rem; color: #444; line-height: 1.5; }
-        .notif-date  { font-size: .75rem; color: #999; margin-top: 4px; }
-        .notif-badge-new {
-            background: #ff5e78; color: white;
-            font-size: .68rem; font-weight: bold;
-            padding: 2px 8px; border-radius: 10px;
-            margin-left: 8px; vertical-align: middle;
-        }
-    </style>
 </head>
 <body>
 
@@ -91,8 +49,8 @@ if ($nbIns > 0): ?>
         <span class="notif-badge-new"><?= count($notifications) ?> nouvelle(s)</span>
     </h3>
     <?php foreach ($notifications as $notif):
-        $isAccepte     = ($notif['type'] === 'accepte');
-        $isAnnulation  = ($notif['type'] === 'annulation');
+        $isAccepte = ($notif['type'] === 'accepte');
+        $isAnnulation = ($notif['type'] === 'annulation');
         $isModification= ($notif['type'] === 'modification');
         $dateF = date('d/m/Y a H:i', strtotime($notif['date_creation']));
         $cssClass = $isAccepte ? 'accepte' : ($isAnnulation ? 'annulation' : ($isModification ? 'modification' : 'attente'));
@@ -144,16 +102,16 @@ if ($nbIns > 0): ?>
             foreach (explode(';;', $enfant['activites_raw']) as $act) {
                 $parts = explode('|', $act);
                 if (count($parts) >= 8 && $parts[0]) {
-                    $dp     = explode('-', $parts[1]);
-                    $dateF  = ltrim($dp[2] ?? '', '0') . ' ' . ($moisFR[$dp[1] ?? ''] ?? '') . ' ' . ($dp[0] ?? '');
+                    $dp = explode('-', $parts[1]);
+                    $dateF = ltrim($dp[2] ?? '', '0') . ' ' . ($moisFR[$dp[1] ?? ''] ?? '') . ' ' . ($dp[0] ?? '');
                     $activitesList[] = [
-                        'nom'           => $parts[0],
-                        'date'          => $dateF,
-                        'heure'         => substr($parts[2], 0, 5),
-                        'id_creneau'    => (int)$parts[3],
-                        'salle'         => $parts[4],
-                        'statut'        => $parts[5] === 'inscrit' ? 'accepte' : "liste d'attente",
-                        'position'      => (int)$parts[6],
+                        'nom' => $parts[0],
+                        'date' => $dateF,
+                        'heure' => substr($parts[2], 0, 5),
+                        'id_creneau' => (int)$parts[3],
+                        'salle' => $parts[4],
+                        'statut' => $parts[5] === 'inscrit' ? 'accepte' : "liste d'attente",
+                        'position'=> (int)$parts[6],
                         'total_attente' => (int)$parts[7],
                     ];
                 }
@@ -207,7 +165,7 @@ if ($nbIns > 0): ?>
                     &nbsp;<span class="salle-badge">Position <?= htmlspecialchars($act['position']) ?>/<?= htmlspecialchars($act['total_attente']) ?></span>
                     <?php endif; ?>
                     <form method="POST" action="activites.php" onsubmit="return confirm('Se desinscrire de cette activite ?')">
-                        <input type="hidden" name="action"     value="<?= $act['statut'] === 'accepte' ? 'desinscrire' : 'quitter_attente' ?>">
+                        <input type="hidden" name="action"value="<?= $act['statut'] === 'accepte' ? 'desinscrire' : 'quitter_attente' ?>">
                         <input type="hidden" name="id_creneau" value="<?= $act['id_creneau'] ?>">
                         <input type="hidden" name="id_enfant"  value="<?= $enfant['id'] ?>">
                         <button type="submit" class="btn-desins-card"><?= $act['statut'] === 'accepte' ? 'Se desinscrire' : 'Quitter la liste' ?></button>
