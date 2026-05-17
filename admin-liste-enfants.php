@@ -1,27 +1,19 @@
-<?php require_once 'php/admin-liste-enfants.php'; ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des enfants - Admin</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/admin.css">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+<?php
+/**
+ * admin-liste-enfants.php — Vue d'ensemble des inscriptions par activité
+ *
+ * Tableau filtrable (activité, date, nom enfant, email parent, statut).
+ * Permet aussi de désinscrire un enfant directement depuis cette vue.
+ * Une désinscription confirmée promeut automatiquement le 1er de la liste d'attente.
+ */
 
-<header class="admin-header">
-    <h1>Espace administrateur</h1>
-    <nav>
-        <a href="admin-dashboard.php">Tableau de bord</a>
-        <a href="admin-liste-enfants.php" style="text-decoration:underline;">Liste des enfants</a>
-        <a href="admin-activites.php">Activités</a>
-        <a href="admin-comptes.php">Comptes parents</a>
-        <a href="admin-inscription-parents.php">Inscriptions</a>
-        <a href="deconnexion.php" style="color:#c0392b;">Se déconnecter</a>
-    </nav>
-</header>
+require_once 'php/admin-liste-enfants.php'; // Charge $inscriptions, les filtres actifs et $activites
+
+$pageTitle       = 'Liste des enfants - Admin';
+$activeAdminPage = 'enfants';
+
+require_once 'includes/header-admin.php';
+?>
 
 <div class="container" style="padding-top:30px; padding-bottom:60px;">
     <h2 style="font-family:'Baloo 2'; font-size:2rem; margin-bottom:20px;">
@@ -32,7 +24,7 @@
         <div class="alert alert-<?= $messageType ?>"><?= $message ?></div>
     <?php endif; ?>
 
-    <!-- ══ Filtres ══ -->
+    <!-- ══ Filtres de recherche ══ -->
     <form method="GET" style="display:flex; gap:12px; align-items:flex-end; margin-bottom:20px; flex-wrap:wrap;">
         <div class="form-group" style="flex:1; min-width:180px; margin-bottom:0;">
             <label>Activité</label>
@@ -63,16 +55,18 @@
         <div class="form-group" style="margin-bottom:0;">
             <label>Statut</label>
             <select name="statut">
-                <option value=""        <?= $filtreStatut === ''        ? 'selected' : '' ?>>Tous</option>
+                <option value=""      <?= $filtreStatut === ''       ? 'selected' : '' ?>>Tous</option>
                 <option value="accepte" <?= $filtreStatut === 'accepte' ? 'selected' : '' ?>>Accepté uniquement</option>
                 <option value="attente" <?= $filtreStatut === 'attente' ? 'selected' : '' ?>>Liste d'attente uniquement</option>
             </select>
         </div>
         <button type="submit" class="btn btn-primary btn-small">Filtrer</button>
-        <a href="admin-liste-enfants.php" class="btn btn-small" style="background:#eee; color:#333;">Réinitialiser</a>
+        <a href="admin-liste-enfants.php" class="btn btn-small" style="background:#eee; color:#333;">
+            Réinitialiser
+        </a>
     </form>
 
-    <!-- ══ Compteurs ══ -->
+    <!-- ══ Compteurs récapitulatifs ══ -->
     <?php
         $nbTotal   = count($inscriptions);
         $nbAccepte = count(array_filter($inscriptions, fn($r) => $r['statut_type'] === 'accepte'));
@@ -80,40 +74,30 @@
     ?>
     <div class="count-bar">
         <span class="count-chip chip-total">Total affiché : <?= $nbTotal ?></span>
-        <span class="count-chip chip-accepte">✔ Acceptés : <?= $nbAccepte ?></span>
-        <span class="count-chip chip-attente">⏳ En attente : <?= $nbAttente ?></span>
+        <span class="count-chip chip-accepte">Acceptés : <?= $nbAccepte ?></span>
+        <span class="count-chip chip-attente">En attente : <?= $nbAttente ?></span>
     </div>
 
-    <!-- ══ Tableau ══ -->
+    <!-- ══ Tableau des inscriptions ══ -->
     <div class="card">
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Âge</th>
-                        <th>Email parent</th>
-                        <th>Activité</th>
-                        <th>Date</th>
-                        <th>Horaire</th>
-                        <th>Statut</th>
-                        <th>Action</th>
+                        <th>Nom</th><th>Prénom</th><th>Âge</th><th>Email parent</th>
+                        <th>Activité</th><th>Date</th><th>Horaire</th><th>Statut</th><th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($inscriptions)): ?>
                     <tr>
-                        <td colspan="9" style="text-align:center; color:#aaa; padding:30px;">
-                            Aucun résultat
-                        </td>
+                        <td colspan="9" style="text-align:center; color:#aaa; padding:30px;">Aucun résultat</td>
                     </tr>
                     <?php endif; ?>
 
                     <?php foreach ($inscriptions as $ins):
                         $isAccepte = ($ins['statut_type'] === 'accepte');
-                        // Formater la date en JJ/MM/AAAA
-                        $dateAff = date('d/m/Y', strtotime($ins['date']));
+                        $dateAff   = date('d/m/Y', strtotime($ins['date']));
                     ?>
                     <tr>
                         <td><?= htmlspecialchars($ins['nom']) ?></td>
@@ -123,29 +107,27 @@
                         <td><?= htmlspecialchars($ins['activite']) ?></td>
                         <td><?= $dateAff ?></td>
                         <td><?= substr($ins['debut'],0,5) ?> – <?= substr($ins['fin'],0,5) ?></td>
-
                         <td>
                             <?php if ($isAccepte): ?>
-                                <span class="badge-accepte">✔ Accepté</span>
+                                <span class="badge-accepte">Accepté</span>
                             <?php else: ?>
-                                <span class="badge-attente">⏳ Liste d'attente</span>
+                                <span class="badge-attente">Liste d'attente</span>
                                 <span class="badge-pos">#<?= htmlspecialchars($ins['position']) ?></span>
                             <?php endif; ?>
                         </td>
-
                         <td class="action-cell">
+                            <!-- Désinscription admin avec confirmation JS -->
                             <form method="POST"
                                   onsubmit="return confirm('Désinscrire <?= htmlspecialchars(addslashes($ins['prenom'].' '.$ins['nom'])) ?> de ce créneau ?\nLa famille sera notifiée.')">
                                 <input type="hidden" name="action"      value="desinscrire_admin">
                                 <input type="hidden" name="id_enfant"   value="<?= $ins['id_enfant'] ?>">
                                 <input type="hidden" name="id_creneau"  value="<?= $ins['id_creneau'] ?>">
                                 <input type="hidden" name="statut_type" value="<?= $ins['statut_type'] ?>">
-                                <?php foreach (['activite'=>$filtreActivite,'date'=>$filtreDate,'statut'=>$filtreStatut,'nom_enfant'=>$filtreNomEnf,'email_parent'=>$filtreEmail] as $k=>$v): if ($v): ?>
+                                <?php /* Repasser les filtres actifs pour rester sur la même vue après action */ ?>
+                                <?php foreach (['activite'=>$filtreActivite,'date'=>$filtreDate,'statut'=>$filtreStatut,'nom_enfant'=>$filtreNomEnf,'email_parent'=>$filtreEmail] as $k=>$v): if($v): ?>
                                 <input type="hidden" name="<?= $k ?>" value="<?= htmlspecialchars($v) ?>">
                                 <?php endif; endforeach; ?>
-                                <button type="submit" class="btn-desins-admin">
-                                    ✕ Désinscrire
-                                </button>
+                                <button type="submit" class="btn-desins-admin">✕ Désinscrire</button>
                             </form>
                         </td>
                     </tr>

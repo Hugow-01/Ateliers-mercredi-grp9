@@ -60,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "Une activité portant ce nom existe déjà.";
                 $messageType = 'error';
             } else {
-                // Vérifier si la colonne image existe
                 try {
                     $db->query("SELECT image FROM Activite LIMIT 1");
                 } catch (PDOException $e) {
@@ -104,6 +103,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
+            // Récupérer les anciennes valeurs pour comparer
+            $ancienneActivite = $db->prepare("SELECT nom, capacite, syllabus, theme, tranche_age FROM Activite WHERE nom = ?");
+            $ancienneActivite->execute([$nomOriginal]);
+            $ancienne = $ancienneActivite->fetch();
+
             // Gérer l'image
             $imgPath = null;
             if (!empty($_FILES['image']['tmp_name'])) {
@@ -120,14 +124,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 )->execute([$nouveauNom, $cap, $syl, $theme, $tranche_age, $nomOriginal]);
             }
 
-            $creneauxActivite = $db->prepare("SELECT id FROM Creneau WHERE nom_activite = ?");
-            $creneauxActivite->execute([$nouveauNom]);
-            foreach ($creneauxActivite->fetchAll() as $cr) {
-                $msgModif = "L'activité \"$nomOriginal\" a été modifiée par l'administration.\n\n"
-                    . "Nouveau nom : $nouveauNom\n"
-                    . "Nouvelle capacité : $cap places\n\n"
-                    . "Votre inscription reste valide. Connectez-vous pour voir les détails.";
-                notifierCreneauModifie($db, (int)$cr['id'], 'modification', $msgModif);
+            // ── Construire un message précis listant les changements ──
+            $changements = [];
+            if ($ancienne) {
+                if ($nouveauNom !== $ancienne['nom']) {
+                    $changements[] = "• Nom : « {$ancienne['nom']} » → « $nouveauNom »";
+                }
+                if ((int)$cap !== (int)$ancienne['capacite']) {
+                    $changements[] = "• Capacité : {$ancienne['capacite']} places → $cap places";
+                }
+                if ($theme !== ($ancienne['theme'] ?? '')) {
+                    $changements[] = "• Thème : « {$ancienne['theme']} » → « $theme »";
+                }
+                if ($tranche_age !== ($ancienne['tranche_age'] ?? '')) {
+                    $changements[] = "• Tranche d'âge : {$ancienne['tranche_age']} → $tranche_age ans";
+                }
+                if ($syl !== ($ancienne['syllabus'] ?? '')) {
+                    $changements[] = "• Description de l'atelier a été mise à jour.";
+                }
+            }
+
+            if (!empty($changements)) {
+                $listeChangements = implode("\n", $changements);
+                $creneauxActivite = $db->prepare("SELECT id FROM Creneau WHERE nom_activite = ?");
+                $creneauxActivite->execute([$nouveauNom]);
+                foreach ($creneauxActivite->fetchAll() as $cr) {
+                    $msgModif = "L'activité « $nomOriginal » a été modifiée par l'administration.\n\n"
+                        . "Modifications apportées :\n"
+                        . $listeChangements . "\n\n"
+                        . "Votre inscription reste valide. Connectez-vous pour voir les détails.";
+                    notifierCreneauModifie($db, (int)$cr['id'], 'modification', $msgModif);
+                }
             }
 
             $message = "Activité $nouveauNom mise à jour.";
@@ -144,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $creneauxASuppr = $creneauxStmt->fetchAll();
 
             foreach ($creneauxASuppr as $cr) {
-                $msgAnnul = "L'activité \"$nom\" du "
+                $msgAnnul = "L'activité « $nom » du "
                     . date('d/m/Y', strtotime($cr['date']))
                     . " (" . substr($cr['debut'], 0, 5) . " - " . substr($cr['fin'], 0, 5) . ")"
                     . " a été annulée par l'administration.\n\n"
@@ -190,7 +217,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nouvelleSalle = trim($_POST['nouvelle_salle'] ?? '') ?: null;
 
         if ($idCr && $nouvelleDate && $nouveauDebut && $nouveauFin) {
-            $ancienCr = $db->prepare("SELECT date, debut, fin, nom_activite FROM Creneau WHERE id = ?");
+            $ancienCr = $db->prepare("SELECT date, debut, fin, nom_activite, id_salle FROM Creneau WHERE id = ?");
             $ancienCr->execute([$idCr]);
             $ancien = $ancienCr->fetch();
 
@@ -199,15 +226,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             )->execute([$nouvelleDate, $nouveauDebut, $nouveauFin, $nouvelleSalle, $idCr]);
 
             if ($ancien) {
-                try {
-                    envoyerMailModificationCreneau(
-                        $db, $idCr,
-                        $ancien['date'], $ancien['debut'], $ancien['fin'],
-                        $nouvelleDate, $nouveauDebut, $nouveauFin,
-                        $ancien['nom_activite']
-                    );
-                } catch (Exception $e) {
-                    error_log("Erreur mail modification créneau : " . $e->getMessage());
+                // ── Construire un message précis sur les changements du créneau ──
+                $changements = [];
+                $ancienneDate = $ancien['date'];
+                $ancienDebut  = $ancien['debut'];
+                $ancienneFin  = $ancien['fin'];
+                $ancienneSalle = $ancien['id_salle'] ?? '';
+
+                if ($nouvelleDate !== $ancienneDate) {
+                    $changements[] = "• Date : " . date('d/m/Y', strtotime($ancienneDate))
+                        . " → " . date('d/m/Y', strtotime($nouvelleDate));
+                }
+                if (substr($nouveauDebut, 0, 5) !== substr($ancienDebut, 0, 5)) {
+                    $changements[] = "• Heure de début : " . substr($ancienDebut, 0, 5)
+                        . " → " . substr($nouveauDebut, 0, 5);
+                }
+                if (substr($nouveauFin, 0, 5) !== substr($ancienneFin, 0, 5)) {
+                    $changements[] = "• Heure de fin : " . substr($ancienneFin, 0, 5)
+                        . " → " . substr($nouveauFin, 0, 5);
+                }
+                if ($nouvelleSalle !== $ancienneSalle) {
+                    $ancSalleLabel = $ancienneSalle ?: 'aucune';
+                    $nvSalleLabel  = $nouvelleSalle ?: 'aucune';
+                    $changements[] = "• Salle : $ancSalleLabel → $nvSalleLabel";
+                }
+
+                if (!empty($changements)) {
+                    $listeChangements = implode("\n", $changements);
+                    $msgModif = "Un créneau de l'activité « {$ancien['nom_activite']} » a été modifié par l'administration.\n\n"
+                        . "Modifications apportées :\n"
+                        . $listeChangements . "\n\n"
+                        . "Votre inscription reste valide. Si ce nouvel horaire ne vous convient pas, "
+                        . "vous pouvez vous désinscrire depuis votre espace parent.";
+
+                    notifierCreneauModifie($db, $idCr, 'modification', $msgModif);
                 }
             }
 
@@ -228,10 +280,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $crInfo = $infoCr->fetch();
 
         if ($crInfo) {
-            $msgAnnul = "L'activité \"" . $crInfo['nom_activite'] . "\" du "
+            $msgAnnul = "Le créneau de l'activité « " . $crInfo['nom_activite'] . " » du "
                 . date('d/m/Y', strtotime($crInfo['date']))
                 . " (" . substr($crInfo['debut'], 0, 5) . " - " . substr($crInfo['fin'], 0, 5) . ")"
-                . " a été annulée par l'administration.";
+                . " a été annulé par l'administration.\n\n"
+                . "Nous sommes désolés pour la gêne occasionnée.";
             notifierCreneauModifie($db, $idCr, 'annulation', $msgAnnul);
         }
 

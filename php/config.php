@@ -115,7 +115,7 @@ FROM Creneau c JOIN Activite a ON a.nom = c.nom_activite WHERE c.id = ?
     $stmt = $db->prepare("SELECT c.id, c.date, c.debut, c.fin, c.id_salle, c.nom_activite,
     a.capacite, a.theme, a.tranche_age, a.syllabus, COUNT(DISTINCT ec.id_enfant) AS nb_inscrits,
     COUNT(DISTINCT la.id_enfant) AS nb_attente FROM Creneau c JOIN Activite a ON a.nom = c.nom_activite
-    LEFT JOIN Enfant_Creneau ec ON ec.id_creneau = c.id LEFT JOIN ListeAttente   la ON la.id_creneau  = c.id
+    LEFT JOIN Enfant_Creneau ec ON ec.id_creneau = c.id LEFT JOIN ListeAttente la ON la.id_creneau  = c.id
     WHERE c.id <> ? AND c.date >= CURDATE() GROUP BY c.id HAVING nb_inscrits < a.capacite ORDER BY c.date ASC
     ");
     $stmt->execute([$id_creneau_plein]);
@@ -131,15 +131,10 @@ FROM Creneau c JOIN Activite a ON a.nom = c.nom_activite WHERE c.id = ?
         }
 
         $candTheme = strtolower(trim($cand['theme'] ?? ''));
-        if ($refTheme && $candTheme && $refTheme === $candTheme) {
-            $score += 25; $raisons[] = 'same_theme';
-        } elseif ($refTheme && $candTheme) {
-            $refWords = preg_split('/\W+/', strtolower($refActivite));
-            $candWords = preg_split('/\W+/', strtolower($cand['nom_activite']));
-            if (count(array_intersect($refWords, $candWords)) >= 2) {
-                $score += 12; $raisons[] = 'similar_name';
-            }
-        }
+if ($refTheme && $candTheme && $refTheme === $candTheme) {
+    $score += 25;
+    $raisons[] = 'same_theme';
+}
 
         if ($age_enfant > 0 && !empty($cand['tranche_age'])) {
             if (preg_match('/(\d+)-(\d+)/', $cand['tranche_age'], $m)) {
@@ -157,23 +152,20 @@ FROM Creneau c JOIN Activite a ON a.nom = c.nom_activite WHERE c.id = ?
         $taux = $cand['capacite'] > 0 ? $cand['nb_inscrits'] / $cand['capacite'] : 1;
         if ($taux < 0.3) { $score += 5; $raisons[] = 'low_fill'; }
 
-        if ($score > 0) {
-            $scored[] = array_merge($cand, [
-                'score' => $score,
-                'raisons' => $raisons,
-                'places_restantes' => $cand['capacite'] - $cand['nb_inscrits'],
-                'taux_remplissage' => round($taux * 100),
-            ]);
-        }
+       $scored[] = array_merge($cand, [
+    'score' => $score,
+    'raisons' => $raisons,
+    'places_restantes' => $cand['capacite'] - $cand['nb_inscrits'],
+    'taux_remplissage' => round($taux * 100),
+]);
     }
 
     usort($scored, fn($a, $b) => $b['score'] !== $a['score']
         ? $b['score'] - $a['score']
         : strcmp($a['date'], $b['date'])
     );
-
-    return array_slice($scored, 0, 6);
-}
+    return $scored;
+};
 
 // Compatibilité avec l'ancienne fonction
 function creneauxAlternatifs(PDO $db, int $id_creneau_plein): array {

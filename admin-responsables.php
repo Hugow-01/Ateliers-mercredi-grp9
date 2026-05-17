@@ -8,26 +8,10 @@
     <link rel="stylesheet" href="css/global.css">
     <link rel="stylesheet" href="css/admin.css">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        .role-badge-super { background:#fdd835; color:#3e2723; padding:2px 9px; border-radius:6px; font-size:.75rem; font-weight:bold; margin-left:6px; }
-        .role-badge-admin { background:#e0e7ff; color:#3730a3; padding:2px 9px; border-radius:6px; font-size:.75rem; font-weight:bold; margin-left:6px; }
-        .role-edit-form { display:none; background:#f0f4ff; border:1px solid #c7d2fe; border-radius:10px; padding:12px 16px; margin-top:8px; }
-        .role-edit-form.open { display:block; }
-    </style>
 </head>
 <body>
 
-<header class="admin-header">
-    <h1>Espace administrateur</h1>
-    <nav>
-        <a href="admin-dashboard.php">Tableau de bord</a>
-        <a href="admin-liste-enfants.php">Liste des enfants</a>
-        <a href="admin-activites.php">Activités</a>
-        <a href="admin-comptes.php">Comptes parents</a>
-        <a href="admin-responsables.php" style="text-decoration:underline;">Responsables</a>
-        <a href="deconnexion.php" style="color:#c0392b;">Se déconnecter</a>
-    </nav>
-</header>
+<?php require_once 'includes/header-admin.php'; ?>
 
 <div class="container" style="padding-top:30px; padding-bottom:60px;">
 
@@ -80,7 +64,7 @@
                 <?php if (isSuperAdmin()): ?>
                     <button class="btn-sm btn-info"
                             onclick="openMdp('<?= htmlspecialchars($r['login']) ?>', '<?= htmlspecialchars($r['nom']) ?>')">
-                        🔑 Mot de passe
+                     Mot de passe
                     </button>
                     <?php if (!$isMe): ?>
                     <button class="btn-sm" style="background:#8b5cf6; color:white;"

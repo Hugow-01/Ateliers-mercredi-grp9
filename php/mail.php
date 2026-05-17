@@ -3,7 +3,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 require 'vendor/autoload.php';
 
-define('BASE_URL', 'http://51.68.91.213/info9/Ateliers-mercredi-grp9');
+define('BASE_URL', 'http://51.68.91.213/info9');
 
 function buildMailHtml(string $corps, string $lien, string $lienParent): string {
     return "

@@ -1,29 +1,24 @@
-<?php require_once 'php/activites.php'; ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nos Activites - Ateliers du Mercredi</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/activites.css">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+<?php
+/**
+ * activites.php — Page principale des activités
+ */
 
-<header style="background:#fdf6d8; padding:12px 50px; display:flex; justify-content:space-between; align-items:center;">
-    <h1 style="font-size:2rem; font-weight:900; margin:0;">Les activites</h1>
-    <nav>
-        <a href="index.php">Accueil</a>
-        <a href="modifier-compte-parent.php">Mon compte</a>
-        <a href="parent-enfants.php">Mon espace</a>
-        <a href="deconnexion.php" style="color:#c0392b;">se deconnecter</a>
-    </nav>
-</header>
+require_once 'php/activites.php';
+
+$pageTitle = 'Nos Activités - Ateliers du Mercredi';
+$activePage = 'activites';
+$extraCSS = ['activites.css'];
+
+require_once 'includes/header.php';
+?>
 
 <div style="text-align:center; padding:35px 20px 10px;">
-    <h1 style="color:#1a5fb4; font-size:2.8rem; font-weight:900; font-family:'Baloo 2';">NOS ACTIVITES DU MERCREDI</h1>
-    <p style="color:#d4ac0d; font-style:italic; font-size:1.3rem; margin-top:8px;">cree, explore, imagine, chaque semaine</p>
+    <h1 style="color:#1a5fb4; font-size:2.8rem; font-weight:900; font-family:'Baloo 2';">
+        NOS ACTIVITÉS DU MERCREDI
+    </h1>
+    <p style="color:#d4ac0d; font-style:italic; font-size:1.3rem; margin-top:8px;">
+        crée, explore, imagine, chaque semaine
+    </p>
 </div>
 
 <?php if ($message): ?>
@@ -33,8 +28,9 @@
 <?php endif; ?>
 
 <?php if (empty($enfants)): ?>
-<div style="text-align:center; background:#fff3cd; border:1px solid #ffc107; padding:15px; max-width:600px; margin:15px auto; border-radius:10px;">
-    Aucun enfant enregistre. <a href="ajouter-enfant.php" style="color:#ff5e78; font-weight:bold;">Ajouter un enfant</a>.
+<div style="text-align:center; background:#fff3cd; border:1px solid #ffc107;
+            padding:15px; max-width:600px; margin:15px auto; border-radius:10px;">
+    Aucun enfant enregistré. <a href="ajouter-enfant.php" style="color:#ff5e78; font-weight:bold;">Ajouter un enfant</a>.
 </div>
 <?php endif; ?>
 
@@ -45,25 +41,19 @@
 </div>
 
 <div class="search-container" style="max-width:1200px; margin:0 auto; padding:0 20px 10px;">
-    <input type="text" id="searchBar" class="search-bar" placeholder="  rechercher une activite...">
+    <input type="text" id="searchBar" class="search-bar" placeholder="  rechercher une activité...">
 </div>
-
-<?php
-// ── Tous les thèmes distincts de TOUTES les activités (pour le combobox de filtres) ──
-$tousLesThemes = array_values(array_unique(array_filter(array_column($activites, 'theme'))));
-sort($tousLesThemes);
-?>
 
 <div style="max-width:1200px; margin:0 auto; padding:0 20px 60px;">
 
 <?php foreach ($activites as $idx => $act):
     $creneaux = $creneauxByActivite[$act['nom']] ?? [];
-    $byDate   = [];
+    $byDate = [];
     foreach ($creneaux as $cr) { $byDate[$cr['date']][] = $cr; }
-    $dates     = array_keys($byDate); sort($dates);
+    $dates = array_keys($byDate); sort($dates);
     $firstDate = $dates[0] ?? null;
-    $initY     = $firstDate ? (int)date('Y', strtotime($firstDate)) : (int)date('Y');
-    $initM     = $firstDate ? (int)date('n', strtotime($firstDate)) : (int)date('n');
+    $initY = $firstDate ? (int)date('Y', strtotime($firstDate)) : (int)date('Y');
+    $initM = $firstDate ? (int)date('n', strtotime($firstDate)) : (int)date('n');
 
     $colorByDate = [];
     foreach ($byDate as $date => $crs) {
@@ -76,9 +66,9 @@ sort($tousLesThemes);
                 else             $hasOk   = true;
             }
         }
-        if ($allFull) $colorByDate[$date] = 'full';
-        elseif ($hasWait) $colorByDate[$date] = 'wait';
-        else  $colorByDate[$date] = 'ok';
+        if ($allFull)       $colorByDate[$date] = 'full';
+        elseif ($hasWait)   $colorByDate[$date] = 'wait';
+        else                $colorByDate[$date] = 'ok';
     }
 
     $recosByCreneauJs = [];
@@ -88,28 +78,46 @@ sort($tousLesThemes);
             $recosByCreneauJs[$crId] = $recommendationsData[$crId];
         }
     }
+
+    // Thème de cette activité — injecté en JS via une constante dans l'IIFE
+    $actThemeJs = json_encode($act['theme'] ?? '');
 ?>
-<details class="activity-item" id="act-<?= $idx ?>" style="margin-bottom:18px; border:1px solid #e2e8f0; border-radius:18px; overflow:hidden;">
-    <summary style="list-style:none; display:flex; align-items:center; gap:12px; padding:16px 22px; background:#fafafa; cursor:pointer;">
+
+<details class="activity-item" id="act-<?= $idx ?>"
+         data-theme="<?= htmlspecialchars($act['theme'] ?? '') ?>"
+         style="margin-bottom:18px; border:1px solid #e2e8f0; border-radius:18px; overflow:hidden;">
+
+    <summary style="list-style:none; display:flex; align-items:center; gap:12px;
+                    padding:16px 22px; background:#fafafa; cursor:pointer;">
         <span class="arrow" style="font-size:1rem;">&#9658;</span>
         <div>
-            <h2 style="margin:0; font-family:'Baloo 2'; font-size:1.4rem;"><?= htmlspecialchars($act['nom']) ?></h2>
-            <div style="font-size:.82rem; color:#888;">Capacite : <?= $act['capacite'] ?> places &middot; <?= count($creneaux) ?> creneau(x)</div>
+            <h2 style="margin:0; font-family:'Baloo 2'; font-size:1.4rem;">
+                <?= htmlspecialchars($act['nom']) ?>
+            </h2>
+            <div style="font-size:.82rem; color:#888;">
+                Capacité : <?= $act['capacite'] ?> places · <?= count($creneaux) ?> créneau(x)
+            </div>
         </div>
     </summary>
 
     <div class="act-grid">
-        <img src="<?= getImg($act['nom'], $imgMap) ?>" class="activity-img" alt="<?= htmlspecialchars($act['nom']) ?>">
+
+        <img src="<?= getImg($act['nom'], $imgMap) ?>" class="activity-img"
+             alt="<?= htmlspecialchars($act['nom']) ?>">
 
         <div>
             <h3 style="margin-top:0; font-size:1.15rem;"><?= htmlspecialchars($act['nom']) ?></h3>
-            <p style="color:#555; font-size:.88rem; line-height:1.6;"><?= nl2br(htmlspecialchars($act['syllabus'])) ?></p>
-            <p style="font-size:.78rem; color:#888;"><strong>Capacite :</strong> <?= $act['capacite'] ?> enfants/creneau</p>
+            <p style="color:#555; font-size:.88rem; line-height:1.6;">
+                <?= nl2br(htmlspecialchars($act['syllabus'])) ?>
+            </p>
+            <p style="font-size:.78rem; color:#888;">
+                <strong>Capacité :</strong> <?= $act['capacite'] ?> enfants/créneau
+            </p>
             <?php if (!empty($act['theme'])): ?>
-            <p style="font-size:.78rem; color:#555;"><strong>Theme :</strong> <?= htmlspecialchars($act['theme']) ?></p>
+            <p style="font-size:.78rem; color:#555;"><strong>Thème :</strong> <?= htmlspecialchars($act['theme']) ?></p>
             <?php endif; ?>
             <?php if (!empty($act['tranche_age'])): ?>
-            <p style="font-size:.78rem; color:#555;"><strong>Age :</strong> <?= htmlspecialchars($act['tranche_age']) ?> ans</p>
+            <p style="font-size:.78rem; color:#555;"><strong>Âge :</strong> <?= htmlspecialchars($act['tranche_age']) ?> ans</p>
             <?php endif; ?>
         </div>
 
@@ -122,24 +130,37 @@ sort($tousLesThemes);
             </div>
             <div class="cal-grid" id="cal-<?= $idx ?>"></div>
             <?php else: ?>
-            <div style="text-align:center; color:#aaa; padding:20px; font-size:.85rem;">Aucun creneau planifie</div>
+            <div style="text-align:center; color:#aaa; padding:20px; font-size:.85rem;">
+                Aucun créneau planifié
+            </div>
             <?php endif; ?>
         </div>
 
-       <div class="inscr-box">
-            <div style="font-size:11px; font-weight:bold; color:#555; margin-bottom:6px;">Choisir un enfant :</div>
+        <div class="inscr-box">
+            <div style="font-size:11px; font-weight:bold; color:#555; margin-bottom:6px;">
+                Choisir un enfant :
+            </div>
 
-            <select name="id_enfant_top" id="sel-<?= $idx ?>" onchange="onEnfantChange_<?= $idx ?>()" style="width:100%; padding:7px; border-radius:8px; border:1px solid #bbb; margin-bottom:10px; font-size:.9rem; background:#fff; color:#111;">
+            <select name="id_enfant_top" id="sel-<?= $idx ?>"
+                    onchange="onEnfantChange_<?= $idx ?>()"
+                    style="width:100%;padding:7px;border-radius:8px;border:1px solid #bbb;
+                           margin-bottom:10px;font-size:.9rem;background:#fff;color:#111;">
                 <option value="">-- Choisir un enfant --</option>
                 <?php foreach ($enfants as $enf): ?>
-                <option value="<?= $enf['id'] ?>" data-age="<?= (int)$enf['age'] ?>"><?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?></option>
+                <option value="<?= $enf['id'] ?>" data-age="<?= (int)$enf['age'] ?>">
+                    <?= htmlspecialchars($enf['prenom'] . ' ' . $enf['nom']) ?>
+                </option>
                 <?php endforeach; ?>
             </select>
 
-            <div style="font-size:11px; font-weight:bold; color:#555; margin-bottom:3px;">Horaires disponibles :</div>
+            <div style="font-size:11px; font-weight:bold; color:#555; margin-bottom:3px;">
+                Horaires disponibles :
+            </div>
 
             <div class="slot-list" id="slots-<?= $idx ?>">
-                <div style="text-align:center; color:#aaa; font-size:.8rem; padding:10px;">Choisissez une date</div>
+                <div style="text-align:center; color:#aaa; font-size:.8rem; padding:10px;">
+                    Choisissez une date
+                </div>
             </div>
 
             <div class="attente-info" id="attente-info-<?= $idx ?>"></div>
@@ -152,14 +173,16 @@ sort($tousLesThemes);
                 <button type="submit" class="btn-wait"  id="btn-wait-<?= $idx ?>">Rejoindre la liste d'attente</button>
             </form>
 
-            <form method="POST" action="activites.php" onsubmit="return confirm('Se désinscrire de ce créneau ?')">
+            <form method="POST" action="activites.php"
+                  onsubmit="return confirm('Se désinscrire de ce créneau ?')">
                 <input type="hidden" name="action"     value="desinscrire">
                 <input type="hidden" name="id_creneau" id="des-creneau-<?= $idx ?>" value="">
                 <input type="hidden" name="id_enfant"  id="des-enfant-<?= $idx ?>"  value="">
                 <button type="submit" class="btn-desins" id="btn-des-<?= $idx ?>">Se désinscrire</button>
             </form>
 
-            <form method="POST" action="activites.php" onsubmit="return confirm('Quitter la liste d\'attente ?')">
+            <form method="POST" action="activites.php"
+                  onsubmit="return confirm('Quitter la liste d\'attente ?')">
                 <input type="hidden" name="action"     value="quitter_attente">
                 <input type="hidden" name="id_creneau" id="quit-creneau-<?= $idx ?>" value="">
                 <input type="hidden" name="id_enfant"  id="quit-enfant-<?= $idx ?>"  value="">
@@ -167,31 +190,22 @@ sort($tousLesThemes);
             </form>
         </div>
 
-    <!-- Panneau recommandations pleine largeur -->
+    <!-- ══ Panneau recommandations ══ -->
     <div class="reco-panel" id="reco-<?= $idx ?>">
         <div class="reco-header">
-            <h4>Creneaux alternatifs disponibles</h4>
+            <h4>Créneaux alternatifs disponibles</h4>
             <p id="reco-subtitle-<?= $idx ?>"></p>
         </div>
 
-        <!-- Filtres pour les suggestions -->
         <div class="reco-filters">
-            <!-- Thème -->
-            <label>
-                Thème :
-                <select id="filtre-theme-<?= $idx ?>">
-                    <option value="">Tous les thèmes</option>
-                    <?php foreach ($tousLesThemes as $th): ?>
-                    <option value="<?= htmlspecialchars($th) ?>"><?= htmlspecialchars($th) ?></option>
-                    <?php endforeach; ?>
-                </select>
+            <label class="inline-label">
+                <input type="checkbox" id="filtre-theme-<?= $idx ?>">
+                Même thème que l'atelier complet
             </label>
 
-            <!-- Filtres de date : intervalle -->
             <div class="filtre-date-group">
                 <span>Intervalle de dates :</span>
                 <div class="filtre-date-row">
-                    <!-- Calendrier FR picker : date début -->
                     <div class="fr-cal-picker" id="picker-debut-<?= $idx ?>">
                         <div class="fr-cal-input-display"
                              id="picker-debut-<?= $idx ?>-display"
@@ -213,7 +227,6 @@ sort($tousLesThemes);
                         <input type="hidden" id="filtre-date-debut-<?= $idx ?>">
                     </div>
                     <small>→</small>
-                    <!-- Calendrier FR picker : date fin -->
                     <div class="fr-cal-picker" id="picker-fin-<?= $idx ?>">
                         <div class="fr-cal-input-display"
                              id="picker-fin-<?= $idx ?>-display"
@@ -237,7 +250,6 @@ sort($tousLesThemes);
                 </div>
             </div>
 
-            <!-- Date exacte -->
             <div class="filtre-date-group">
                 <span>Date exacte :</span>
                 <div class="fr-cal-picker" id="picker-exacte-<?= $idx ?>">
@@ -262,7 +274,6 @@ sort($tousLesThemes);
                 </div>
             </div>
 
-            <!-- Cases à cocher -->
             <label class="inline-label">
                 <input type="checkbox" id="filtre-age-<?= $idx ?>">
                 Même tranche d'âge
@@ -278,7 +289,7 @@ sort($tousLesThemes);
 
         <div class="reco-count" id="reco-count-<?= $idx ?>"></div>
         <div class="reco-grid" id="reco-grid-<?= $idx ?>">
-            <div class="reco-empty">Selectionnez un creneau complet pour voir les suggestions.</div>
+            <div class="reco-empty">Sélectionnez un créneau complet pour voir les suggestions.</div>
         </div>
     </div>
 
@@ -294,166 +305,173 @@ const mesIns_<?= $idx ?> = <?= json_encode($mesInscriptions) ?>;
 const mesAtt_<?= $idx ?> = <?= json_encode($mesAttentes) ?>;
 const recosByCreneau_<?= $idx ?> = <?= json_encode($recosByCreneauJs) ?>;
 
-const moisFR = ['','Janvier','Fevrier','Mars','Avril','Mai','Juin','Juillet','Aout','Septembre','Octobre','Novembre','Decembre'];
-const moisCourt = ['','jan','fev','mar','avr','mai','jun','jul','aou','sep','oct','nov','dec'];
+// le thème est connu au moment du rendu PHP.
+const ACT_THEME_<?= $idx ?> = <?= $actThemeJs ?>;
 
-function pad(n){ return n<10?'0'+n:n; }
+const moisFR= ['','Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const moisCourt = ['','jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+
+function pad(n){ return n < 10 ? '0'+n : n; }
 
 function formatDateLong(ds){
-    const[y,m,d]=ds.split('-');
-    const jours=['dim','lun','mar','mer','jeu','ven','sam'];
-    const j=new Date(ds+'T00:00:00').getDay();
+    const [y,m,d] = ds.split('-');
+    const jours = ['dim','lun','mar','mer','jeu','ven','sam'];
+    const j = new Date(ds+'T00:00:00').getDay();
     return jours[j]+' '+parseInt(d)+' '+moisCourt[parseInt(m)]+' '+y;
 }
 
-function formatDateFR(ds){
-    if(!ds) return '';
-    const[y,m,d]=ds.split('-');
-    return pad(parseInt(d))+'/'+pad(parseInt(m))+'/'+y;
-}
-
-let cy=<?= $initY ?>, cm=<?= $initM ?>;
+let cy = <?= $initY ?>, cm = <?= $initM ?>;
 let currentCreneauId = null;
 let currentEnfantId  = null;
 let allRecos = [];
 
 function renderCal(){
     document.getElementById('cal-label-<?= $idx ?>').textContent = moisFR[cm]+' '+cy;
-    const g=document.getElementById('cal-<?= $idx ?>');
-    g.innerHTML='';
-    ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].forEach(d=>{
-        const s=document.createElement('span'); s.className='dl'; s.textContent=d; g.appendChild(s);
+    const g = document.getElementById('cal-<?= $idx ?>');
+    g.innerHTML = '';
+
+    ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].forEach(d => {
+        const s = document.createElement('span'); s.className = 'dl'; s.textContent = d;
+        g.appendChild(s);
     });
-    const fd=new Date(cy,cm-1,1).getDay();
-    const dim=new Date(cy,cm,0).getDate();
-    for(let e=0;e<fd;e++){const s=document.createElement('span');s.className='dj empty';g.appendChild(s);}
-    for(let d=1;d<=dim;d++){
-        const ds=cy+'-'+pad(cm)+'-'+pad(d);
-        const has=!!byDate_<?= $idx ?>[ds];
-        const s=document.createElement('span');
-        s.textContent=d;
+
+    const fd  = new Date(cy, cm-1, 1).getDay();
+    const dim = new Date(cy, cm, 0).getDate();
+
+    for(let e = 0; e < fd; e++){
+        const s = document.createElement('span'); s.className = 'dj empty'; g.appendChild(s);
+    }
+
+    for(let d = 1; d <= dim; d++){
+        const ds  = cy+'-'+pad(cm)+'-'+pad(d);
+        const has = !!byDate_<?= $idx ?>[ds];
+        const s = document.createElement('span');
+        s.textContent = d;
         if(has){
-            const col=colorByDate_<?= $idx ?>[ds]||'ok';
-            s.className='dj day-'+col+' clickable';
-            s.title=byDate_<?= $idx ?>[ds].length+' creneau(x)';
-            s.onclick=()=>selectDate(ds,s);
+            const col = colorByDate_<?= $idx ?>[ds] || 'ok';
+            s.className = 'dj day-'+col+' clickable';
+            s.title = byDate_<?= $idx ?>[ds].length+' créneau(x)';
+            s.onclick = () => selectDate(ds, s);
         } else {
-            s.className='dj empty';
+            s.className = 'dj empty';
         }
         g.appendChild(s);
     }
 }
 
-window.prevMonth_<?= $idx ?>=function(){cm--;if(cm<1){cm=12;cy--;}renderCal();};
-window.nextMonth_<?= $idx ?>=function(){cm++;if(cm>12){cm=1;cy++;}renderCal();};
+window.prevMonth_<?= $idx ?> = function(){ cm--; if(cm<1){cm=12;cy--;} renderCal(); };
+window.nextMonth_<?= $idx ?> = function(){ cm++; if(cm>12){cm=1;cy++;} renderCal(); };
 
-let lastDate=null;
+let lastDate = null;
 
-function selectDate(date,el){
-    lastDate=date;
-    document.querySelectorAll('#cal-<?= $idx ?> .dj').forEach(d=>d.classList.remove('active'));
+function selectDate(date, el){
+    lastDate = date;
+    document.querySelectorAll('#cal-<?= $idx ?> .dj').forEach(d => d.classList.remove('active'));
     el.classList.add('active');
     renderSlots(date);
 }
 
 function renderSlots(date){
-    const crs=byDate_<?= $idx ?>[date]||[];
-    const list=document.getElementById('slots-<?= $idx ?>');
-    const selEnf=parseInt(document.getElementById('sel-<?= $idx ?>').value)||0;
-    list.innerHTML='';
+    const crs    = byDate_<?= $idx ?>[date] || [];
+    const list   = document.getElementById('slots-<?= $idx ?>');
+    const selEnf = parseInt(document.getElementById('sel-<?= $idx ?>').value) || 0;
+    list.innerHTML = '';
     resetActions();
     hideReco();
+
     if(!crs.length){
-        list.innerHTML='<div style="text-align:center;color:#aaa;font-size:.8rem;padding:10px;">Aucun creneau ce jour</div>';
+        list.innerHTML = '<div style="text-align:center;color:#aaa;font-size:.8rem;padding:10px;">Aucun créneau ce jour</div>';
         return;
     }
-    crs.forEach(cr=>{
-        const nb=parseInt(cr.nb_inscrits);
-        const cap=parseInt(cr.cap_activite);
-        const full=nb>=cap;
-        const pct=cap>0?nb/cap:1;
-        const quasi=!full&&pct>=0.8;
-        const confirme=selEnf&&mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
-        const enAtt=selEnf&&mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
-        const salle=cr.salle_id?' &middot; <strong>Salle '+cr.salle_id+'</strong>':'';
 
-        const div=document.createElement('div');
-        let cls='slot-item ';
-        if(confirme)   cls+='inscrit';
-        else if(enAtt) cls+='en-attente';
-        else if(full)  cls+='full';
-        else if(quasi) cls+='wait';
-        else cls+='ok';
+    crs.forEach(cr => {
+        const nb = parseInt(cr.nb_inscrits);
+        const cap= parseInt(cr.cap_activite);
+        const full = nb >= cap;
+        const pct = cap > 0 ? nb/cap : 1;
+        const quasi = !full && pct >= 0.8;
+        const confirme = selEnf && mesIns_<?= $idx ?>[selEnf] && mesIns_<?= $idx ?>[selEnf].includes(cr.id);
+        const enAtt = selEnf && mesAtt_<?= $idx ?>[selEnf] && mesAtt_<?= $idx ?>[selEnf][cr.id];
+        const salle = cr.salle_id ? ' · <strong>Salle '+cr.salle_id+'</strong>' : '';
 
-        let badge='';
-        if(confirme)   badge='<span class="badge badge-conf">Inscrit</span>';
-        else if(enAtt) badge='<span class="badge badge-att">File #'+enAtt+'</span>';
-        else if(full)  badge='<span class="badge badge-full">Complet</span>';
-        else if(quasi) badge='<span class="badge badge-wait">Presque complet</span>';
-        else badge='<span class="badge badge-ok">Disponible</span>';
+        const div = document.createElement('div');
+        let cls = 'slot-item ';
+        if(confirme) cls += 'inscrit';
+        else if(enAtt) cls += 'en-attente';
+        else if(full) cls += 'full';
+        else if(quasi) cls += 'wait';
+        else cls += 'ok';
 
-        const restantes=Math.max(0,cap-nb);
-        div.className=cls;
-        div.innerHTML='<strong>'+cr.debut.substring(0,5)+' - '+cr.fin.substring(0,5)+'</strong>'+salle+badge+'<br>'
+        let badge = '';
+        if(confirme) badge = '<span class="badge badge-conf">Inscrit</span>';
+        else if(enAtt) badge = '<span class="badge badge-att">File #'+enAtt+'</span>';
+        else if(full) badge = '<span class="badge badge-full">Complet</span>';
+        else if(quasi) badge = '<span class="badge badge-wait">Presque complet</span>';
+        else badge = '<span class="badge badge-ok">Disponible</span>';
+
+        const restantes = Math.max(0, cap - nb);
+        div.className = cls;
+        div.innerHTML =
+            '<strong>'+cr.debut.substring(0,5)+' - '+cr.fin.substring(0,5)+'</strong>'+salle+badge+'<br>'
             +'<small style="opacity:.7">'+nb+'/'+cap+' inscrits'
-            +(full?' &middot; '+cr.nb_attente+' en attente':' &middot; '+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':''))
+            +(full ? ' · '+cr.nb_attente+' en attente' : ' · '+restantes+' place'+(restantes>1?'s':'')+' restante'+(restantes>1?'s':''))
             +'</small>';
-        div.onclick=()=>selectSlot(cr,div);
+        div.onclick = () => selectSlot(cr, div);
         list.appendChild(div);
     });
 }
 
-function selectSlot(cr, el) {
+function selectSlot(cr, el){
     const selEnf = parseInt(document.getElementById('sel-<?= $idx ?>').value) || 0;
-
-    document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s=>s.classList.remove('selected'));
+    document.querySelectorAll('#slots-<?= $idx ?> .slot-item').forEach(s => s.classList.remove('selected'));
     el.classList.add('selected');
 
-    const nb=parseInt(cr.nb_inscrits);
-    const cap=parseInt(cr.cap_activite);
-    const full=nb>=cap;
-    const confirme=selEnf&&mesIns_<?= $idx ?>[selEnf]&&mesIns_<?= $idx ?>[selEnf].includes(cr.id);
-    const enAtt=selEnf&&mesAtt_<?= $idx ?>[selEnf]&&mesAtt_<?= $idx ?>[selEnf][cr.id];
+    const nb = parseInt(cr.nb_inscrits);
+    const cap = parseInt(cr.cap_activite);
+    const full = nb >= cap;
+    const confirme = selEnf && mesIns_<?= $idx ?>[selEnf] && mesIns_<?= $idx ?>[selEnf].includes(cr.id);
+    const enAtt = selEnf && mesAtt_<?= $idx ?>[selEnf] && mesAtt_<?= $idx ?>[selEnf][cr.id];
+
     resetActions();
     hideReco();
+
     document.getElementById('creneau-<?= $idx ?>').value       = cr.id;
     document.getElementById('hidden-enfant-<?= $idx ?>').value = selEnf;
     currentCreneauId = cr.id;
     currentEnfantId  = selEnf;
 
-    const btnI=document.getElementById('btn-inscr-<?= $idx ?>');
-    const btnW=document.getElementById('btn-wait-<?= $idx ?>');
-    const attInfo=document.getElementById('attente-info-<?= $idx ?>');
+    const btnI = document.getElementById('btn-inscr-<?= $idx ?>');
+    const btnW = document.getElementById('btn-wait-<?= $idx ?>');
+    const attInfo = document.getElementById('attente-info-<?= $idx ?>');
 
     if(confirme){
-        document.getElementById('des-creneau-<?= $idx ?>').value=cr.id;
-        document.getElementById('des-enfant-<?= $idx ?>').value=selEnf;
-        document.getElementById('btn-des-<?= $idx ?>').style.display='block';
-        btnI.style.display='none'; btnW.style.display='none';
+        document.getElementById('des-creneau-<?= $idx ?>').value = cr.id;
+        document.getElementById('des-enfant-<?= $idx ?>').value  = selEnf;
+        document.getElementById('btn-des-<?= $idx ?>').style.display = 'block';
+        btnI.style.display = 'none'; btnW.style.display = 'none';
     } else if(enAtt){
-        document.getElementById('quit-creneau-<?= $idx ?>').value=cr.id;
-        document.getElementById('quit-enfant-<?= $idx ?>').value=selEnf;
-        document.getElementById('btn-quit-<?= $idx ?>').style.display='block';
-        attInfo.textContent='Cet enfant est en liste d\'attente a la position #'+enAtt+'.';
-        attInfo.style.display='block';
-        btnI.style.display='none'; btnW.style.display='none';
+        document.getElementById('quit-creneau-<?= $idx ?>').value = cr.id;
+        document.getElementById('quit-enfant-<?= $idx ?>').value  = selEnf;
+        document.getElementById('btn-quit-<?= $idx ?>').style.display = 'block';
+        attInfo.textContent = 'Cet enfant est en liste d\'attente à la position #'+enAtt+'.';
+        attInfo.style.display = 'block';
+        btnI.style.display = 'none'; btnW.style.display = 'none';
     } else if(full){
-        btnI.style.display='none'; btnW.style.display='block';
+        btnI.style.display = 'none'; btnW.style.display = 'block';
         showReco(cr.id, selEnf);
     } else {
-        btnI.style.display='block'; btnW.style.display='none';
+        btnI.style.display = 'block'; btnW.style.display = 'none';
     }
 }
 
-/* ── Filtres ── */
 function getFilters(){
     return {
-        theme: document.getElementById('filtre-theme-<?= $idx ?>').value,
-        dateDebut:  document.getElementById('filtre-date-debut-<?= $idx ?>').value,
+        theme: document.getElementById('filtre-theme-<?= $idx ?>').checked,
+        dateDebut: document.getElementById('filtre-date-debut-<?= $idx ?>').value,
         dateFin: document.getElementById('filtre-date-fin-<?= $idx ?>').value,
         dateExacte: document.getElementById('filtre-date-exacte-<?= $idx ?>').value,
-        age:  document.getElementById('filtre-age-<?= $idx ?>').checked,
-        moinsRempli:document.getElementById('filtre-moins-rempli-<?= $idx ?>').checked,
+        age: document.getElementById('filtre-age-<?= $idx ?>').checked,
+        moinsRempli: document.getElementById('filtre-moins-rempli-<?= $idx ?>').checked,
     };
 }
 
@@ -461,15 +479,15 @@ function filtrerRecos(recos, filtres, selEnf){
     let res = [...recos];
 
     if(filtres.theme){
-        res = res.filter(r => r.theme === filtres.theme);
+        const actTheme = ACT_THEME_<?= $idx ?>.trim().toLowerCase();
+        if(actTheme) res = res.filter(r => String(r.theme||'').trim().toLowerCase() === actTheme);
     }
 
-    // Date exacte prime sur l'intervalle
     if(filtres.dateExacte){
         res = res.filter(r => r.date === filtres.dateExacte);
     } else {
         if(filtres.dateDebut) res = res.filter(r => r.date >= filtres.dateDebut);
-        if(filtres.dateFin)   res = res.filter(r => r.date <= filtres.dateFin);
+        if(filtres.dateFin) res = res.filter(r => r.date <= filtres.dateFin);
     }
 
     if(filtres.age && selEnf){
@@ -485,54 +503,47 @@ function filtrerRecos(recos, filtres, selEnf){
         }
     }
 
-    if(filtres.moinsRempli){
-        res = res.filter(r => parseInt(r.taux_remplissage) < 50);
-    }
+    if(filtres.moinsRempli) res = res.filter(r => parseInt(r.taux_remplissage) < 50);
 
     return res;
 }
 
 window.appliquerFiltres_<?= $idx ?> = function(){
     if(currentCreneauId === null) return;
-    const filtres = getFilters();
-    const filtered = filtrerRecos(allRecos, filtres, currentEnfantId);
-    renderRecoGrid(filtered, currentEnfantId);
+    renderRecoGrid(filtrerRecos(allRecos, getFilters(), currentEnfantId), currentEnfantId);
 };
 
 window.resetFiltres_<?= $idx ?> = function(){
-    document.getElementById('filtre-theme-<?= $idx ?>').value = '';
-    frCalClear('picker-debut-<?= $idx ?>',  'filtre-date-debut-<?= $idx ?>',  'picker-debut-label-<?= $idx ?>',  'Date début');
-    frCalClear('picker-fin-<?= $idx ?>',    'filtre-date-fin-<?= $idx ?>',    'picker-fin-label-<?= $idx ?>',    'Date fin');
+    document.getElementById('filtre-theme-<?= $idx ?>').checked = false;
+    frCalClear('picker-debut-<?= $idx ?>',  'filtre-date-debut-<?= $idx ?>',  'picker-debut-label-<?= $idx ?>', 'Date début');
+    frCalClear('picker-fin-<?= $idx ?>', 'filtre-date-fin-<?= $idx ?>',    'picker-fin-label-<?= $idx ?>', 'Date fin');
     frCalClear('picker-exacte-<?= $idx ?>', 'filtre-date-exacte-<?= $idx ?>', 'picker-exacte-label-<?= $idx ?>', 'Choisir');
-    document.getElementById('filtre-age-<?= $idx ?>').checked          = false;
+    document.getElementById('filtre-age-<?= $idx ?>').checked  = false;
     document.getElementById('filtre-moins-rempli-<?= $idx ?>').checked = false;
-    if(currentCreneauId !== null){
-        renderRecoGrid(allRecos, currentEnfantId);
-    }
+    if(currentCreneauId !== null) renderRecoGrid(allRecos, currentEnfantId);
 };
 
 function showReco(creneauId, selEnf){
     const panel = document.getElementById('reco-<?= $idx ?>');
-    const sub = document.getElementById('reco-subtitle-<?= $idx ?>');
+    const sub= document.getElementById('reco-subtitle-<?= $idx ?>');
     const recos = recosByCreneau_<?= $idx ?>[creneauId] || [];
 
     allRecos = recos;
     currentCreneauId = creneauId;
-    currentEnfantId  = selEnf;
+    currentEnfantId = selEnf;
 
     let enfNom = '';
     if(selEnf){
         const opt = document.querySelector('#sel-<?= $idx ?> option[value="'+selEnf+'"]');
         if(opt) enfNom = opt.textContent.trim();
     }
-
     sub.textContent = enfNom
-        ? 'Ce creneau est complet - voici nos meilleures suggestions pour '+enfNom
-        : 'Ce creneau est complet - voici nos meilleures suggestions';
+        ? 'Ce créneau est complet — voici nos meilleures suggestions pour '+enfNom
+        : 'Ce créneau est complet — voici nos meilleures suggestions';
 
     renderRecoGrid(recos, selEnf);
     panel.style.display = 'contents';
-    setTimeout(()=> panel.scrollIntoView({behavior:'smooth', block:'nearest'}), 50);
+    setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
 }
 
 function renderRecoGrid(recos, selEnf){
@@ -546,14 +557,14 @@ function renderRecoGrid(recos, selEnf){
         return;
     }
 
-    count.textContent = recos.length + ' créneau(x) trouvé(s)';
+    count.textContent = recos.length+' créneau(x) trouvé(s)';
 
     recos.forEach((r, i) => {
         const taux = parseInt(r.taux_remplissage) || 0;
         const places = parseInt(r.places_restantes) || 0;
-        const dateF  = formatDateLong(r.date);
-        const fillCls = taux < 40 ? 'fill-low' : taux < 75 ? 'fill-mid' : 'fill-high';
-        const salle  = r.id_salle ? ' · Salle ' + r.id_salle : '';
+        const dateF= formatDateLong(r.date);
+        const fillCls= taux < 40 ? 'fill-low' : taux < 75 ? 'fill-mid' : 'fill-high';
+        const salle = r.id_salle ? ' · Salle '+r.id_salle : '';
 
         let btnHtml = '';
         const alreadyIn = selEnf && mesIns_<?= $idx ?>[selEnf] && mesIns_<?= $idx ?>[selEnf].includes(r.id);
@@ -567,15 +578,15 @@ function renderRecoGrid(recos, selEnf){
             btnHtml = '<button class="reco-btn" disabled>Choisir un enfant d\'abord</button>';
         } else {
             btnHtml = '<form method="POST" action="activites.php" style="margin:0;">'
-                + '<input type="hidden" name="action" value="inscrire">'
-                + '<input type="hidden" name="id_creneau" value="'+r.id+'">'
-                + '<input type="hidden" name="id_enfant" value="'+selEnf+'">'
-                + '<button type="submit" class="reco-btn">+ Inscrire sur ce créneau</button>'
-                + '</form>';
+                +'<input type="hidden" name="action" value="inscrire">'
+                +'<input type="hidden" name="id_creneau" value="'+r.id+'">'
+                +'<input type="hidden" name="id_enfant" value="'+selEnf+'">'
+                +'<button type="submit" class="reco-btn">+ Inscrire sur ce créneau</button>'
+                +'</form>';
         }
 
         const card = document.createElement('div');
-        card.className = 'reco-card' + (i === 0 ? ' best-match' : '');
+        card.className = 'reco-card'+(i === 0 ? ' best-match' : '');
         card.innerHTML =
             '<div class="reco-card-title">'+escHtml(r.nom_activite)+'</div>'
             +'<div class="reco-card-meta">'+dateF+'<br>'+r.debut.substring(0,5)+' – '+r.fin.substring(0,5)+escHtml(salle)+'</div>'
@@ -595,13 +606,13 @@ function escHtml(s){
 }
 
 function resetActions(){
-    ['btn-inscr','btn-wait','btn-des','btn-quit'].forEach(id=>
-        document.getElementById(id+'-<?= $idx ?>').style.display='none'
+    ['btn-inscr','btn-wait','btn-des','btn-quit'].forEach(id =>
+        document.getElementById(id+'-<?= $idx ?>').style.display = 'none'
     );
-    document.getElementById('attente-info-<?= $idx ?>').style.display='none';
+    document.getElementById('attente-info-<?= $idx ?>').style.display = 'none';
 }
 
-window.onEnfantChange_<?= $idx ?>=function(){
+window.onEnfantChange_<?= $idx ?> = function(){
     if(lastDate) renderSlots(lastDate);
 };
 
@@ -612,17 +623,14 @@ renderCal();
 <?php endforeach; ?>
 
 <?php if (empty($activites)): ?>
-<div style="text-align:center; padding:60px; color:#aaa;">Aucune activite disponible.</div>
+<div style="text-align:center; padding:60px; color:#aaa;">Aucune activité disponible.</div>
 <?php endif; ?>
 </div>
 
-<!-- CALENDRIER PICKER FR 
-     Utilisé pour les filtres de dates dans les recommandations-->
+<!-- ══ Calendrier picker FR — Widget réutilisable ══ -->
 <script>
 (function(){
     const MOIS_FR = ['','Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
-
-    // État par picker : { cy, cm }
     const _frCalState = {};
 
     function pad(n){ return n < 10 ? '0'+n : ''+n; }
@@ -636,12 +644,11 @@ renderCal();
 
     function frCalRender(pickerId){
         const st = _frCalState[pickerId];
-
-        const monthEl = document.getElementById(pickerId + '-month');
-        const gridEl  = document.getElementById(pickerId + '-grid');
+        const monthEl = document.getElementById(pickerId+'-month');
+        const gridEl  = document.getElementById(pickerId+'-grid');
         if(!monthEl || !gridEl) return;
 
-        monthEl.textContent = MOIS_FR[st.cm] + ' ' + st.cy;
+        monthEl.textContent = MOIS_FR[st.cm]+' '+st.cy;
         gridEl.innerHTML = '';
 
         ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'].forEach(d => {
@@ -656,86 +663,70 @@ renderCal();
         const selectedVal = hiddenEl ? hiddenEl.value : '';
 
         for(let e = 0; e < firstDay; e++){
-            const s = document.createElement('span');
-            s.className = 'fr-cal-dj empty';
-            gridEl.appendChild(s);
+            const s = document.createElement('span'); s.className = 'fr-cal-dj empty'; gridEl.appendChild(s);
         }
         for(let d = 1; d <= daysInMonth; d++){
-            const ds = st.cy + '-' + pad(st.cm) + '-' + pad(d);
-            const s  = document.createElement('span');
+            const ds = st.cy+'-'+pad(st.cm)+'-'+pad(d);
+            const s = document.createElement('span');
             s.textContent = d;
-            s.className   = 'fr-cal-dj selectable' + (ds === selectedVal ? ' selected' : '');
+            s.className = 'fr-cal-dj selectable'+(ds === selectedVal ? ' selected' : '');
             s.onclick = () => frCalSelect(pickerId, ds);
             gridEl.appendChild(s);
         }
     }
 
-    function extractIdx(pickerId){
-        const parts = pickerId.split('-');
-        return parts[parts.length - 1];
-    }
-
+    function extractIdx(pickerId){ const p = pickerId.split('-'); return p[p.length-1]; }
     function extractHiddenId(pickerId){
         const idx = extractIdx(pickerId);
-        if(pickerId.includes('-debut-'))   return 'filtre-date-debut-'  + idx;
-        if(pickerId.includes('-fin-'))     return 'filtre-date-fin-'    + idx;
-        if(pickerId.includes('-exacte-')) return 'filtre-date-exacte-' + idx;
+        if(pickerId.includes('-debut-')) return 'filtre-date-debut-'+idx;
+        if(pickerId.includes('-fin-')) return 'filtre-date-fin-'+idx;
+        if(pickerId.includes('-exacte-')) return 'filtre-date-exacte-'+idx;
         return '';
     }
     function extractLabelId(pickerId){
         const idx = extractIdx(pickerId);
-        if(pickerId.includes('-debut-'))   return 'picker-debut-label-'  + idx;
-        if(pickerId.includes('-fin-'))     return 'picker-fin-label-'    + idx;
-        if(pickerId.includes('-exacte-')) return 'picker-exacte-label-' + idx;
+        if(pickerId.includes('-debut-')) return 'picker-debut-label-'+idx;
+        if(pickerId.includes('-fin-')) return 'picker-fin-label-'+idx;
+        if(pickerId.includes('-exacte-')) return 'picker-exacte-label-'+idx;
         return '';
     }
 
     function frCalSelect(pickerId, ds){
-        const hiddenId = extractHiddenId(pickerId);
-        const labelId= extractLabelId(pickerId);
-        const hiddenEl= document.getElementById(hiddenId);
-        const labelEl= document.getElementById(labelId);
+        const hiddenEl = document.getElementById(extractHiddenId(pickerId));
+        const labelEl = document.getElementById(extractLabelId(pickerId));
         if(hiddenEl) hiddenEl.value = ds;
-
         const parts = ds.split('-');
-        if(labelEl) labelEl.textContent = pad(parseInt(parts[2])) + '/' + pad(parseInt(parts[1])) + '/' + parts[0];
-
-        const dropEl = document.getElementById(pickerId + '-cal');
+        if(labelEl) labelEl.textContent = pad(parseInt(parts[2]))+'/'+pad(parseInt(parts[1]))+'/'+parts[0];
+        const dropEl = document.getElementById(pickerId+'-cal');
         if(dropEl) dropEl.classList.remove('open');
-
         frCalRender(pickerId);
     }
 
     window.toggleFrCal = function(pickerId){
         frCalInit(pickerId);
-const dropEl = document.getElementById(pickerId + '-cal');
+        const dropEl = document.getElementById(pickerId+'-cal');
         if(!dropEl) return;
-     const isOpen = dropEl.classList.contains('open');
+        const isOpen = dropEl.classList.contains('open');
         document.querySelectorAll('.fr-cal-dropdown.open').forEach(el => el.classList.remove('open'));
         if(!isOpen) dropEl.classList.add('open');
     };
-
     window.frCalPrev = function(pickerId){
         frCalInit(pickerId);
         const st = _frCalState[pickerId];
-        st.cm--;
-        if(st.cm < 1){ st.cm = 12; st.cy--; }
+        st.cm--; if(st.cm < 1){ st.cm = 12; st.cy--; }
         frCalRender(pickerId);
     };
-
     window.frCalNext = function(pickerId){
         frCalInit(pickerId);
         const st = _frCalState[pickerId];
-        st.cm++;
-        if(st.cm > 12){ st.cm = 1; st.cy++; }
+        st.cm++; if(st.cm > 12){ st.cm = 1; st.cy++; }
         frCalRender(pickerId);
     };
-
     window.frCalClear = function(pickerId, hiddenId, labelId, defaultLabel){
         const hiddenEl = document.getElementById(hiddenId);
-        const labelEl = document.getElementById(labelId);
+        const labelEl  = document.getElementById(labelId);
         if(hiddenEl) hiddenEl.value = '';
-        if(labelEl) labelEl.textContent = defaultLabel || '...';
+        if(labelEl)labelEl.textContent = defaultLabel || '...';
         if(_frCalState[pickerId]) frCalRender(pickerId);
     };
 
@@ -755,5 +746,6 @@ document.getElementById('searchBar').addEventListener('input', function(){
     );
 });
 </script>
+
 </body>
 </html>

@@ -11,16 +11,7 @@
 </head>
 <body>
 
-<header class="admin-header">
-    <h1>Espace administrateur</h1>
-    <nav>
-        <a href="admin-dashboard.php">tableau de bord</a>
-        <a href="admin-liste-enfants.php">liste des enfants</a>
-        <a href="admin-activites.php">activités</a>
-        <a href="admin-inscription-parents.php" style="text-decoration:underline;">inscriptions</a>
-        <a href="deconnexion.php" style="color:#c0392b;">se déconnecter</a>
-    </nav>
-</header>
+<?php require_once 'includes/header-admin.php'; ?>
 
 <div class="container" style="padding-top:30px; padding-bottom:60px;">
     <h2 style="font-family:'Baloo 2'; font-size:2rem; margin-bottom:20px;">Inscription par les parents</h2>

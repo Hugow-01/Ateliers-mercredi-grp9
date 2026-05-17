@@ -176,7 +176,7 @@
                     </div>
                     <div style="display:flex; gap:8px; justify-content:flex-end;">
                         <button type="button" class="btn btn-small" style="background:#eee;color:#333;"
-onclick="toggleEnfantEdit('add-enf-<?= $fam['id'] ?>')">Annuler</button>
+                        onclick="toggleEnfantEdit('add-enf-<?= $fam['id'] ?>')">Annuler</button>
                         <button type="submit" class="btn btn-small btn-primary">Ajouter l'enfant</button>
                     </div>
                 </form>

@@ -1,29 +1,27 @@
-<?php require_once 'php/ajouter-enfant.php'; ?>
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter un enfant - Ateliers du Mercredi</title>
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/ajouter-enfant.css">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+<?php
+/**
+ * ajouter-enfant.php — Ajout d'un enfant à un compte famille
+ *
+ * Simple formulaire nom / prénom / âge.
+ * Un parent peut avoir plusieurs enfants (chacun peut être inscrit à des ateliers).
+ */
 
-<div class="banner-yellow">
-    <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+require_once 'php/ajouter-enfant.php'; // Insère l'enfant en BDD et redirige si succès
+
+$pageTitle  = 'Ajouter un enfant - Ateliers du Mercredi';
+$activePage = 'espace';
+$extraCSS   = ['ajouter-enfant.css'];
+
+require_once 'includes/header.php';
+?>
+
+<div class="banner-yellow" style="padding:20px 0; margin-bottom:0;">
+    <div class="container">
         <h1 style="font-family:'Baloo 2'; color:#3e2723;">Ajouter un enfant</h1>
-        <nav>
-            <a href="index.php">Accueil</a>
-            <a href="parent-enfants.php">Mon espace</a>
-            <a href="deconnexion.php" style="color:#c0392b;">se déconnecter</a>
-        </nav>
     </div>
 </div>
 
 <div class="container" style="margin-top:30px; padding-bottom:60px;">
-
     <?php if ($error): ?>
         <div class="alert alert-error"><?= $error ?></div>
     <?php endif; ?>
@@ -31,7 +29,6 @@
     <div class="add-child-container">
         <div class="form-part">
             <h2 style="font-family:'Baloo 2'; margin-top:0; color:#3e2723;">Informations de l'enfant</h2>
-
             <form method="POST" action="ajouter-enfant.php">
                 <div class="form-group">
                     <label>Nom :</label>
@@ -48,19 +45,24 @@
                     <input type="number" name="age" placeholder="ex: 8" min="3" max="17"
                            value="<?= htmlspecialchars($_POST['age'] ?? '') ?>" required>
                 </div>
-
                 <div style="display:flex; gap:15px; margin-top:25px;">
-                    <button type="submit" class="btn btn-primary" style="flex:1; padding:12px; font-size:1.1rem;">Ajouter l'enfant</button>
-                    <a href="parent-enfants.php" class="btn" style="flex:1; padding:12px; text-align:center; font-size:1.1rem; background:#eee; color:#333;">Annuler</a>
+                    <button type="submit" class="btn btn-primary"
+                            style="flex:1; padding:12px; font-size:1.1rem;">
+                        Ajouter l'enfant
+                    </button>
+                    <a href="parent-enfants.php" class="btn"
+                       style="flex:1; padding:12px; text-align:center; font-size:1.1rem; background:#eee; color:#333;">
+                        Annuler
+                    </a>
                 </div>
             </form>
         </div>
 
+        <!-- Illustration décorative -->
         <div class="image-part">
-            <img src="images/create_acc.jpg" alt="Enfant poterie" style="max-width:75%; max-height:290px;" onerror="this.style.display='none'">
-            <div class="yellow-strip">
-                <span>Ateliers</span>
-            </div>
+            <img src="images/create_acc.jpg" alt="Enfant poterie"
+                 style="max-width:75%; max-height:290px;" onerror="this.style.display='none'">
+            <div class="yellow-strip"><span>Ateliers</span></div>
         </div>
     </div>
 </div>

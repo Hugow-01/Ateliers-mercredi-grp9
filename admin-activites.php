@@ -12,17 +12,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<header class="admin-header">
-    <h1>Administration</h1>
-    <nav>
-        <a href="admin-dashboard.php">Tableau de bord</a>
-        <a href="admin-activites.php" style="text-decoration:underline;">Activités</a>
-        <a href="admin-liste-enfants.php">Liste enfants</a>
-        <a href="admin-comptes.php">Comptes parents</a>
-        <a href="admin-responsables.php">Responsables</a>
-        <a href="deconnexion.php" style="color:#c0392b;">Déconnexion</a>
-    </nav>
-</header>
+
+<?php require_once 'includes/header-admin.php'; ?>
+
 
 <div class="container" style="padding-top:30px; padding-bottom:60px;">
 
@@ -177,22 +169,6 @@
 
             <!-- Calendrier des créneaux (vue admin) -->
             <?php if ($firstD): ?>
-            <div class="admin-cal-section">
-                <h4>Calendrier des créneaux</h4>
-                <div class="legend" style="margin-bottom:10px;">
-                    <span><span class="legend-dot dot-ok"></span> Disponible</span>
-                    <span><span class="legend-dot dot-wait"></span> Presque complet</span>
-                    <span><span class="legend-dot dot-full"></span> Complet</span>
-                </div>
-                <?php
-                $calParams = [
-                    'idx' => 'admin_' . $nomSlug,
-                    'byDate' => $byDateAct,
-                    'colorByDate'=> $colorDateAct,
-                    'initY' => $initYAct,
-                    'initM' => $initMAct,
-                ];
-                ?>
                 <div id="admin-slots-<?= $nomSlug ?>" style="margin-top:10px; font-size:.85rem; color:#555;"></div>
                 <script>
                 (function(){
@@ -217,7 +193,6 @@
                     };
                 })();
                 </script>
-            </div>
             <?php endif; ?>
 
             <!-- Tableau des créneaux -->
